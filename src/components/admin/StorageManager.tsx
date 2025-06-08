@@ -31,15 +31,7 @@ interface StorageFile {
   updated_at: string;
   created_at: string;
   last_accessed_at: string;
-  metadata: {
-    eTag: string;
-    size: number;
-    mimetype: string;
-    cacheControl: string;
-    lastModified: string;
-    contentLength: number;
-    httpStatusCode: number;
-  };
+  metadata: Record<string, any>;
 }
 
 const StorageManager = () => {
@@ -205,10 +197,10 @@ const StorageManager = () => {
   };
 
   const getFileIcon = (mimeType: string) => {
-    if (mimeType.startsWith('image/')) return <Image className="w-4 h-4" />;
-    if (mimeType.startsWith('audio/')) return <Music className="w-4 h-4" />;
-    if (mimeType.startsWith('video/')) return <Video className="w-4 h-4" />;
-    if (mimeType.includes('text') || mimeType.includes('json')) return <FileText className="w-4 h-4" />;
+    if (mimeType?.startsWith('image/')) return <Image className="w-4 h-4" />;
+    if (mimeType?.startsWith('audio/')) return <Music className="w-4 h-4" />;
+    if (mimeType?.startsWith('video/')) return <Video className="w-4 h-4" />;
+    if (mimeType?.includes('text') || mimeType?.includes('json')) return <FileText className="w-4 h-4" />;
     return <File className="w-4 h-4" />;
   };
 
