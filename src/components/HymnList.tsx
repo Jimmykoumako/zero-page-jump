@@ -33,9 +33,16 @@ const HymnList = ({ hymns, onHymnSelect, selectedHymnbook }: HymnListProps) => {
     );
   }
 
+  // Sort hymns numerically by their number
+  const sortedHymns = [...hymns].sort((a, b) => {
+    const numA = parseInt(a.number, 10);
+    const numB = parseInt(b.number, 10);
+    return numA - numB;
+  });
+
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {hymns.map((hymn) => (
+      {sortedHymns.map((hymn) => (
         <Card 
           key={hymn.id}
           className="p-6 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105"
