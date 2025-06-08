@@ -30,8 +30,6 @@ const HymnbookBrowser = ({ onBack, onSelectHymnbook }: HymnbookBrowserProps) => 
 
   const fetchHymnbooks = async () => {
     try {
-      console.log('Fetching hymnbooks...');
-      
       // Fetch hymnbooks with their actual hymn counts
       const { data: hymnbooksData, error: hymnbooksError } = await supabase
         .from('HymnBook')
@@ -52,7 +50,6 @@ const HymnbookBrowser = ({ onBack, onSelectHymnbook }: HymnbookBrowserProps) => 
         throw hymnbooksError;
       }
 
-      console.log('Successfully fetched hymnbooks:', hymnbooksData);
       setHymnbooks(hymnbooksData || []);
     } catch (error) {
       console.error('Error fetching hymnbooks:', error);
