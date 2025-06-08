@@ -4,13 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, Plus, Users, Book, Music, Upload, Shield, UserCheck } from "lucide-react";
+import { ArrowLeft, Plus, Users, Book, Music, Upload, Shield, UserCheck, BarChart3 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import HymnbookManager from "@/components/admin/HymnbookManager";
 import HymnManager from "@/components/admin/HymnManager";
 import AudioManager from "@/components/admin/AudioManager";
 import UserRoleManager from "@/components/admin/UserRoleManager";
+import StatsDashboard from "@/components/admin/StatsDashboard";
 
 const Admin = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -46,7 +47,7 @@ const Admin = () => {
   }
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: Users },
+    { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'hymnbooks', label: 'Hymnbooks', icon: Book },
     { id: 'hymns', label: 'Hymns', icon: Music },
     { id: 'audio', label: 'Audio Files', icon: Upload },
@@ -135,48 +136,7 @@ const Admin = () => {
 
           {/* Main Content */}
           <div className="flex-1">
-            {activeTab === 'overview' && (
-              <Card className="p-6">
-                <h2 className="text-2xl font-bold text-slate-800 mb-4">Dashboard Overview</h2>
-                <p className="text-slate-600 mb-6">
-                  {viewAsAdmin 
-                    ? "Welcome to the admin dashboard. Use the navigation on the left to manage different aspects of the hymnal system."
-                    : "This is how the dashboard appears to regular users. Switch to admin view to access management features."
-                  }
-                </p>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Card className={`p-4 text-center ${!viewAsAdmin ? 'opacity-60' : ''}`}>
-                    <Book className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                    <h3 className="font-semibold">Hymnbooks</h3>
-                    <p className="text-sm text-slate-600">
-                      {viewAsAdmin ? 'Manage collections' : 'View only'}
-                    </p>
-                  </Card>
-                  <Card className={`p-4 text-center ${!viewAsAdmin ? 'opacity-60' : ''}`}>
-                    <Music className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                    <h3 className="font-semibold">Hymns</h3>
-                    <p className="text-sm text-slate-600">
-                      {viewAsAdmin ? 'Add and edit hymns' : 'View only'}
-                    </p>
-                  </Card>
-                  <Card className={`p-4 text-center ${!viewAsAdmin ? 'opacity-60' : ''}`}>
-                    <Upload className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                    <h3 className="font-semibold">Audio Files</h3>
-                    <p className="text-sm text-slate-600">
-                      {viewAsAdmin ? 'Upload recordings' : 'View only'}
-                    </p>
-                  </Card>
-                  <Card className={`p-4 text-center ${!viewAsAdmin ? 'opacity-60' : ''}`}>
-                    <Users className="w-8 h-8 text-orange-600 mx-auto mb-2" />
-                    <h3 className="font-semibold">User Roles</h3>
-                    <p className="text-sm text-slate-600">
-                      {viewAsAdmin ? 'Manage permissions' : 'View only'}
-                    </p>
-                  </Card>
-                </div>
-              </Card>
-            )}
-
+            {activeTab === 'overview' && <StatsDashboard />}
             {viewAsAdmin && activeTab === 'hymnbooks' && <HymnbookManager />}
             {viewAsAdmin && activeTab === 'hymns' && <HymnManager />}
             {viewAsAdmin && activeTab === 'audio' && <AudioManager />}

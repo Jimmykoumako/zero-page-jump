@@ -726,39 +726,39 @@ export type Database = {
       }
       HymnBook: {
         Row: {
-          accessLevel: Database["public"]["Enums"]["AccessLevel"]
-          addedHymns: number
+          access_level: Database["public"]["Enums"]["AccessLevel"]
+          added_hymns: number
           category: string | null
-          createdAt: string
+          created_at: string
           description: string
           id: number
-          isActive: boolean
+          is_active: boolean
           name: string
-          updatedAt: string
+          updated_at: string
           version: number
         }
         Insert: {
-          accessLevel?: Database["public"]["Enums"]["AccessLevel"]
-          addedHymns?: number
+          access_level?: Database["public"]["Enums"]["AccessLevel"]
+          added_hymns?: number
           category?: string | null
-          createdAt?: string
+          created_at?: string
           description?: string
           id?: number
-          isActive?: boolean
+          is_active?: boolean
           name: string
-          updatedAt?: string
+          updated_at?: string
           version?: number
         }
         Update: {
-          accessLevel?: Database["public"]["Enums"]["AccessLevel"]
-          addedHymns?: number
+          access_level?: Database["public"]["Enums"]["AccessLevel"]
+          added_hymns?: number
           category?: string | null
-          createdAt?: string
+          created_at?: string
           description?: string
           id?: number
-          isActive?: boolean
+          is_active?: boolean
           name?: string
-          updatedAt?: string
+          updated_at?: string
           version?: number
         }
         Relationships: []
@@ -1224,6 +1224,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_hymnbook_stats: {
+        Args: { book_id: number }
+        Returns: {
+          total_hymns: number
+          hymns_with_lyrics: number
+          hymns_with_audio: number
+          total_audio_files: number
+        }[]
+      }
       is_admin: {
         Args: { user_uuid?: string }
         Returns: boolean

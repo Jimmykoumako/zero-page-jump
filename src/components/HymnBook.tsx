@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -32,7 +31,7 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook }: HymnBookProps) =
   const [selectedHymn, setSelectedHymn] = useState<string | null>(null);
   const [currentVerse, setCurrentVerse] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showQR, setShowQR] = useState(false); // Changed from mode === 'display' to false
+  const [showQR, setShowQR] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -46,6 +45,24 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook }: HymnBookProps) =
       
       // If a hymnbook is selected, fetch hymns from that book
       const bookId = selectedHymnbook?.id || 1; // Default to book 1 if no hymnbook selected
+      
+      // Only fetch from active hymnbooks
+      const { data: hymnbookData, error: hymnbookError } = await supabase
+        .from('HymnBook')
+        .select('is_active')
+        .eq('id', bookId)
+        .single();
+
+      if (hymnbookError) throw hymnbookError;
+      
+      if (!hymnbookData?.is_active) {
+        toast({
+          title: "Notice",
+          description: "This hymnbook is currently inactive.",
+          variant: "destructive",
+        });
+        return;
+      }
       
       // Fetch hymn titles for the selected book
       const { data: hymnTitles, error: titlesError } = await supabase
