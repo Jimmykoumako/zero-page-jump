@@ -32,7 +32,7 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook }: HymnBookProps) =
   const [selectedHymn, setSelectedHymn] = useState<string | null>(null);
   const [currentVerse, setCurrentVerse] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showQR, setShowQR] = useState(mode === 'display');
+  const [showQR, setShowQR] = useState(false); // Changed from mode === 'display' to false
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
