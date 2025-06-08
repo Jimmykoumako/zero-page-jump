@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, Plus, Users, Book, Music, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Users, Book, Music, Upload, Shield } from "lucide-react";
 import HymnbookManager from "@/components/admin/HymnbookManager";
 import HymnManager from "@/components/admin/HymnManager";
 import AudioManager from "@/components/admin/AudioManager";
@@ -36,14 +36,20 @@ const Admin = () => {
 
       setCurrentUser(user);
 
-      // Check if user is admin
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'admin');
+      // Check if user is admin using the database function
+      const { data, error } = await supabase.rpc('is_admin', { user_uuid: user.id });
 
-      if (roles && roles.length > 0) {
+      if (error) {
+        console.error('Error checking admin status:', error);
+        toast({
+          title: "Error",
+          description: "Failed to verify admin privileges.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data) {
         setIsAdmin(true);
       } else {
         toast({
@@ -75,13 +81,32 @@ const Admin = () => {
     );
   }
 
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <Card className="p-8 max-w-md mx-auto text-center">
+          <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-slate-800 mb-4">Authentication Required</h1>
+          <p className="text-slate-600 mb-6">
+            Please log in to access the admin panel.
+          </p>
+          <Button onClick={() => window.location.href = '/'}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
         <Card className="p-8 max-w-md mx-auto text-center">
+          <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-800 mb-4">Access Denied</h1>
           <p className="text-slate-600 mb-6">
-            You don't have permission to access the admin panel.
+            You don't have permission to access the admin panel. Contact an administrator to request access.
           </p>
           <Button onClick={() => window.location.href = '/'}>
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -107,6 +132,7 @@ const Admin = () => {
           <div>
             <h1 className="text-4xl font-bold text-slate-800 mb-2">Admin Dashboard</h1>
             <p className="text-slate-600">Manage hymns, hymnbooks, and audio files</p>
+            <p className="text-sm text-slate-500 mt-1">Welcome, {currentUser.email}</p>
           </div>
           <Button onClick={() => window.location.href = '/'} variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />

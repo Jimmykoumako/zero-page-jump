@@ -2,18 +2,20 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
+import { ArrowLeft, Play, Pause, SkipBack, SkipForward } from "lucide-react";
 import { hymns } from "@/data/hymns";
 import HymnDisplay from "./HymnDisplay";
 import QRCodeDisplay from "./QRCodeDisplay";
+import FullscreenButton from "./FullscreenButton";
 
 interface HymnBookProps {
   mode: 'hymnal' | 'display';
   deviceId: string;
   onBack: () => void;
+  selectedHymnbook?: any;
 }
 
-const HymnBook = ({ mode, deviceId, onBack }: HymnBookProps) => {
+const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook }: HymnBookProps) => {
   const [selectedHymn, setSelectedHymn] = useState<number | null>(null);
   const [currentVerse, setCurrentVerse] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -86,14 +88,17 @@ const HymnBook = ({ mode, deviceId, onBack }: HymnBookProps) => {
               <ArrowLeft className="w-4 h-4" />
               Back to Home
             </Button>
-            {mode === 'display' && (
-              <Button 
-                onClick={() => setShowQR(!showQR)} 
-                variant="outline"
-              >
-                {showQR ? 'Hide QR' : 'Show QR'}
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {mode === 'display' && (
+                <Button 
+                  onClick={() => setShowQR(!showQR)} 
+                  variant="outline"
+                >
+                  {showQR ? 'Hide QR' : 'Show QR'}
+                </Button>
+              )}
+              <FullscreenButton />
+            </div>
           </div>
 
           {showQR && mode === 'display' && (
@@ -102,13 +107,15 @@ const HymnBook = ({ mode, deviceId, onBack }: HymnBookProps) => {
 
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-slate-800 mb-2">
-              {mode === 'display' ? 'Presentation Mode' : 'Hymn Selection'}
+              {selectedHymnbook ? selectedHymnbook.name : 
+                (mode === 'display' ? 'Presentation Mode' : 'Hymn Selection')}
             </h1>
             <p className="text-slate-600">
-              {mode === 'display' 
-                ? 'Select a hymn to begin group singing' 
-                : 'Choose a hymn to practice'
-              }
+              {selectedHymnbook ? selectedHymnbook.description :
+                (mode === 'display' 
+                  ? 'Select a hymn to begin group singing' 
+                  : 'Choose a hymn to practice'
+                )}
             </p>
           </div>
 
@@ -146,14 +153,17 @@ const HymnBook = ({ mode, deviceId, onBack }: HymnBookProps) => {
             <ArrowLeft className="w-4 h-4" />
             Back to Hymns
           </Button>
-          {mode === 'display' && (
-            <Button 
-              onClick={() => setShowQR(!showQR)} 
-              variant="outline"
-            >
-              {showQR ? 'Hide QR' : 'Show QR'}
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {mode === 'display' && (
+              <Button 
+                onClick={() => setShowQR(!showQR)} 
+                variant="outline"
+              >
+                {showQR ? 'Hide QR' : 'Show QR'}
+              </Button>
+            )}
+            <FullscreenButton />
+          </div>
         </div>
 
         {showQR && mode === 'display' && (
