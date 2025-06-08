@@ -1,12 +1,13 @@
+
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ArrowLeft, Play, Pause, SkipBack, SkipForward } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import HymnDisplay from "./HymnDisplay";
 import QRCodeDisplay from "./QRCodeDisplay";
-import FullscreenButton from "./FullscreenButton";
+import HymnList from "./HymnList";
+import HymnControls from "./HymnControls";
+import HymnHeader from "./HymnHeader";
+import HymnPageHeader from "./HymnPageHeader";
 
 interface Hymn {
   id: string;
@@ -176,72 +177,23 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook }: HymnBookProps) =
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-8">
-            <Button onClick={onBack} variant="outline" className="flex items-center gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Home
-            </Button>
-            <div className="flex gap-2">
-              {mode === 'display' && (
-                <Button 
-                  onClick={() => setShowQR(!showQR)} 
-                  variant="outline"
-                >
-                  {showQR ? 'Hide QR' : 'Show QR'}
-                </Button>
-              )}
-              <FullscreenButton />
-            </div>
-          </div>
+          <HymnPageHeader 
+            onBack={onBack}
+            mode={mode}
+            showQR={showQR}
+            onToggleQR={() => setShowQR(!showQR)}
+            selectedHymnbook={selectedHymnbook}
+          />
 
           {showQR && mode === 'display' && (
             <QRCodeDisplay deviceId={deviceId} />
           )}
 
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-slate-800 mb-2">
-              {selectedHymnbook ? selectedHymnbook.name : 
-                (mode === 'display' ? 'Presentation Mode' : 'Hymn Selection')}
-            </h1>
-            <p className="text-slate-600">
-              {selectedHymnbook ? selectedHymnbook.description :
-                (mode === 'display' 
-                  ? 'Select a hymn to begin group singing' 
-                  : 'Choose a hymn to practice'
-                )}
-            </p>
-          </div>
-
-          {hymns.length === 0 ? (
-            <Card className="p-8 text-center">
-              <h3 className="text-xl font-semibold text-slate-600 mb-2">No Hymns Available</h3>
-              <p className="text-slate-500">
-                {selectedHymnbook 
-                  ? `No hymns found in ${selectedHymnbook.name}` 
-                  : 'No hymns available in this collection'
-                }
-              </p>
-            </Card>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {hymns.map((hymn) => (
-                <Card 
-                  key={hymn.id}
-                  className="p-6 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105"
-                  onClick={() => handleHymnSelect(hymn.id)}
-                >
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600 mb-2">#{hymn.number}</div>
-                    <h3 className="text-lg font-semibold text-slate-800 mb-2">{hymn.title}</h3>
-                    <p className="text-sm text-slate-600 mb-4">{hymn.author}</p>
-                    <div className="text-xs text-slate-500">
-                      {hymn.verses.length} verses • {hymn.key} • {hymn.tempo} BPM
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
+          <HymnList 
+            hymns={hymns}
+            onHymnSelect={handleHymnSelect}
+            selectedHymnbook={selectedHymnbook}
+          />
         </div>
       </div>
     );
@@ -253,23 +205,12 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook }: HymnBookProps) =
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <Button onClick={() => setSelectedHymn(null)} variant="outline" className="flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Hymns
-          </Button>
-          <div className="flex gap-2">
-            {mode === 'display' && (
-              <Button 
-                onClick={() => setShowQR(!showQR)} 
-                variant="outline"
-              >
-                {showQR ? 'Hide QR' : 'Show QR'}
-              </Button>
-            )}
-            <FullscreenButton />
-          </div>
-        </div>
+        <HymnHeader 
+          onBack={() => setSelectedHymn(null)}
+          mode={mode}
+          showQR={showQR}
+          onToggleQR={() => setShowQR(!showQR)}
+        />
 
         {showQR && mode === 'display' && (
           <QRCodeDisplay deviceId={deviceId} />
@@ -283,26 +224,14 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook }: HymnBookProps) =
         />
 
         {mode === 'hymnal' && (
-          <div className="flex justify-center mt-8">
-            <div className="bg-white rounded-xl p-4 shadow-lg flex items-center gap-4">
-              <Button onClick={prevVerse} disabled={currentVerse === 0} size="sm">
-                <SkipBack className="w-4 h-4" />
-              </Button>
-              <Button onClick={togglePlay} size="sm">
-                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              </Button>
-              <Button 
-                onClick={nextVerse} 
-                disabled={currentVerse === selectedHymnData.verses.length - 1} 
-                size="sm"
-              >
-                <SkipForward className="w-4 h-4" />
-              </Button>
-              <div className="text-sm text-slate-600 ml-4">
-                Verse {currentVerse + 1} of {selectedHymnData.verses.length}
-              </div>
-            </div>
-          </div>
+          <HymnControls 
+            currentVerse={currentVerse}
+            totalVerses={selectedHymnData.verses.length}
+            isPlaying={isPlaying}
+            onPrevVerse={prevVerse}
+            onNextVerse={nextVerse}
+            onTogglePlay={togglePlay}
+          />
         )}
       </div>
     </div>
