@@ -3,15 +3,27 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, User, Mail, Calendar, Shield, UserCheck } from "lucide-react";
+import { ArrowLeft, User, Mail, Calendar, Shield, UserCheck, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { User as SupabaseUser } from "@supabase/supabase-js";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const UserProfile = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [elevateLoading, setElevateLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -82,6 +94,50 @@ const UserProfile = () => {
       });
     } finally {
       setElevateLoading(false);
+    }
+  };
+
+  const deleteAccount = async () => {
+    if (!user) return;
+    
+    setDeleteLoading(true);
+    try {
+      // First, delete the user from the users table
+      const { error: deleteUserError } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', user.id);
+
+      if (deleteUserError) {
+        console.error('Error deleting user data:', deleteUserError);
+        // Continue with auth deletion even if user data deletion fails
+      }
+
+      // Then delete the user from Supabase Auth
+      const { error: authError } = await supabase.auth.admin.deleteUser(user.id);
+
+      if (authError) {
+        throw authError;
+      }
+
+      toast({
+        title: "Account Deleted",
+        description: "Your account has been permanently deleted.",
+      });
+
+      // Sign out and redirect to home
+      await supabase.auth.signOut();
+      navigate('/');
+      
+    } catch (error: any) {
+      console.error('Error deleting account:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -240,22 +296,65 @@ const UserProfile = () => {
           </Card>
         </div>
 
-        {/* Additional Information */}
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Account Security</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-slate-600 mb-4">
-              Keep your account secure by using a strong password and enabling email verification.
-            </p>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => navigate('/auth')}>
-                Change Password
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Account Management */}
+        <div className="grid md:grid-cols-2 gap-6 mt-6">
+          {/* Account Security */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Account Security</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-600 mb-4">
+                Keep your account secure by using a strong password and enabling email verification.
+              </p>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => navigate('/auth')}>
+                  Change Password
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Danger Zone */}
+          <Card className="border-red-200">
+            <CardHeader>
+              <CardTitle className="text-red-600">Danger Zone</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-600 mb-4">
+                Once you delete your account, there is no going back. This action cannot be undone.
+              </p>
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" className="w-full">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Account
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your account
+                      and remove all your data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={deleteAccount}
+                      disabled={deleteLoading}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      {deleteLoading ? "Deleting..." : "Yes, delete my account"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
