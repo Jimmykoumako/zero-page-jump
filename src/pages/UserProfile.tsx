@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -31,9 +30,14 @@ const UserProfile = () => {
 
       setUser(user);
 
-      // Check if user is admin using the database function
-      const { data: adminCheck } = await supabase.rpc('is_admin', { user_uuid: user.id });
-      setIsAdmin(adminCheck || false);
+      // Check if user is admin using the users table
+      const { data: userData } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      
+      setIsAdmin(userData?.role === 'ADMIN');
       
     } catch (error) {
       console.error('Error checking user status:', error);
@@ -52,31 +56,23 @@ const UserProfile = () => {
     
     setElevateLoading(true);
     try {
-      // Insert the user as admin in user_roles table
+      // Update the user's role to ADMIN in the users table
       const { error } = await supabase
-        .from('user_roles')
-        .insert({ user_id: user.id, role: 'admin' });
+        .from('users')
+        .update({ role: 'ADMIN' })
+        .eq('id', user.id);
 
       if (error) {
-        // Check if it's a unique constraint violation (user already admin)
-        if (error.code === '23505') {
-          setIsAdmin(true);
-          toast({
-            title: "Already Admin",
-            description: "You already have admin privileges.",
-          });
-        } else {
-          throw error;
-        }
-      } else {
-        // Update local state
-        setIsAdmin(true);
-        
-        toast({
-          title: "Success!",
-          description: "You have been elevated to admin status.",
-        });
+        throw error;
       }
+
+      // Update local state
+      setIsAdmin(true);
+      
+      toast({
+        title: "Success!",
+        description: "You have been elevated to admin status.",
+      });
     } catch (error: any) {
       console.error('Error elevating to admin:', error);
       toast({
