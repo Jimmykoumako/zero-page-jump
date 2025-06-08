@@ -38,7 +38,7 @@ const HymnDisplay = ({ hymn, currentVerse, isPlaying, mode }: HymnDisplayProps) 
         <div className="space-y-8">
           {mode === 'display' ? (
             // Display mode shows only current verse large
-            <div className="text-center">
+            <div className="text-center min-h-[60vh] flex flex-col justify-center">
               <div className="text-2xl font-semibold text-blue-600 mb-4">
                 Verse {currentVerse + 1}
               </div>

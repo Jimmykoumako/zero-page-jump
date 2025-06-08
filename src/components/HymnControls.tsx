@@ -20,8 +20,8 @@ const HymnControls = ({
   onTogglePlay 
 }: HymnControlsProps) => {
   return (
-    <div className="flex justify-center mt-8">
-      <div className="bg-white rounded-xl p-4 shadow-lg flex items-center gap-4">
+    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
+      <div className="bg-white rounded-xl p-4 shadow-lg flex items-center gap-4 border">
         <Button onClick={onPrevVerse} disabled={currentVerse === 0} size="sm">
           <SkipBack className="w-4 h-4" />
         </Button>

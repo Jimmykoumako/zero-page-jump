@@ -1,10 +1,10 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HymnBook from "@/components/HymnBook";
 import RemoteControl from "@/components/RemoteControl";
 import HymnbookBrowser from "@/components/HymnbookBrowser";
 import HymnLyricsViewer from "@/components/HymnLyricsViewer";
 import AppHeader from "@/components/AppHeader";
+import { useLandscapeDetection } from "@/hooks/useLandscapeDetection";
 import { Button } from "@/components/ui/button";
 import { Book, Smartphone, Monitor, Users, Library, FileText } from "lucide-react";
 
@@ -12,6 +12,19 @@ const Index = () => {
   const [mode, setMode] = useState<'select' | 'hymnal' | 'remote' | 'display' | 'browse' | 'lyrics'>('select');
   const [deviceId] = useState(() => Math.random().toString(36).substr(2, 9));
   const [selectedHymnbook, setSelectedHymnbook] = useState(null);
+  const isLandscape = useLandscapeDetection();
+
+  // Set default mode based on orientation
+  useEffect(() => {
+    if (mode === 'select' && selectedHymnbook) {
+      // When a hymnbook is selected, choose mode based on orientation
+      if (isLandscape) {
+        setMode('display');
+      } else {
+        setMode('hymnal');
+      }
+    }
+  }, [selectedHymnbook, isLandscape, mode]);
 
   const resetToHome = () => {
     setMode('select');
@@ -20,7 +33,7 @@ const Index = () => {
 
   const handleHymnbookSelect = (hymnbook) => {
     setSelectedHymnbook(hymnbook);
-    setMode('hymnal');
+    // Mode will be set automatically by useEffect based on orientation
   };
 
   if (mode === 'browse') {
@@ -134,6 +147,7 @@ const Index = () => {
             <p className="text-slate-600">
               Browse hymnbooks to explore our collection, use the Lyrics Viewer for detailed text analysis,
               Solo Practice to learn hymns, Presentation Mode for group singing, and Remote Control to manage displays.
+              {isLandscape && <span className="block mt-2 text-sm text-blue-600">Landscape mode detected - presentation mode will be default for hymn viewing.</span>}
             </p>
           </div>
         </div>
