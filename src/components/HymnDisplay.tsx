@@ -1,8 +1,11 @@
+
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { useEffect, useState } from "react";
-import { Focus } from "lucide-react";
+import HymnHeader from "./hymn-display/HymnHeader";
+import LyricsFocusButton from "./hymn-display/LyricsFocusButton";
+import HymnDisplayMode from "./hymn-display/HymnDisplayMode";
+import HymnHymnalMode from "./hymn-display/HymnHymnalMode";
+import PlayingIndicator from "./hymn-display/PlayingIndicator";
 
 interface Hymn {
   id: string;
@@ -27,9 +30,6 @@ const HymnDisplay = ({ hymn, currentVerse, isPlaying, mode, onVerseChange }: Hym
   const [isLyricsOnly, setIsLyricsOnly] = useState(false);
   const displaySize = mode === 'display' ? 'text-4xl' : 'text-2xl';
   const titleSize = mode === 'display' ? 'text-6xl' : 'text-3xl';
-
-  // Calculate total sections (verses + chorus if exists)
-  const totalSections = hymn.verses.length + (hymn.chorus ? 1 : 0);
 
   // Handle keyboard navigation for presentation mode
   useEffect(() => {
@@ -62,145 +62,37 @@ const HymnDisplay = ({ hymn, currentVerse, isPlaying, mode, onVerseChange }: Hym
   return (
     <div className="max-w-4xl mx-auto">
       <Card className="p-8 bg-white shadow-xl">
-        {!isLyricsOnly && (
-          <div className="text-center mb-8">
-            <div className="text-blue-600 font-bold text-xl mb-2">#{hymn.number}</div>
-            <h1 className={`${titleSize} font-bold text-slate-800 mb-4`}>{hymn.title}</h1>
-            <p className="text-slate-600">by {hymn.author}</p>
-            <div className="text-sm text-slate-500 mt-2">
-              Key: {hymn.key} • Tempo: {hymn.tempo} BPM
-            </div>
-          </div>
-        )}
+        <HymnHeader 
+          hymn={hymn} 
+          isLyricsOnly={isLyricsOnly} 
+          titleSize={titleSize} 
+        />
 
         {mode === 'display' && (
-          <div className="flex justify-center mb-6">
-            <Button 
-              onClick={() => setIsLyricsOnly(!isLyricsOnly)}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <Focus className="w-4 h-4" />
-              {isLyricsOnly ? 'Show Full View' : 'Focus on Lyrics'}
-            </Button>
-          </div>
+          <LyricsFocusButton 
+            isLyricsOnly={isLyricsOnly}
+            onToggle={() => setIsLyricsOnly(!isLyricsOnly)}
+          />
         )}
 
         <div className="space-y-8">
           {mode === 'display' ? (
-            // Display mode with carousel for sliding and keyboard navigation
-            <div className={`${isLyricsOnly ? 'min-h-[80vh]' : 'min-h-[60vh]'} flex flex-col justify-center`}>
-              <Carousel 
-                className="w-full max-w-4xl mx-auto"
-                opts={{
-                  align: "start",
-                  loop: false,
-                }}
-              >
-                <CarouselContent>
-                  {hymn.verses.map((verse, index) => (
-                    <CarouselItem key={index}>
-                      <div className="text-center p-6">
-                        {!isLyricsOnly && (
-                          <div className="text-2xl font-semibold text-blue-600 mb-8">
-                            Verse {index + 1}
-                          </div>
-                        )}
-                        <div className={`${isLyricsOnly ? 'text-5xl' : displaySize} leading-relaxed text-slate-800 max-w-3xl mx-auto`}>
-                          {verse.split('\n').map((line, lineIdx) => (
-                            <div key={lineIdx} className={`${isLyricsOnly ? 'mb-6' : 'mb-4'}`}>
-                              {line}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                  {hymn.chorus && (
-                    <CarouselItem>
-                      <div className="text-center p-6">
-                        {!isLyricsOnly && (
-                          <div className="text-2xl font-semibold text-yellow-700 mb-8">
-                            Chorus
-                          </div>
-                        )}
-                        <div className={`${isLyricsOnly ? 'text-5xl' : displaySize} leading-relaxed text-slate-800 max-w-3xl mx-auto`}>
-                          {hymn.chorus.split('\n').map((line, lineIdx) => (
-                            <div key={lineIdx} className={`${isLyricsOnly ? 'mb-6' : 'mb-4'}`}>
-                              {line}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </CarouselItem>
-                  )}
-                </CarouselContent>
-                <CarouselPrevious className="left-4" />
-                <CarouselNext className="right-4" />
-              </Carousel>
-              
-              {!isLyricsOnly && (
-                <div className="text-center mt-8 text-slate-500">
-                  <p className="text-lg">Verse {currentVerse + 1} of {hymn.verses.length}</p>
-                  <p className="text-sm mt-2">Use arrow keys, spacebar, or swipe to navigate • Home/End for first/last verse</p>
-                </div>
-              )}
-            </div>
+            <HymnDisplayMode 
+              hymn={hymn}
+              currentVerse={currentVerse}
+              isLyricsOnly={isLyricsOnly}
+              displaySize={displaySize}
+            />
           ) : (
-            // Hymnal mode shows all verses with current highlighted
-            hymn.verses.map((verse, index) => (
-              <div 
-                key={index}
-                className={`p-6 rounded-lg transition-all duration-300 ${
-                  index === currentVerse 
-                    ? 'bg-blue-50 border-2 border-blue-200 shadow-md' 
-                    : 'bg-gray-50 opacity-70'
-                }`}
-              >
-                <div className="flex items-start gap-4">
-                  <div className={`font-bold text-lg ${
-                    index === currentVerse ? 'text-blue-600' : 'text-slate-400'
-                  }`}>
-                    {index + 1}.
-                  </div>
-                  <div className={`${displaySize} leading-relaxed ${
-                    index === currentVerse ? 'text-slate-800' : 'text-slate-500'
-                  }`}>
-                    {verse.split('\n').map((line, lineIdx) => (
-                      <div key={lineIdx} className="mb-1">
-                        {line}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-
-          {hymn.chorus && mode !== 'display' && (
-            <div className="p-6 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
-              <div className="text-center">
-                <div className="text-lg font-semibold text-yellow-700 mb-4">Chorus</div>
-                <div className={`${displaySize} leading-relaxed text-slate-800`}>
-                  {hymn.chorus.split('\n').map((line, idx) => (
-                    <div key={idx} className="mb-1">
-                      {line}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <HymnHymnalMode 
+              hymn={hymn}
+              currentVerse={currentVerse}
+              displaySize={displaySize}
+            />
           )}
         </div>
 
-        {isPlaying && (
-          <div className="mt-8 text-center">
-            <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              Playing
-            </div>
-          </div>
-        )}
+        <PlayingIndicator isPlaying={isPlaying} />
       </Card>
     </div>
   );
