@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -58,7 +57,13 @@ const HymnLyricsViewer = ({ onBack, selectedHymnbook }: HymnLyricsViewerProps) =
 
       if (error) throw error;
 
-      setHymns(data || []);
+      // Cast the Json type to LyricsData for each hymn
+      const typedHymns: HymnLyric[] = (data || []).map(hymn => ({
+        ...hymn,
+        lyrics: hymn.lyrics as LyricsData
+      }));
+
+      setHymns(typedHymns);
     } catch (error) {
       console.error('Error fetching hymn lyrics:', error);
       toast({
