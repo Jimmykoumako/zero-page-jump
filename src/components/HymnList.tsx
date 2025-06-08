@@ -33,25 +33,41 @@ const HymnList = ({ hymns, onHymnSelect, selectedHymnbook }: HymnListProps) => {
     );
   }
 
+  // Sort hymns numerically by their number
+  const sortedHymns = [...hymns].sort((a, b) => {
+    const numA = parseInt(a.number) || 0;
+    const numB = parseInt(b.number) || 0;
+    return numA - numB;
+  });
+
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {hymns.map((hymn) => (
-        <Card 
-          key={hymn.id}
-          className="p-6 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105"
-          onClick={() => onHymnSelect(hymn.id)}
-        >
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600 mb-2">#{hymn.number}</div>
-            <h3 className="text-lg font-semibold text-slate-800 mb-2">{hymn.title}</h3>
-            <p className="text-sm text-slate-600 mb-4">{hymn.author}</p>
-            <div className="text-xs text-slate-500">
-              {hymn.verses.length} verses • {hymn.key} • {hymn.tempo} BPM
+    <Card className="p-6">
+      <div className="space-y-2">
+        {sortedHymns.map((hymn) => (
+          <div 
+            key={hymn.id}
+            className="p-4 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-b-0 transition-colors duration-200"
+            onClick={() => onHymnSelect(hymn.id)}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="text-lg font-bold text-blue-600 min-w-[60px]">
+                  #{hymn.number}
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-slate-800 mb-1">{hymn.title}</h3>
+                  <p className="text-sm text-slate-600">{hymn.author}</p>
+                </div>
+              </div>
+              <div className="text-xs text-slate-500 text-right">
+                <div>{hymn.verses.length} verses</div>
+                <div>{hymn.key} • {hymn.tempo} BPM</div>
+              </div>
             </div>
           </div>
-        </Card>
-      ))}
-    </div>
+        ))}
+      </div>
+    </Card>
   );
 };
 
