@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,12 +7,14 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft, Book, LogIn, UserPlus, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import TestAdminUtils from "@/components/TestAdminUtils";
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [showTestUtils, setShowTestUtils] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -215,6 +216,14 @@ const Auth = () => {
                 >
                   Forgot your password?
                 </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowTestUtils(!showTestUtils)}
+                  className="text-orange-600 hover:text-orange-800 text-xs block w-full mt-4"
+                >
+                  {showTestUtils ? 'Hide' : 'Show'} Testing Utils
+                </button>
               </>
             )}
 
@@ -229,6 +238,8 @@ const Auth = () => {
             )}
           </div>
         </Card>
+
+        {showTestUtils && <TestAdminUtils />}
 
         <div className="mt-6 text-center">
           <Button
