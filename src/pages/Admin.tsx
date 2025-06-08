@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, Plus, Users, Book, Music, Upload, Shield, UserCheck, BarChart3 } from "lucide-react";
+import { ArrowLeft, Plus, Users, Book, Music, Upload, Shield, UserCheck, BarChart3, HardDrive } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import HymnbookManager from "@/components/admin/HymnbookManager";
@@ -12,6 +12,7 @@ import HymnManager from "@/components/admin/HymnManager";
 import AudioManager from "@/components/admin/AudioManager";
 import UserRoleManager from "@/components/admin/UserRoleManager";
 import StatsDashboard from "@/components/admin/StatsDashboard";
+import StorageManager from "@/components/admin/StorageManager";
 
 const Admin = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -51,6 +52,7 @@ const Admin = () => {
     { id: 'hymnbooks', label: 'Hymnbooks', icon: Book },
     { id: 'hymns', label: 'Hymns', icon: Music },
     { id: 'audio', label: 'Audio Files', icon: Upload },
+    { id: 'storage', label: 'Storage', icon: HardDrive },
     { id: 'users', label: 'User Roles', icon: Users },
   ];
 
@@ -140,6 +142,7 @@ const Admin = () => {
             {viewAsAdmin && activeTab === 'hymnbooks' && <HymnbookManager />}
             {viewAsAdmin && activeTab === 'hymns' && <HymnManager />}
             {viewAsAdmin && activeTab === 'audio' && <AudioManager />}
+            {viewAsAdmin && activeTab === 'storage' && <StorageManager />}
             {viewAsAdmin && activeTab === 'users' && <UserRoleManager />}
             
             {!viewAsAdmin && activeTab !== 'overview' && (
