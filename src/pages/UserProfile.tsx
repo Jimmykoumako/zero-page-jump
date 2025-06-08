@@ -112,13 +112,25 @@ const UserProfile = () => {
     
     setDeleteLoading(true);
     try {
-      // Since we can't delete from auth.users directly, we'll just sign out the user
-      // and show a message that their account deletion request has been submitted
+      // Create an account deletion request
+      const { error: requestError } = await supabase
+        .from('account_deletion_requests')
+        .insert({
+          user_id: user.id,
+          email: user.email,
+          reason: 'User requested account deletion from profile page'
+        });
+
+      if (requestError) {
+        throw requestError;
+      }
+
+      // Sign out the user after submitting the request
       await supabase.auth.signOut();
 
       toast({
         title: "Account Deletion Requested",
-        description: "You have been signed out. Your account deletion request has been submitted and will be processed by an administrator.",
+        description: "Your account deletion request has been submitted successfully. An administrator will process your request. You have been signed out.",
       });
 
       // Navigate to home page
@@ -128,7 +140,7 @@ const UserProfile = () => {
       console.error('Error processing account deletion:', error);
       toast({
         title: "Error",
-        description: "Failed to process account deletion request. Please try again.",
+        description: "Failed to submit account deletion request. Please try again.",
         variant: "destructive",
       });
     } finally {
