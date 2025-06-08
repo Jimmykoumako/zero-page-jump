@@ -31,7 +31,7 @@ const UserProfile = () => {
 
       setUser(user);
 
-      // Check if user is admin
+      // Check if user is admin using the database function
       const { data: adminCheck } = await supabase.rpc('is_admin', { user_uuid: user.id });
       setIsAdmin(adminCheck || false);
       
@@ -57,17 +57,26 @@ const UserProfile = () => {
         .from('user_roles')
         .insert({ user_id: user.id, role: 'admin' });
 
-      if (error && error.code !== '23505') { // 23505 is unique constraint violation (already admin)
-        throw error;
+      if (error) {
+        // Check if it's a unique constraint violation (user already admin)
+        if (error.code === '23505') {
+          setIsAdmin(true);
+          toast({
+            title: "Already Admin",
+            description: "You already have admin privileges.",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        // Update local state
+        setIsAdmin(true);
+        
+        toast({
+          title: "Success!",
+          description: "You have been elevated to admin status.",
+        });
       }
-
-      // Update local state
-      setIsAdmin(true);
-      
-      toast({
-        title: "Success!",
-        description: "You have been elevated to admin status.",
-      });
     } catch (error: any) {
       console.error('Error elevating to admin:', error);
       toast({
@@ -137,7 +146,7 @@ const UserProfile = () => {
                 <Mail className="w-5 h-5 text-slate-500" />
                 <div>
                   <p className="text-sm text-slate-500">Email</p>
-                  <p className="font-medium">{user.email}</p>
+                  <p className="font-medium">{user?.email}</p>
                 </div>
               </div>
               
@@ -146,7 +155,7 @@ const UserProfile = () => {
                 <div>
                   <p className="text-sm text-slate-500">Member Since</p>
                   <p className="font-medium">
-                    {new Date(user.created_at).toLocaleDateString()}
+                    {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
                   </p>
                 </div>
               </div>
@@ -170,12 +179,12 @@ const UserProfile = () => {
 
               <div className="flex items-center gap-3">
                 <div className="w-5 h-5 flex items-center justify-center">
-                  <div className={`w-3 h-3 rounded-full ${user.email_confirmed_at ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                  <div className={`w-3 h-3 rounded-full ${user?.email_confirmed_at ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">Email Status</p>
                   <p className="font-medium">
-                    {user.email_confirmed_at ? 'Verified' : 'Pending Verification'}
+                    {user?.email_confirmed_at ? 'Verified' : 'Pending Verification'}
                   </p>
                 </div>
               </div>
