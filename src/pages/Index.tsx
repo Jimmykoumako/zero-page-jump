@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import HymnBook from "@/components/HymnBook";
 import RemoteControl from "@/components/RemoteControl";
-import GroupSession from "@/components/GroupSession";
+import EnhancedGroupSession from "@/components/EnhancedGroupSession";
 import HymnbookBrowser from "@/components/HymnbookBrowser";
 import HymnLyricsViewer from "@/components/HymnLyricsViewer";
 import AppHeader from "@/components/AppHeader";
@@ -14,9 +14,19 @@ import { useLandscapeDetection } from "@/hooks/useLandscapeDetection";
 const Index = () => {
   const [mode, setMode] = useState<'select' | 'hymnal' | 'remote' | 'display' | 'browse' | 'lyrics' | 'group'>('select');
   const [deviceId] = useState(() => Math.random().toString(36).substr(2, 9));
+  const [userId] = useState(() => Math.random().toString(36).substr(2, 9)); // Simulated user ID
   const [selectedHymnbook, setSelectedHymnbook] = useState(null);
   const [groupSession, setGroupSession] = useState<{sessionId: string, isLeader: boolean} | null>(null);
   const isLandscape = useLandscapeDetection();
+
+  // Check URL for auto-join session code
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const joinCode = urlParams.get('join');
+    if (joinCode && mode === 'select') {
+      setMode('group');
+    }
+  }, [mode]);
 
   // Set default mode based on orientation
   useEffect(() => {
@@ -34,6 +44,8 @@ const Index = () => {
     setMode('select');
     setSelectedHymnbook(null);
     setGroupSession(null);
+    // Clear URL parameters
+    window.history.replaceState({}, document.title, window.location.pathname);
   };
 
   const handleHymnbookSelect = (hymnbook) => {
@@ -56,7 +68,13 @@ const Index = () => {
   }
 
   if (mode === 'group') {
-    return <GroupSession deviceId={deviceId} onBack={resetToHome} onJoinSession={handleJoinSession} />;
+    return (
+      <EnhancedGroupSession 
+        userId={userId} 
+        onBack={resetToHome} 
+        onJoinSession={handleJoinSession} 
+      />
+    );
   }
 
   if (mode === 'hymnal') {

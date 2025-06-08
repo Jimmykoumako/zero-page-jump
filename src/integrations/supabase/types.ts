@@ -724,6 +724,63 @@ export type Database = {
         }
         Relationships: []
       }
+      group_sessions: {
+        Row: {
+          created_at: string
+          current_hymn_id: string | null
+          current_verse: number | null
+          description: string | null
+          id: string
+          is_active: boolean
+          is_playing: boolean | null
+          key_override: string | null
+          leader_id: string
+          password_hash: string | null
+          scheduled_end: string | null
+          scheduled_start: string | null
+          session_code: string
+          tempo_override: number | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_hymn_id?: string | null
+          current_verse?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_playing?: boolean | null
+          key_override?: string | null
+          leader_id: string
+          password_hash?: string | null
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          session_code: string
+          tempo_override?: number | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_hymn_id?: string | null
+          current_verse?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_playing?: boolean | null
+          key_override?: string | null
+          leader_id?: string
+          password_hash?: string | null
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          session_code?: string
+          tempo_override?: number | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       HymnBook: {
         Row: {
           access_level: Database["public"]["Enums"]["AccessLevel"]
@@ -900,6 +957,129 @@ export type Database = {
             columns: ["userId"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_activity_logs: {
+        Row: {
+          action_data: Json | null
+          action_type: string
+          id: string
+          session_id: string
+          timestamp: string
+          user_id: string | null
+        }
+        Insert: {
+          action_data?: Json | null
+          action_type: string
+          id?: string
+          session_id: string
+          timestamp?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_data?: Json | null
+          action_type?: string
+          id?: string
+          session_id?: string
+          timestamp?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_activity_logs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "group_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_analytics: {
+        Row: {
+          created_at: string
+          engagement_score: number | null
+          hymn_id: string
+          id: string
+          participant_count: number | null
+          play_count: number | null
+          session_id: string
+          total_time_seconds: number | null
+        }
+        Insert: {
+          created_at?: string
+          engagement_score?: number | null
+          hymn_id: string
+          id?: string
+          participant_count?: number | null
+          play_count?: number | null
+          session_id: string
+          total_time_seconds?: number | null
+        }
+        Update: {
+          created_at?: string
+          engagement_score?: number | null
+          hymn_id?: string
+          id?: string
+          participant_count?: number | null
+          play_count?: number | null
+          session_id?: string
+          total_time_seconds?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_analytics_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "group_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_participants: {
+        Row: {
+          connection_status: string
+          device_name: string | null
+          device_type: string | null
+          id: string
+          is_co_leader: boolean | null
+          is_following_leader: boolean | null
+          joined_at: string
+          last_seen: string
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          connection_status?: string
+          device_name?: string | null
+          device_type?: string | null
+          id?: string
+          is_co_leader?: boolean | null
+          is_following_leader?: boolean | null
+          joined_at?: string
+          last_seen?: string
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          connection_status?: string
+          device_name?: string | null
+          device_type?: string | null
+          id?: string
+          is_co_leader?: boolean | null
+          is_following_leader?: boolean | null
+          joined_at?: string
+          last_seen?: string
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "group_sessions"
             referencedColumns: ["id"]
           },
         ]

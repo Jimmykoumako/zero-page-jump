@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { useGroupSync } from "@/hooks/useGroupSync";
+import { useEnhancedGroupSync } from "@/hooks/useEnhancedGroupSync";
 import HymnDisplay from "./HymnDisplay";
 import QRCodeDisplay from "./QRCodeDisplay";
 import HymnList from "./HymnList";
@@ -35,10 +35,11 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: Hy
   const [isPlaying, setIsPlaying] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [userId] = useState(() => Math.random().toString(36).substr(2, 9)); // Simulated user ID
   const { toast } = useToast();
 
-  // Group synchronization
-  const [groupState, groupActions] = useGroupSync();
+  // Enhanced group synchronization
+  const [groupState, groupActions] = useEnhancedGroupSync(userId);
 
   useEffect(() => {
     fetchHymns();
@@ -169,30 +170,36 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: Hy
 
     const handleGroupHymnChange = (event: CustomEvent) => {
       const { hymnId } = event.detail;
-      setSelectedHymn(hymnId);
-      setCurrentVerse(0);
-      if (!groupState.isLeader) {
-        toast({
-          title: "Hymn Changed",
-          description: "Leader changed the hymn",
-        });
+      if (groupState.isFollowingLeader || groupState.isLeader) {
+        setSelectedHymn(hymnId);
+        setCurrentVerse(0);
+        if (!groupState.isLeader && !groupState.isCoLeader) {
+          toast({
+            title: "Hymn Changed",
+            description: "Leader changed the hymn",
+          });
+        }
       }
     };
 
     const handleGroupVerseChange = (event: CustomEvent) => {
       const { verse } = event.detail;
-      setCurrentVerse(verse);
-      if (!groupState.isLeader) {
-        toast({
-          title: "Verse Changed",
-          description: `Now on verse ${verse + 1}`,
-        });
+      if (groupState.isFollowingLeader || groupState.isLeader) {
+        setCurrentVerse(verse);
+        if (!groupState.isLeader && !groupState.isCoLeader) {
+          toast({
+            title: "Verse Changed",
+            description: `Now on verse ${verse + 1}`,
+          });
+        }
       }
     };
 
     const handleGroupPlayChange = (event: CustomEvent) => {
       const { isPlaying: playing } = event.detail;
-      setIsPlaying(playing);
+      if (groupState.isFollowingLeader || groupState.isLeader) {
+        setIsPlaying(playing);
+      }
     };
 
     window.addEventListener('group-hymn-change', handleGroupHymnChange);
@@ -204,7 +211,7 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: Hy
       window.removeEventListener('group-verse-change', handleGroupVerseChange);
       window.removeEventListener('group-play-change', handleGroupPlayChange);
     };
-  }, [groupSession, groupState.isLeader, toast]);
+  }, [groupSession, groupState.isLeader, groupState.isCoLeader, groupState.isFollowingLeader, toast]);
 
   // Listen for remote control commands
   useEffect(() => {
@@ -231,60 +238,60 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: Hy
     return () => window.removeEventListener(`remote-${deviceId}` as any, handleRemoteCommand);
   }, [deviceId, selectedHymn, currentVerse, hymns]);
 
-  const handleHymnSelect = (hymnId: string) => {
+  const handleHymnSelect = async (hymnId: string) => {
     setSelectedHymn(hymnId);
     setCurrentVerse(0);
     setIsPlaying(false);
     
-    // Broadcast to group if leader
-    if (groupSession?.isLeader) {
-      groupActions.broadcastHymnChange(hymnId);
+    // Broadcast to group if leader or co-leader
+    if (groupSession && (groupState.isLeader || groupState.isCoLeader)) {
+      await groupActions.broadcastHymnChange(hymnId);
     }
   };
 
-  const handleVerseChange = (verse: number) => {
+  const handleVerseChange = async (verse: number) => {
     setCurrentVerse(verse);
     
-    // Broadcast to group if leader
-    if (groupSession?.isLeader) {
-      groupActions.broadcastVerseChange(verse);
+    // Broadcast to group if leader or co-leader
+    if (groupSession && (groupState.isLeader || groupState.isCoLeader)) {
+      await groupActions.broadcastVerseChange(verse);
     }
   };
 
-  const nextVerse = () => {
+  const nextVerse = async () => {
     if (selectedHymn !== null) {
       const hymn = hymns.find(h => h.id === selectedHymn);
       if (hymn && currentVerse < hymn.verses.length - 1) {
         const newVerse = currentVerse + 1;
         setCurrentVerse(newVerse);
         
-        // Broadcast to group if leader
-        if (groupSession?.isLeader) {
-          groupActions.broadcastVerseChange(newVerse);
+        // Broadcast to group if leader or co-leader
+        if (groupSession && (groupState.isLeader || groupState.isCoLeader)) {
+          await groupActions.broadcastVerseChange(newVerse);
         }
       }
     }
   };
 
-  const prevVerse = () => {
+  const prevVerse = async () => {
     if (currentVerse > 0) {
       const newVerse = currentVerse - 1;
       setCurrentVerse(newVerse);
       
-      // Broadcast to group if leader
-      if (groupSession?.isLeader) {
-        groupActions.broadcastVerseChange(newVerse);
+      // Broadcast to group if leader or co-leader
+      if (groupSession && (groupState.isLeader || groupState.isCoLeader)) {
+        await groupActions.broadcastVerseChange(newVerse);
       }
     }
   };
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     const newPlayState = !isPlaying;
     setIsPlaying(newPlayState);
     
-    // Broadcast to group if leader
-    if (groupSession?.isLeader) {
-      groupActions.broadcastPlayState(newPlayState);
+    // Broadcast to group if leader or co-leader
+    if (groupSession && (groupState.isLeader || groupState.isCoLeader)) {
+      await groupActions.broadcastPlayState(newPlayState);
     }
   };
 
@@ -363,6 +370,9 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: Hy
             onNextVerse={nextVerse}
             onTogglePlay={togglePlay}
             isGroupLeader={groupSession?.isLeader}
+            isCoLeader={groupState.isCoLeader}
+            isFollowingLeader={groupState.isFollowingLeader}
+            onToggleFollowLeader={groupActions.toggleFollowLeader}
           />
         )}
       </div>
