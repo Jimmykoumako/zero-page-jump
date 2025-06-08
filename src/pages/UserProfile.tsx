@@ -11,9 +11,8 @@ import { User as SupabaseUser } from "@supabase/supabase-js";
 const UserProfile = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [hasRequestedAdmin, setHasRequestedAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [requestLoading, setRequestLoading] = useState(false);
+  const [elevateLoading, setElevateLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -35,10 +34,6 @@ const UserProfile = () => {
       // Check if user is admin
       const { data: adminCheck } = await supabase.rpc('is_admin', { user_uuid: user.id });
       setIsAdmin(adminCheck || false);
-
-      // Check if user has already requested admin privileges
-      // We'll assume this is tracked in a notifications table or similar
-      // For now, we'll just check if they have any admin-related notifications
       
     } catch (error) {
       console.error('Error checking user status:', error);
@@ -52,36 +47,36 @@ const UserProfile = () => {
     }
   };
 
-  const requestAdminAccess = async () => {
+  const elevateToAdmin = async () => {
     if (!user) return;
     
-    setRequestLoading(true);
+    setElevateLoading(true);
     try {
-      // Create a notification for admin request
+      // Insert the user as admin in user_roles table
       const { error } = await supabase
-        .from('notifications')
-        .insert({
-          userId: user.id,
-          type: 'ADMIN_REQUEST',
-          message: `User ${user.email} has requested admin privileges.`
-        });
+        .from('user_roles')
+        .insert({ user_id: user.id, role: 'admin' });
 
-      if (error) throw error;
+      if (error && error.code !== '23505') { // 23505 is unique constraint violation (already admin)
+        throw error;
+      }
 
-      setHasRequestedAdmin(true);
+      // Update local state
+      setIsAdmin(true);
+      
       toast({
-        title: "Request Submitted",
-        description: "Your request for admin privileges has been submitted for review.",
+        title: "Success!",
+        description: "You have been elevated to admin status.",
       });
     } catch (error: any) {
-      console.error('Error requesting admin access:', error);
+      console.error('Error elevating to admin:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to submit admin request.",
+        description: error.message || "Failed to elevate to admin status.",
         variant: "destructive",
       });
     } finally {
-      setRequestLoading(false);
+      setElevateLoading(false);
     }
   };
 
@@ -187,7 +182,7 @@ const UserProfile = () => {
             </CardContent>
           </Card>
 
-          {/* Admin Request Card */}
+          {/* Admin Access Card */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -214,36 +209,26 @@ const UserProfile = () => {
                 <div className="text-center py-6">
                   <Shield className="w-12 h-12 text-slate-400 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-slate-700 mb-2">
-                    Request Admin Access
+                    Elevate to Admin
                   </h3>
                   <p className="text-slate-600 mb-4">
-                    If you need administrative privileges, you can submit a request for review.
+                    Click the button below to instantly elevate your account to admin status.
                   </p>
                   
-                  {hasRequestedAdmin ? (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                      <p className="text-yellow-800 font-medium">Request Pending</p>
-                      <p className="text-yellow-700 text-sm mt-1">
-                        Your admin request has been submitted and is awaiting review.
-                      </p>
-                    </div>
-                  ) : (
-                    <Button 
-                      onClick={requestAdminAccess}
-                      disabled={requestLoading}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      {requestLoading ? (
-                        "Submitting Request..."
-                      ) : (
-                        <>
-                          <Shield className="w-4 h-4 mr-2" />
-                          Request Admin Access
-                        </>
-                      )}
-                    </Button>
-                  )}
+                  <Button 
+                    onClick={elevateToAdmin}
+                    disabled={elevateLoading}
+                    className="w-full"
+                  >
+                    {elevateLoading ? (
+                      "Elevating..."
+                    ) : (
+                      <>
+                        <Shield className="w-4 h-4 mr-2" />
+                        Become Admin
+                      </>
+                    )}
+                  </Button>
                 </div>
               )}
             </CardContent>
