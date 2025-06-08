@@ -41,24 +41,29 @@ const HymnList = ({ hymns, onHymnSelect, selectedHymnbook }: HymnListProps) => {
   });
 
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {sortedHymns.map((hymn) => (
-        <Card 
-          key={hymn.id}
-          className="p-6 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105"
-          onClick={() => onHymnSelect(hymn.id)}
-        >
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600 mb-2">#{hymn.number}</div>
-            <h3 className="text-lg font-semibold text-slate-800 mb-2">{hymn.title}</h3>
-            <p className="text-sm text-slate-600 mb-4">{hymn.author}</p>
-            <div className="text-xs text-slate-500">
-              {hymn.verses.length} verses • {hymn.key} • {hymn.tempo} BPM
+    <Card className="p-6">
+      <div className="space-y-2">
+        {sortedHymns.map((hymn) => (
+          <div 
+            key={hymn.id}
+            className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 rounded-lg transition-colors"
+            onClick={() => onHymnSelect(hymn.id)}
+          >
+            <div className="flex items-center gap-4">
+              <div className="text-lg font-bold text-blue-600 w-12">#{hymn.number}</div>
+              <div>
+                <h3 className="font-semibold text-slate-800">{hymn.title}</h3>
+                <p className="text-sm text-slate-600">{hymn.author}</p>
+              </div>
+            </div>
+            <div className="text-xs text-slate-500 text-right">
+              <div>{hymn.verses.length} verses</div>
+              <div>{hymn.key} • {hymn.tempo} BPM</div>
             </div>
           </div>
-        </Card>
-      ))}
-    </div>
+        ))}
+      </div>
+    </Card>
   );
 };
 
