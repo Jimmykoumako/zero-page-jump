@@ -112,17 +112,26 @@ const UserProfile = () => {
     
     setDeleteLoading(true);
     try {
-      // Create an account deletion request
-      const { error: requestError } = await supabase
-        .from('account_deletion_requests')
-        .insert({
-          user_id: user.id,
-          email: user.email,
-          reason: 'User requested account deletion from profile page'
-        });
+      // Create an account deletion request using a direct SQL query
+      const { error: requestError } = await supabase.rpc('create_account_deletion_request', {
+        p_user_id: user.id,
+        p_email: user.email || '',
+        p_reason: 'User requested account deletion from profile page'
+      });
 
       if (requestError) {
-        throw requestError;
+        // If RPC fails, try direct insert (fallback)
+        const { error: insertError } = await supabase
+          .from('account_deletion_requests' as any)
+          .insert({
+            user_id: user.id,
+            email: user.email,
+            reason: 'User requested account deletion from profile page'
+          });
+
+        if (insertError) {
+          throw insertError;
+        }
       }
 
       // Sign out the user after submitting the request
