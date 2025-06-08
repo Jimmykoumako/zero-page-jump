@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { Search, Book, Users, Music, Eye } from "lucide-react";
+import { Search, Book, Users, Music, Eye, ArrowLeft } from "lucide-react";
 
 interface Hymnbook {
   id: number;
@@ -19,9 +19,10 @@ interface Hymnbook {
 interface HymnbookBrowserProps {
   onSelectHymnbook: (hymnbook: Hymnbook) => void;
   selectedHymnbook?: Hymnbook;
+  onBack: () => void;
 }
 
-const HymnbookBrowser = ({ onSelectHymnbook, selectedHymnbook }: HymnbookBrowserProps) => {
+const HymnbookBrowser = ({ onSelectHymnbook, selectedHymnbook, onBack }: HymnbookBrowserProps) => {
   const [hymnbooks, setHymnbooks] = useState<Hymnbook[]>([]);
   const [filteredHymnbooks, setFilteredHymnbooks] = useState<Hymnbook[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,7 +92,13 @@ const HymnbookBrowser = ({ onSelectHymnbook, selectedHymnbook }: HymnbookBrowser
     <div className="space-y-4">
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-slate-800">Hymnbook Browser</h2>
+          <div className="flex items-center gap-4">
+            <Button onClick={onBack} variant="outline" size="sm">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <h2 className="text-2xl font-bold text-slate-800">Hymnbook Browser</h2>
+          </div>
         </div>
 
         {/* Search and Filter */}
