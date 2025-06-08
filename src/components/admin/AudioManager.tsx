@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -81,15 +80,19 @@ const AudioManager = () => {
         .from('audio-files')
         .getPublicUrl(filePath);
 
-      // Save audio file record
+      // Save audio file record - generate a unique ID
+      const audioFileId = crypto.randomUUID();
+      const currentUser = await supabase.auth.getUser();
+      
       const { error: insertError } = await supabase
         .from('AudioFile')
-        .insert([{
+        .insert({
+          id: audioFileId,
           url: publicUrl,
           hymnTitleNumber: uploadForm.hymnTitleNumber,
           audioTypeId: uploadForm.audioTypeId,
-          userId: (await supabase.auth.getUser()).data.user.id
-        }]);
+          userId: currentUser.data.user.id
+        });
 
       if (insertError) throw insertError;
 

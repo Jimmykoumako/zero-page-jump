@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,7 @@ const HymnbookManager = () => {
     name: '',
     description: '',
     category: '',
-    accessLevel: 'PRIVATE'
+    accessLevel: 'PRIVATE' as 'PRIVATE' | 'PUBLIC'
   });
   const { toast } = useToast();
 
@@ -48,10 +47,17 @@ const HymnbookManager = () => {
 
   const handleSave = async () => {
     try {
+      const hymnbookData = {
+        name: formData.name,
+        description: formData.description,
+        category: formData.category,
+        accessLevel: formData.accessLevel
+      };
+
       if (editingId) {
         const { error } = await supabase
           .from('HymnBook')
-          .update(formData)
+          .update(hymnbookData)
           .eq('id', editingId);
 
         if (error) throw error;
@@ -63,7 +69,7 @@ const HymnbookManager = () => {
       } else {
         const { error } = await supabase
           .from('HymnBook')
-          .insert([formData]);
+          .insert(hymnbookData);
 
         if (error) throw error;
         
@@ -188,7 +194,7 @@ const HymnbookManager = () => {
                 <select
                   id="accessLevel"
                   value={formData.accessLevel}
-                  onChange={(e) => setFormData({ ...formData, accessLevel: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, accessLevel: e.target.value as 'PRIVATE' | 'PUBLIC' })}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 >
                   <option value="PRIVATE">Private</option>

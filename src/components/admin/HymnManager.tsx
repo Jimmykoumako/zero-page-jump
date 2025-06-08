@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,7 @@ const HymnManager = () => {
   const [formData, setFormData] = useState({
     number: '',
     titles: [''],
-    bookId: 1
+    bookId: '1'
   });
   const { toast } = useToast();
 
@@ -84,7 +83,7 @@ const HymnManager = () => {
 
       setEditingId(null);
       setShowAddForm(false);
-      setFormData({ number: '', titles: [''], bookId: 1 });
+      setFormData({ number: '', titles: [''], bookId: '1' });
       fetchData();
     } catch (error) {
       console.error('Error saving hymn:', error);
@@ -101,7 +100,7 @@ const HymnManager = () => {
     setFormData({
       number: hymn.number,
       titles: hymn.titles || [''],
-      bookId: hymn.bookId
+      bookId: hymn.bookId.toString()
     });
     setShowAddForm(false);
   };
@@ -136,7 +135,7 @@ const HymnManager = () => {
   const handleCancel = () => {
     setEditingId(null);
     setShowAddForm(false);
-    setFormData({ number: '', titles: [''], bookId: 1 });
+    setFormData({ number: '', titles: [''], bookId: '1' });
   };
 
   const addTitleField = () => {
@@ -195,11 +194,11 @@ const HymnManager = () => {
                 <select
                   id="bookId"
                   value={formData.bookId}
-                  onChange={(e) => setFormData({ ...formData, bookId: parseInt(e.target.value) })}
+                  onChange={(e) => setFormData({ ...formData, bookId: e.target.value })}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 >
                   {hymnbooks.map((book) => (
-                    <option key={book.id} value={book.id}>
+                    <option key={book.id} value={book.id.toString()}>
                       {book.name}
                     </option>
                   ))}
