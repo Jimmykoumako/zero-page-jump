@@ -47,6 +47,9 @@ const AppHeader = ({ onModeSelect }: AppHeaderProps) => {
       case 'admin':
         navigate('/admin');
         break;
+      case 'profile':
+        navigate('/profile');
+        break;
       case 'about':
         alert('Digital Hymnbook - A modern solution for congregational singing with synchronized displays and remote controls.');
         break;
@@ -131,8 +134,16 @@ const AppHeader = ({ onModeSelect }: AppHeaderProps) => {
               <>
                 {user ? (
                   <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border">
-                    <div className="hidden sm:flex items-center gap-2">
-                      <User className="w-4 h-4 text-muted-foreground" />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleQuickAction('profile')}
+                      className="hidden sm:flex"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      Profile
+                    </Button>
+                    <div className="hidden md:flex items-center gap-2">
                       <span className="text-sm text-muted-foreground">
                         {user.email}
                       </span>
