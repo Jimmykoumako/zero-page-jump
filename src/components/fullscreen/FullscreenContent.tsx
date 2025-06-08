@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import FullscreenSearchButton from "./FullscreenSearchButton";
 import FullscreenHymnSearch from "./FullscreenHymnSearch";
 import FullscreenNavigationControls from "./FullscreenNavigationControls";
@@ -59,6 +60,7 @@ const FullscreenContent = ({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isBufferVisible, setIsBufferVisible] = useState(false);
   const [isAudioVisible, setIsAudioVisible] = useState(false);
+  const [showIntroCarousel, setShowIntroCarousel] = useState(true);
   
   const {
     hymnBuffer,
@@ -90,19 +92,45 @@ const FullscreenContent = ({
     addToBuffer(selectedHymn);
     setCurrentHymn(selectedHymn.id);
     setIsSearchOpen(false);
+    setShowIntroCarousel(true); // Show intro for new hymn
   };
 
   const handleBufferHymnSelect = (selectedHymn: Hymn) => {
     setCurrentHymn(selectedHymn.id);
     setIsBufferVisible(false);
+    setShowIntroCarousel(true); // Show intro for new hymn
   };
+
+  // Hide intro after 5 seconds or when user navigates
+  useEffect(() => {
+    if (showIntroCarousel) {
+      const timer = setTimeout(() => {
+        setShowIntroCarousel(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showIntroCarousel]);
+
+  // Hide intro when user changes verse manually
+  useEffect(() => {
+    if (currentVerseIndex > 0) {
+      setShowIntroCarousel(false);
+    }
+  }, [currentVerseIndex]);
 
   // Keyboard event handlers
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowRight') {
+      if (event.key === 'ArrowRight' || event.key === ' ') {
+        if (showIntroCarousel) {
+          setShowIntroCarousel(false);
+          return;
+        }
         onVerseChange(Math.min(currentVerseIndex + 1, hymn.verses.length - 1 + (hymn.chorus ? 1 : 0)));
       } else if (event.key === 'ArrowLeft') {
+        if (showIntroCarousel) {
+          return; // Don't go back from intro
+        }
         onVerseChange(Math.max(currentVerseIndex - 1, 0));
       } else if (event.key === 'Escape') {
         onExit();
@@ -114,11 +142,34 @@ const FullscreenContent = ({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentVerseIndex, hymn, onExit, onVerseChange]);
+  }, [currentVerseIndex, hymn, onExit, onVerseChange, showIntroCarousel]);
 
-  // Convert fontSize number to pixel value
-  const baseFontSize = 24; // Base size in pixels
-  const fontSizeInPx = baseFontSize + (fontSize * 8); // Each step adds 8px
+  // Calculate responsive font size based on screen size
+  const getResponsiveFontSize = () => {
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    
+    // Base font size calculation - smaller default
+    let baseFontSize = 16; // Reduced from 24
+    
+    // Adjust based on screen size
+    if (screenWidth >= 1920) { // Large desktop
+      baseFontSize = 20;
+    } else if (screenWidth >= 1440) { // Desktop
+      baseFontSize = 18;
+    } else if (screenWidth >= 1024) { // Tablet landscape
+      baseFontSize = 16;
+    } else if (screenWidth >= 768) { // Tablet portrait
+      baseFontSize = 14;
+    } else { // Mobile
+      baseFontSize = 12;
+    }
+    
+    // Apply font size multiplier (each step adds 4px instead of 8px)
+    return baseFontSize + (fontSize * 4);
+  };
+
+  const fontSizeInPx = getResponsiveFontSize();
 
   // Ensure we have valid content
   if (!content || !content.content) {
@@ -142,6 +193,136 @@ const FullscreenContent = ({
             <p className="text-xl text-slate-400">Please select a hymn to display</p>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // Intro carousel slides data
+  const introSlides = [
+    {
+      type: 'number',
+      content: `#${hymn.number}`,
+      subtitle: 'Hymn Number'
+    },
+    {
+      type: 'title',
+      content: title,
+      subtitle: 'Title'
+    },
+    {
+      type: 'author',
+      content: hymn.author || 'Unknown',
+      subtitle: 'Author/Composer'
+    }
+  ];
+
+  if (showIntroCarousel) {
+    return (
+      <div className="fixed inset-0 bg-black text-white z-50 overflow-hidden">
+        {/* Background with subtle gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-black to-slate-900" />
+        
+        {/* Controls overlay */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Exit button */}
+          <Button
+            onClick={onExit}
+            variant="ghost"
+            size="sm"
+            className="fixed top-6 right-6 pointer-events-auto text-white hover:bg-white/20 backdrop-blur-sm"
+          >
+            <X className="w-5 h-5" />
+          </Button>
+
+          {/* Search button */}
+          <FullscreenSearchButton onOpenSearch={() => setIsSearchOpen(true)} />
+
+          {/* Audio controls */}
+          <FullscreenAudioControls
+            hymnNumber={hymn.number}
+            isVisible={isAudioVisible}
+            onToggleVisibility={() => setIsAudioVisible(!isAudioVisible)}
+          />
+
+          {/* Buffer controls */}
+          <FullscreenHymnBuffer
+            hymnBuffer={hymnBuffer}
+            currentBufferIndex={currentBufferIndex}
+            onSelectHymn={handleBufferHymnSelect}
+            onRemoveFromBuffer={removeFromBuffer}
+            isVisible={isBufferVisible}
+            onToggleVisibility={() => setIsBufferVisible(!isBufferVisible)}
+          />
+
+          {/* Font controls */}
+          <FullscreenFontControls
+            fontSize={fontSize}
+            maxFontSize={9}
+            onIncreaseFontSize={() => onFontSizeChange(Math.min(fontSize + 1, 8))}
+            onDecreaseFontSize={() => onFontSizeChange(Math.max(fontSize - 1, 0))}
+          />
+        </div>
+
+        {/* Intro Carousel */}
+        <div className="flex items-center justify-center h-full p-8 relative z-10">
+          <div className="max-w-4xl w-full">
+            <Carousel className="w-full">
+              <CarouselContent>
+                {introSlides.map((slide, index) => (
+                  <CarouselItem key={index}>
+                    <div className="text-center space-y-6">
+                      <p 
+                        className="text-blue-300 mb-4"
+                        style={{ fontSize: `${Math.floor(fontSizeInPx * 0.6)}px` }}
+                      >
+                        {slide.subtitle}
+                      </p>
+                      <h1 
+                        className="font-bold leading-tight"
+                        style={{ 
+                          fontSize: slide.type === 'number' ? `${Math.floor(fontSizeInPx * 1.5)}px` : `${fontSizeInPx}px`,
+                          color: slide.type === 'number' ? '#93c5fd' : 'white'
+                        }}
+                      >
+                        {slide.content}
+                      </h1>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-8 bg-black/50 border-white/20 text-white hover:bg-black/70" />
+              <CarouselNext className="right-8 bg-black/50 border-white/20 text-white hover:bg-black/70" />
+            </Carousel>
+            
+            {/* Skip button */}
+            <div className="text-center mt-8">
+              <Button
+                onClick={() => setShowIntroCarousel(false)}
+                variant="outline"
+                className="bg-black/50 border-white/20 text-white hover:bg-black/70"
+              >
+                Skip to Lyrics
+              </Button>
+            </div>
+            
+            {/* Auto-advance indicator */}
+            <div className="text-center mt-4">
+              <p className="text-slate-400 text-sm">
+                Will advance to lyrics automatically in 5 seconds...
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Search overlay */}
+        {isSearchOpen && (
+          <FullscreenHymnSearch
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+            onAddToBuffer={addToBuffer}
+            bufferHymnIds={hymnBuffer.map(h => h.id)}
+          />
+        )}
       </div>
     );
   }
@@ -207,17 +388,17 @@ const FullscreenContent = ({
       {/* Main content */}
       <div className="flex items-center justify-center h-full p-8 relative z-10">
         <div className="max-w-4xl w-full text-center space-y-8">
-          {/* Hymn header */}
+          {/* Hymn header - smaller now */}
           <div className="space-y-2">
             <h1 
               className="font-bold text-blue-300"
-              style={{ fontSize: `${Math.floor(fontSizeInPx * 0.6)}px` }}
+              style={{ fontSize: `${Math.floor(fontSizeInPx * 0.5)}px` }}
             >
               #{hymn.number}
             </h1>
             <h2 
               className="font-bold leading-tight"
-              style={{ fontSize: `${Math.floor(fontSizeInPx * 0.8)}px` }}
+              style={{ fontSize: `${Math.floor(fontSizeInPx * 0.7)}px` }}
             >
               {title}
             </h2>
