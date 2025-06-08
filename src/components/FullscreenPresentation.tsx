@@ -1,7 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { X, ChevronLeft, ChevronRight, Home, Square, ChevronUp, ChevronDown } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Home, Square, ChevronUp, ChevronDown, Play, Pause, Volume2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Hymn {
   id: string;
@@ -14,6 +15,16 @@ interface Hymn {
   tempo: number;
 }
 
+interface AudioFile {
+  id: string;
+  url: string;
+  audioTypeId: number;
+  userId: string;
+  createdAt: string;
+  hymnTitleNumber?: string;
+  bookId?: number;
+}
+
 interface FullscreenPresentationProps {
   hymn: Hymn;
   currentVerse: number;
@@ -24,7 +35,13 @@ interface FullscreenPresentationProps {
 const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: FullscreenPresentationProps) => {
   const [showControls, setShowControls] = useState(true);
   const [isIdle, setIsIdle] = useState(false);
-  const [fontSize, setFontSize] = useState(6); // Default to text-6xl (index 6)
+  const [fontSize, setFontSize] = useState(6);
+  const [audioFiles, setAudioFiles] = useState<AudioFile[]>([]);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentAudioFile, setCurrentAudioFile] = useState<AudioFile | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   // Font size classes array for easy indexing
   const fontSizeClasses = [
@@ -46,6 +63,113 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
   const decreaseFontSize = () => {
     setFontSize(prev => Math.max(prev - 1, 0));
   };
+
+  // Fetch audio files for the current hymn
+  useEffect(() => {
+    const fetchAudioFiles = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('AudioFile')
+          .select('*')
+          .eq('hymnTitleNumber', hymn.number)
+          .order('createdAt', { ascending: false });
+
+        if (error) throw error;
+        setAudioFiles(data || []);
+      } catch (error) {
+        console.error('Error fetching audio files:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load audio files.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAudioFiles();
+  }, [hymn.number, toast]);
+
+  // Audio control functions
+  const playAudio = (audioFile: AudioFile) => {
+    if (currentAudio) {
+      currentAudio.pause();
+      setCurrentAudio(null);
+      setIsPlaying(false);
+    }
+
+    const audio = new Audio(audioFile.url);
+    audio.addEventListener('loadstart', () => setLoading(true));
+    audio.addEventListener('canplay', () => setLoading(false));
+    audio.addEventListener('ended', () => {
+      setIsPlaying(false);
+      setCurrentAudio(null);
+      setCurrentAudioFile(null);
+    });
+    audio.addEventListener('error', () => {
+      setLoading(false);
+      toast({
+        title: "Error",
+        description: "Failed to load audio file.",
+        variant: "destructive",
+      });
+    });
+
+    setCurrentAudio(audio);
+    setCurrentAudioFile(audioFile);
+    audio.play().then(() => {
+      setIsPlaying(true);
+    }).catch(error => {
+      console.error('Error playing audio:', error);
+      toast({
+        title: "Error",
+        description: "Failed to play audio file.",
+        variant: "destructive",
+      });
+    });
+  };
+
+  const togglePlayPause = () => {
+    if (!currentAudio) return;
+
+    if (isPlaying) {
+      currentAudio.pause();
+      setIsPlaying(false);
+    } else {
+      currentAudio.play().then(() => {
+        setIsPlaying(true);
+      }).catch(error => {
+        console.error('Error playing audio:', error);
+        toast({
+          title: "Error",
+          description: "Failed to play audio file.",
+          variant: "destructive",
+        });
+      });
+    }
+  };
+
+  const stopAudio = () => {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      setIsPlaying(false);
+      setCurrentAudio(null);
+      setCurrentAudioFile(null);
+    }
+  };
+
+  // Cleanup audio on component unmount
+  useEffect(() => {
+    return () => {
+      if (currentAudio) {
+        currentAudio.pause();
+        setCurrentAudio(null);
+      }
+    };
+  }, [currentAudio]);
 
   // Auto-hide controls after 3 seconds of inactivity
   useEffect(() => {
@@ -72,10 +196,8 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
       resetTimers();
     };
 
-    // Initial timer setup
     resetTimers();
 
-    // Listen for user activity
     window.addEventListener('mousemove', handleActivity);
     window.addEventListener('keydown', handleActivity);
     window.addEventListener('click', handleActivity);
@@ -97,6 +219,7 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
       switch (event.key) {
         case 'Escape':
           event.preventDefault();
+          stopAudio();
           onExit();
           break;
         case 'ArrowRight':
@@ -105,7 +228,7 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
           if (currentVerse < hymn.verses.length - 1) {
             onVerseChange(currentVerse + 1);
           } else if (hymn.chorus && currentVerse === hymn.verses.length - 1) {
-            onVerseChange(hymn.verses.length); // Show chorus
+            onVerseChange(hymn.verses.length);
           }
           break;
         case 'ArrowLeft':
@@ -129,18 +252,33 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
         case 'End':
           event.preventDefault();
           if (hymn.chorus) {
-            onVerseChange(hymn.verses.length); // Go to chorus
+            onVerseChange(hymn.verses.length);
           } else {
             onVerseChange(hymn.verses.length - 1);
           }
+          break;
+        case 'p':
+        case 'P':
+          event.preventDefault();
+          if (currentAudio) {
+            togglePlayPause();
+          } else if (audioFiles.length > 0) {
+            playAudio(audioFiles[0]);
+          }
+          break;
+        case 's':
+        case 'S':
+          event.preventDefault();
+          stopAudio();
           break;
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentVerse, hymn, onVerseChange, onExit, fontSize]);
+  }, [currentVerse, hymn, onVerseChange, onExit, fontSize, currentAudio, audioFiles, togglePlayPause]);
 
+  // Get current content based on current verse
   const getCurrentContent = () => {
     if (currentVerse < hymn.verses.length) {
       return {
@@ -185,6 +323,22 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
           </div>
         </div>
 
+        {/* Audio status indicator */}
+        {currentAudioFile && (
+          <div className="absolute top-32 left-1/2 transform -translate-x-1/2 mt-8">
+            <div className="flex items-center gap-2 bg-black/50 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
+              {isPlaying ? (
+                <Play className="w-4 h-4 text-green-400" />
+              ) : (
+                <Pause className="w-4 h-4 text-yellow-400" />
+              )}
+              <span className="text-sm text-slate-300">
+                {isPlaying ? 'Playing' : 'Paused'} Audio
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Main lyrics display */}
         <div className="flex-1 flex items-center justify-center max-w-6xl w-full">
           <div className="text-center">
@@ -226,7 +380,10 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
       >
         {/* Exit button - top right */}
         <Button
-          onClick={onExit}
+          onClick={() => {
+            stopAudio();
+            onExit();
+          }}
           variant="outline"
           size="sm"
           className="fixed top-6 right-6 pointer-events-auto bg-black/50 border-white/20 text-white hover:bg-black/70 backdrop-blur-sm"
@@ -256,6 +413,51 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
             <ChevronDown className="w-4 h-4" />
           </Button>
         </div>
+
+        {/* Audio controls - top center */}
+        {audioFiles.length > 0 && (
+          <div className="fixed top-6 left-1/2 transform -translate-x-1/2 pointer-events-auto">
+            <div className="flex items-center gap-2 bg-black/50 backdrop-blur-sm rounded-lg p-2 border border-white/20">
+              {audioFiles.map((audioFile, index) => (
+                <Button
+                  key={audioFile.id}
+                  onClick={() => playAudio(audioFile)}
+                  variant="ghost"
+                  size="sm"
+                  className={`text-white hover:bg-white/20 ${
+                    currentAudioFile?.id === audioFile.id ? 'bg-white/20' : ''
+                  }`}
+                  disabled={loading}
+                >
+                  <Volume2 className="w-4 h-4 mr-1" />
+                  Audio {index + 1}
+                </Button>
+              ))}
+              
+              {currentAudio && (
+                <Button
+                  onClick={togglePlayPause}
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-white/20"
+                >
+                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                </Button>
+              )}
+              
+              {currentAudio && (
+                <Button
+                  onClick={stopAudio}
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-white/20"
+                >
+                  <Square className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Navigation controls - center sides */}
         {canGoPrevious && (
@@ -325,7 +527,7 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
       {/* Help text - only shows when controls are visible */}
       {showControls && (
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 text-slate-400 text-sm text-center">
-          <div>Arrow keys or spacebar to navigate • Up/Down arrows for font size • Home/End for first/last • Esc to exit</div>
+          <div>Arrow keys or spacebar to navigate • Up/Down arrows for font size • P to play/pause • S to stop • Home/End for first/last • Esc to exit</div>
         </div>
       )}
     </div>
