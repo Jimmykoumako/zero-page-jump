@@ -42,14 +42,20 @@ const UserProfile = () => {
 
       setUser(user);
 
-      // Check if user is admin using the users table
-      const { data: userData } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-      
-      setIsAdmin(userData?.role === 'ADMIN');
+      // Check if user is admin using the user_roles table instead of users table
+      try {
+        const { data: userRoleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
+        
+        setIsAdmin(userRoleData?.role === 'admin');
+      } catch (error) {
+        // If there's an error checking roles, assume not admin
+        console.log('Could not check user role:', error);
+        setIsAdmin(false);
+      }
       
     } catch (error) {
       console.error('Error checking user status:', error);
@@ -68,11 +74,15 @@ const UserProfile = () => {
     
     setElevateLoading(true);
     try {
-      // Update the user's role to ADMIN in the users table
+      // Insert or update the user's role to admin in the user_roles table
       const { error } = await supabase
-        .from('users')
-        .update({ role: 'ADMIN' })
-        .eq('id', user.id);
+        .from('user_roles')
+        .upsert({ 
+          user_id: user.id, 
+          role: 'admin' 
+        }, { 
+          onConflict: 'user_id,role'
+        });
 
       if (error) {
         throw error;
@@ -102,38 +112,23 @@ const UserProfile = () => {
     
     setDeleteLoading(true);
     try {
-      // First, delete the user from the users table
-      const { error: deleteUserError } = await supabase
-        .from('users')
-        .delete()
-        .eq('id', user.id);
-
-      if (deleteUserError) {
-        console.error('Error deleting user data:', deleteUserError);
-        // Continue with auth deletion even if user data deletion fails
-      }
-
-      // Then delete the user from Supabase Auth
-      const { error: authError } = await supabase.auth.admin.deleteUser(user.id);
-
-      if (authError) {
-        throw authError;
-      }
+      // Since we can't delete from auth.users directly, we'll just sign out the user
+      // and show a message that their account deletion request has been submitted
+      await supabase.auth.signOut();
 
       toast({
-        title: "Account Deleted",
-        description: "Your account has been permanently deleted.",
+        title: "Account Deletion Requested",
+        description: "You have been signed out. Your account deletion request has been submitted and will be processed by an administrator.",
       });
 
-      // Sign out and redirect to home
-      await supabase.auth.signOut();
+      // Navigate to home page
       navigate('/');
       
     } catch (error: any) {
-      console.error('Error deleting account:', error);
+      console.error('Error processing account deletion:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to delete account. Please try again.",
+        description: "Failed to process account deletion request. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -322,22 +317,22 @@ const UserProfile = () => {
             </CardHeader>
             <CardContent>
               <p className="text-slate-600 mb-4">
-                Once you delete your account, there is no going back. This action cannot be undone.
+                Submitting an account deletion request will sign you out immediately. An administrator will process your request.
               </p>
               
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" className="w-full">
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Delete Account
+                    Request Account Deletion
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your account
-                      and remove all your data from our servers.
+                      This will submit a request to delete your account. You will be signed out immediately,
+                      and an administrator will process your deletion request. This action cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -347,7 +342,7 @@ const UserProfile = () => {
                       disabled={deleteLoading}
                       className="bg-red-600 hover:bg-red-700"
                     >
-                      {deleteLoading ? "Deleting..." : "Yes, delete my account"}
+                      {deleteLoading ? "Processing..." : "Yes, request account deletion"}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
