@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Upload, 
   Download, 
@@ -14,7 +21,9 @@ import {
   Music, 
   Video,
   FileText,
-  RefreshCw
+  RefreshCw,
+  FolderOpen,
+  Plus
 } from "lucide-react";
 import {
   Table,
@@ -24,6 +33,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface StorageFile {
   name: string;
@@ -34,21 +50,73 @@ interface StorageFile {
   metadata: Record<string, any>;
 }
 
+interface StorageBucket {
+  id: string;
+  name: string;
+  public: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 const StorageManager = () => {
   const [files, setFiles] = useState<StorageFile[]>([]);
+  const [buckets, setBuckets] = useState<StorageBucket[]>([]);
+  const [selectedBucket, setSelectedBucket] = useState<string>("");
+  const [newBucketName, setNewBucketName] = useState("");
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [showCreateBucket, setShowCreateBucket] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchFiles();
+    fetchBuckets();
   }, []);
 
+  useEffect(() => {
+    if (selectedBucket) {
+      fetchFiles();
+    } else {
+      setFiles([]);
+    }
+  }, [selectedBucket]);
+
+  const fetchBuckets = async () => {
+    try {
+      const { data, error } = await supabase.storage.listBuckets();
+
+      if (error) {
+        console.error('Error fetching buckets:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch storage buckets",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setBuckets(data || []);
+      if (data && data.length > 0 && !selectedBucket) {
+        setSelectedBucket(data[0].id);
+      }
+    } catch (error) {
+      console.error('Error in fetchBuckets:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchFiles = async () => {
+    if (!selectedBucket) return;
+
     try {
       setLoading(true);
       const { data, error } = await supabase.storage
-        .from('admin-files')
+        .from(selectedBucket)
         .list('', {
           limit: 100,
           offset: 0,
@@ -77,9 +145,52 @@ const StorageManager = () => {
     }
   };
 
+  const createBucket = async () => {
+    if (!newBucketName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a bucket name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.storage.createBucket(newBucketName, {
+        public: true,
+      });
+
+      if (error) {
+        console.error('Error creating bucket:', error);
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Bucket created successfully",
+      });
+
+      setNewBucketName("");
+      setShowCreateBucket(false);
+      fetchBuckets();
+    } catch (error) {
+      console.error('Error creating bucket:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file || !selectedBucket) return;
 
     try {
       setUploading(true);
@@ -87,7 +198,7 @@ const StorageManager = () => {
       const fileName = `${Date.now()}.${fileExt}`;
 
       const { error } = await supabase.storage
-        .from('admin-files')
+        .from(selectedBucket)
         .upload(fileName, file);
 
       if (error) {
@@ -105,7 +216,7 @@ const StorageManager = () => {
         description: "File uploaded successfully",
       });
 
-      fetchFiles(); // Refresh the file list
+      fetchFiles();
     } catch (error) {
       console.error('Error uploading file:', error);
       toast({
@@ -115,15 +226,16 @@ const StorageManager = () => {
       });
     } finally {
       setUploading(false);
-      // Reset the input
       event.target.value = '';
     }
   };
 
   const handleDownload = async (fileName: string) => {
+    if (!selectedBucket) return;
+
     try {
       const { data, error } = await supabase.storage
-        .from('admin-files')
+        .from(selectedBucket)
         .download(fileName);
 
       if (error) {
@@ -136,7 +248,6 @@ const StorageManager = () => {
         return;
       }
 
-      // Create a download link
       const url = URL.createObjectURL(data);
       const a = document.createElement('a');
       a.href = url;
@@ -161,13 +272,13 @@ const StorageManager = () => {
   };
 
   const handleDelete = async (fileName: string) => {
-    if (!confirm(`Are you sure you want to delete "${fileName}"?`)) {
+    if (!selectedBucket || !confirm(`Are you sure you want to delete "${fileName}"?`)) {
       return;
     }
 
     try {
       const { error } = await supabase.storage
-        .from('admin-files')
+        .from(selectedBucket)
         .remove([fileName]);
 
       if (error) {
@@ -185,7 +296,7 @@ const StorageManager = () => {
         description: "File deleted successfully",
       });
 
-      fetchFiles(); // Refresh the file list
+      fetchFiles();
     } catch (error) {
       console.error('Error deleting file:', error);
       toast({
@@ -222,7 +333,7 @@ const StorageManager = () => {
     });
   };
 
-  if (loading) {
+  if (loading && buckets.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -231,7 +342,7 @@ const StorageManager = () => {
         <CardContent>
           <div className="flex items-center justify-center py-8">
             <RefreshCw className="w-6 h-6 animate-spin mr-2" />
-            Loading files...
+            Loading storage buckets...
           </div>
         </CardContent>
       </Card>
@@ -243,105 +354,171 @@ const StorageManager = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Upload className="w-5 h-5" />
+            <FolderOpen className="w-5 h-5" />
             Storage Management
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Bucket Selection */}
           <div className="flex items-center gap-4 mb-6">
             <div className="flex-1">
-              <Input
-                type="file"
-                onChange={handleFileUpload}
-                disabled={uploading}
-                className="cursor-pointer"
-              />
+              <label className="text-sm font-medium mb-2 block">Storage Bucket</label>
+              <div className="flex gap-2">
+                <Select value={selectedBucket} onValueChange={setSelectedBucket}>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Select a bucket" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {buckets.map((bucket) => (
+                      <SelectItem key={bucket.id} value={bucket.id}>
+                        {bucket.name} {bucket.public ? "(Public)" : "(Private)"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Dialog open={showCreateBucket} onOpenChange={setShowCreateBucket}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      New Bucket
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Create New Storage Bucket</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Bucket Name</label>
+                        <Input
+                          value={newBucketName}
+                          onChange={(e) => setNewBucketName(e.target.value)}
+                          placeholder="Enter bucket name"
+                        />
+                      </div>
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="outline" onClick={() => setShowCreateBucket(false)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={createBucket}>
+                          Create Bucket
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
-            <Button
-              onClick={fetchFiles}
-              variant="outline"
-              size="sm"
-              disabled={loading}
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh
-            </Button>
           </div>
 
-          {uploading && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-              <RefreshCw className="w-4 h-4 animate-spin" />
-              Uploading file...
-            </div>
-          )}
+          {selectedBucket && (
+            <>
+              {/* File Upload */}
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex-1">
+                  <Input
+                    type="file"
+                    onChange={handleFileUpload}
+                    disabled={uploading}
+                    className="cursor-pointer"
+                  />
+                </div>
+                <Button
+                  onClick={fetchFiles}
+                  variant="outline"
+                  size="sm"
+                  disabled={loading}
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refresh
+                </Button>
+              </div>
 
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>File</TableHead>
-                  <TableHead>Size</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {files.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                      No files found. Upload your first file to get started.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  files.map((file) => (
-                    <TableRow key={file.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getFileIcon(file.metadata?.mimetype || '')}
-                          <span className="font-medium">{file.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {formatFileSize(file.metadata?.size || 0)}
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-xs bg-muted px-2 py-1 rounded">
-                          {file.metadata?.mimetype || 'Unknown'}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {formatDate(file.created_at)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center gap-1 justify-end">
-                          <Button
-                            onClick={() => handleDownload(file.name)}
-                            variant="ghost"
-                            size="sm"
-                          >
-                            <Download className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            onClick={() => handleDelete(file.name)}
-                            variant="ghost"
-                            size="sm"
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              {uploading && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  Uploading file...
+                </div>
+              )}
+
+              {/* Files Table */}
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>File</TableHead>
+                      <TableHead>Size</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  </TableHeader>
+                  <TableBody>
+                    {loading ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8">
+                          <RefreshCw className="w-4 h-4 animate-spin mx-auto mb-2" />
+                          Loading files...
+                        </TableCell>
+                      </TableRow>
+                    ) : files.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                          No files found in this bucket. Upload your first file to get started.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      files.map((file) => (
+                        <TableRow key={file.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {getFileIcon(file.metadata?.mimetype || '')}
+                              <span className="font-medium">{file.name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {formatFileSize(file.metadata?.size || 0)}
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-xs bg-muted px-2 py-1 rounded">
+                              {file.metadata?.mimetype || 'Unknown'}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            {formatDate(file.created_at)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center gap-1 justify-end">
+                              <Button
+                                onClick={() => handleDownload(file.name)}
+                                variant="ghost"
+                                size="sm"
+                              >
+                                <Download className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                onClick={() => handleDelete(file.name)}
+                                variant="ghost"
+                                size="sm"
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
 
-          <div className="mt-4 text-sm text-muted-foreground">
-            Total files: {files.length}
-          </div>
+              <div className="mt-4 text-sm text-muted-foreground">
+                Bucket: <span className="font-medium">{selectedBucket}</span> • 
+                Total files: {files.length}
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>
