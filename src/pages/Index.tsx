@@ -3,12 +3,13 @@ import { useState } from "react";
 import HymnBook from "@/components/HymnBook";
 import RemoteControl from "@/components/RemoteControl";
 import HymnbookBrowser from "@/components/HymnbookBrowser";
+import HymnLyricsViewer from "@/components/HymnLyricsViewer";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
-import { Book, Smartphone, Monitor, Users, Library } from "lucide-react";
+import { Book, Smartphone, Monitor, Users, Library, FileText } from "lucide-react";
 
 const Index = () => {
-  const [mode, setMode] = useState<'select' | 'hymnal' | 'remote' | 'display' | 'browse'>('select');
+  const [mode, setMode] = useState<'select' | 'hymnal' | 'remote' | 'display' | 'browse' | 'lyrics'>('select');
   const [deviceId] = useState(() => Math.random().toString(36).substr(2, 9));
   const [selectedHymnbook, setSelectedHymnbook] = useState(null);
 
@@ -24,6 +25,10 @@ const Index = () => {
 
   if (mode === 'browse') {
     return <HymnbookBrowser onBack={resetToHome} onSelectHymnbook={handleHymnbookSelect} />;
+  }
+
+  if (mode === 'lyrics') {
+    return <HymnLyricsViewer onBack={resetToHome} selectedHymnbook={selectedHymnbook} />;
   }
 
   if (mode === 'hymnal') {
@@ -56,7 +61,7 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           <div 
             onClick={() => setMode('browse')}
             className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-blue-200 group"
@@ -66,6 +71,19 @@ const Index = () => {
               <h3 className="text-xl font-semibold text-slate-800 mb-2">Browse Hymnbooks</h3>
               <p className="text-slate-600 text-sm">
                 Explore our collection of digital hymnbooks
+              </p>
+            </div>
+          </div>
+
+          <div 
+            onClick={() => setMode('lyrics')}
+            className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-blue-200 group"
+          >
+            <div className="text-center">
+              <FileText className="w-12 h-12 text-indigo-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl font-semibold text-slate-800 mb-2">Lyrics Viewer</h3>
+              <p className="text-slate-600 text-sm">
+                View detailed hymn lyrics with syllable breakdowns
               </p>
             </div>
           </div>
@@ -114,8 +132,8 @@ const Index = () => {
           <div className="bg-white rounded-lg p-6 shadow-md max-w-2xl mx-auto">
             <h4 className="text-lg font-semibold text-slate-800 mb-2">How it works</h4>
             <p className="text-slate-600">
-              Browse hymnbooks to explore our collection, use Solo Practice to learn hymns, 
-              Presentation Mode for group singing, and Remote Control to manage the display from another device.
+              Browse hymnbooks to explore our collection, use the Lyrics Viewer for detailed text analysis,
+              Solo Practice to learn hymns, Presentation Mode for group singing, and Remote Control to manage displays.
             </p>
           </div>
         </div>
