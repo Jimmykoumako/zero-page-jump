@@ -197,6 +197,10 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook }: HymnBookProps) =
     setIsPlaying(false);
   };
 
+  const handleVerseChange = (verse: number) => {
+    setCurrentVerse(verse);
+  };
+
   const nextVerse = () => {
     if (selectedHymn !== null) {
       const hymn = hymns.find(h => h.id === selectedHymn);
@@ -277,6 +281,7 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook }: HymnBookProps) =
           currentVerse={currentVerse}
           isPlaying={isPlaying}
           mode={mode}
+          onVerseChange={handleVerseChange}
         />
 
         {mode === 'hymnal' && (

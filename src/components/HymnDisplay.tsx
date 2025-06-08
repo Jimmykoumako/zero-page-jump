@@ -1,5 +1,7 @@
 
 import { Card } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { useEffect } from "react";
 
 interface Hymn {
   id: string;
@@ -17,11 +19,34 @@ interface HymnDisplayProps {
   currentVerse: number;
   isPlaying: boolean;
   mode: 'hymnal' | 'display';
+  onVerseChange?: (verse: number) => void;
 }
 
-const HymnDisplay = ({ hymn, currentVerse, isPlaying, mode }: HymnDisplayProps) => {
+const HymnDisplay = ({ hymn, currentVerse, isPlaying, mode, onVerseChange }: HymnDisplayProps) => {
   const displaySize = mode === 'display' ? 'text-4xl' : 'text-2xl';
   const titleSize = mode === 'display' ? 'text-6xl' : 'text-3xl';
+
+  // Handle keyboard navigation for presentation mode
+  useEffect(() => {
+    if (mode !== 'display') return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowRight' || event.key === ' ') {
+        event.preventDefault();
+        if (currentVerse < hymn.verses.length - 1) {
+          onVerseChange?.(currentVerse + 1);
+        }
+      } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        if (currentVerse > 0) {
+          onVerseChange?.(currentVerse - 1);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mode, currentVerse, hymn.verses.length, onVerseChange]);
   
   return (
     <div className="max-w-4xl mx-auto">
@@ -37,17 +62,56 @@ const HymnDisplay = ({ hymn, currentVerse, isPlaying, mode }: HymnDisplayProps) 
 
         <div className="space-y-8">
           {mode === 'display' ? (
-            // Display mode shows only current verse large
-            <div className="text-center min-h-[60vh] flex flex-col justify-center">
-              <div className="text-2xl font-semibold text-blue-600 mb-4">
-                Verse {currentVerse + 1}
-              </div>
-              <div className={`${displaySize} leading-relaxed text-slate-800`}>
-                {hymn.verses[currentVerse]?.split('\n').map((line, idx) => (
-                  <div key={idx} className="mb-2">
-                    {line}
-                  </div>
-                ))}
+            // Display mode with carousel for sliding and keyboard navigation
+            <div className="min-h-[60vh] flex flex-col justify-center">
+              <Carousel 
+                className="w-full max-w-4xl mx-auto"
+                opts={{
+                  align: "start",
+                  loop: false,
+                }}
+              >
+                <CarouselContent>
+                  {hymn.verses.map((verse, index) => (
+                    <CarouselItem key={index}>
+                      <div className="text-center p-6">
+                        <div className="text-2xl font-semibold text-blue-600 mb-8">
+                          Verse {index + 1}
+                        </div>
+                        <div className={`${displaySize} leading-relaxed text-slate-800 max-w-3xl mx-auto`}>
+                          {verse.split('\n').map((line, lineIdx) => (
+                            <div key={lineIdx} className="mb-4">
+                              {line}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                  {hymn.chorus && (
+                    <CarouselItem>
+                      <div className="text-center p-6">
+                        <div className="text-2xl font-semibold text-yellow-700 mb-8">
+                          Chorus
+                        </div>
+                        <div className={`${displaySize} leading-relaxed text-slate-800 max-w-3xl mx-auto`}>
+                          {hymn.chorus.split('\n').map((line, lineIdx) => (
+                            <div key={lineIdx} className="mb-4">
+                              {line}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  )}
+                </CarouselContent>
+                <CarouselPrevious className="left-4" />
+                <CarouselNext className="right-4" />
+              </Carousel>
+              
+              <div className="text-center mt-8 text-slate-500">
+                <p className="text-lg">Verse {currentVerse + 1} of {hymn.verses.length}</p>
+                <p className="text-sm mt-2">Use arrow keys or swipe to navigate</p>
               </div>
             </div>
           ) : (
@@ -81,7 +145,7 @@ const HymnDisplay = ({ hymn, currentVerse, isPlaying, mode }: HymnDisplayProps) 
             ))
           )}
 
-          {hymn.chorus && (
+          {hymn.chorus && mode !== 'display' && (
             <div className="p-6 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
               <div className="text-center">
                 <div className="text-lg font-semibold text-yellow-700 mb-4">Chorus</div>
