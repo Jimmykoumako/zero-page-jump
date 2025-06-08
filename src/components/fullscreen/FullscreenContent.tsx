@@ -75,6 +75,17 @@ const FullscreenContent = ({
     addToBuffer(hymn);
   }, [hymn, addToBuffer]);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('FullscreenContent Debug:', {
+      title,
+      content,
+      hymn,
+      currentVerseIndex,
+      fontSize
+    });
+  }, [title, content, hymn, currentVerseIndex, fontSize]);
+
   const handleSelectHymn = (selectedHymn: Hymn) => {
     addToBuffer(selectedHymn);
     setCurrentHymn(selectedHymn.id);
@@ -83,8 +94,6 @@ const FullscreenContent = ({
 
   const handleBufferHymnSelect = (selectedHymn: Hymn) => {
     setCurrentHymn(selectedHymn.id);
-    // This would need to be handled by parent component to actually change the hymn
-    // For now, we'll just close the buffer
     setIsBufferVisible(false);
   };
 
@@ -110,6 +119,32 @@ const FullscreenContent = ({
   // Convert fontSize number to pixel value
   const baseFontSize = 24; // Base size in pixels
   const fontSizeInPx = baseFontSize + (fontSize * 8); // Each step adds 8px
+
+  // Ensure we have valid content
+  if (!content || !content.content) {
+    console.log('No content available:', { content, hymn });
+    return (
+      <div className="fixed inset-0 bg-black text-white z-50 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-black to-slate-900" />
+        
+        <Button
+          onClick={onExit}
+          variant="ghost"
+          size="sm"
+          className="fixed top-6 right-6 text-white hover:bg-white/20 backdrop-blur-sm"
+        >
+          <X className="w-5 h-5" />
+        </Button>
+
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <h2 className="text-4xl font-bold mb-4">No Content Available</h2>
+            <p className="text-xl text-slate-400">Please select a hymn to display</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black text-white z-50 overflow-hidden">
@@ -170,7 +205,7 @@ const FullscreenContent = ({
       </div>
 
       {/* Main content */}
-      <div className="flex items-center justify-center h-full p-8">
+      <div className="flex items-center justify-center h-full p-8 relative z-10">
         <div className="max-w-4xl w-full text-center space-y-8">
           {/* Hymn header */}
           <div className="space-y-2">
