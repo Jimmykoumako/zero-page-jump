@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Users, Crown } from "lucide-react";
 
 interface HymnControlsProps {
   currentVerse: number;
@@ -9,6 +9,7 @@ interface HymnControlsProps {
   onPrevVerse: () => void;
   onNextVerse: () => void;
   onTogglePlay: () => void;
+  isGroupLeader?: boolean;
 }
 
 const HymnControls = ({ 
@@ -17,7 +18,8 @@ const HymnControls = ({
   isPlaying, 
   onPrevVerse, 
   onNextVerse, 
-  onTogglePlay 
+  onTogglePlay,
+  isGroupLeader 
 }: HymnControlsProps) => {
   return (
     <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
@@ -38,6 +40,21 @@ const HymnControls = ({
         <div className="text-sm text-slate-600 ml-4">
           Verse {currentVerse + 1} of {totalVerses}
         </div>
+        {isGroupLeader !== undefined && (
+          <div className="flex items-center gap-1 text-xs text-slate-500 ml-2">
+            {isGroupLeader ? (
+              <>
+                <Crown className="w-3 h-3 text-yellow-600" />
+                <span>Leader</span>
+              </>
+            ) : (
+              <>
+                <Users className="w-3 h-3 text-blue-600" />
+                <span>Following</span>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
