@@ -1,9 +1,8 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { useEffect, useState } from "react";
-import { focus } from "lucide-react";
+import { Focus } from "lucide-react";
 
 interface Hymn {
   id: string;
@@ -81,7 +80,7 @@ const HymnDisplay = ({ hymn, currentVerse, isPlaying, mode, onVerseChange }: Hym
               variant="outline"
               className="flex items-center gap-2"
             >
-              <focus className="w-4 h-4" />
+              <Focus className="w-4 h-4" />
               {isLyricsOnly ? 'Show Full View' : 'Focus on Lyrics'}
             </Button>
           </div>
