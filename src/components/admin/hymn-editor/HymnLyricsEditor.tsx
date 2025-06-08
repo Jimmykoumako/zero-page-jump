@@ -8,7 +8,7 @@ import { ArrowLeft, Save, FileText, Edit3, Upload, Download } from "lucide-react
 import VisualEditor from "./VisualEditor";
 import TextImportEditor from "./TextImportEditor";
 import LyricsPreview from "./LyricsPreview";
-import LyricsValidator from "./LyricsValidator";
+import LyricsValidatorComponent, { LyricsValidator } from "./LyricsValidator";
 import BulkOperations from "./BulkOperations";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -102,7 +102,7 @@ const HymnLyricsEditor = ({ hymn, onBack, onSave, selectedHymnbook }: HymnLyrics
         const { error } = await supabase
           .from('HymnLyric')
           .update({
-            lyrics: lyricsData,
+            lyrics: lyricsData as any,
             hymnTitleNumber: hymnNumber,
           })
           .eq('id', hymn.id);
@@ -112,7 +112,12 @@ const HymnLyricsEditor = ({ hymn, onBack, onSave, selectedHymnbook }: HymnLyrics
         // Create new hymn
         const { error } = await supabase
           .from('HymnLyric')
-          .insert([hymnData]);
+          .insert([{
+            hymnTitleNumber: hymnData.hymnTitleNumber,
+            lyrics: hymnData.lyrics as any,
+            bookId: hymnData.bookId,
+            userId: hymnData.userId || ""
+          }]);
 
         if (error) throw error;
       }
@@ -261,7 +266,7 @@ const HymnLyricsEditor = ({ hymn, onBack, onSave, selectedHymnbook }: HymnLyrics
 
           {/* Sidebar */}
           <div className="space-y-6">
-            <LyricsValidator
+            <LyricsValidatorComponent
               lyricsData={lyricsData}
               onValidationChange={(isValid) => console.log('Validation:', isValid)}
             />
