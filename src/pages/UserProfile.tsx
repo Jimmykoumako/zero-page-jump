@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -73,8 +72,10 @@ const UserProfile = () => {
     
     setDeleteLoading(true);
     try {
-      // Create an account deletion request using direct insert
-      const { error } = await supabase
+      console.log('Submitting account deletion request for user:', user.id);
+      
+      // Create an account deletion request
+      const { error: insertError } = await supabase
         .from('account_deletion_requests')
         .insert({
           user_id: user.id,
@@ -82,12 +83,20 @@ const UserProfile = () => {
           reason: 'User requested account deletion from profile page'
         });
 
-      if (error) {
-        throw error;
+      if (insertError) {
+        console.error('Error inserting deletion request:', insertError);
+        throw insertError;
       }
 
+      console.log('Account deletion request submitted successfully');
+
       // Sign out the user after submitting the request
-      await supabase.auth.signOut();
+      const { error: signOutError } = await supabase.auth.signOut();
+      
+      if (signOutError) {
+        console.error('Error signing out:', signOutError);
+        // Don't throw here, we still want to show success message
+      }
 
       toast({
         title: "Account Deletion Requested",
@@ -101,7 +110,7 @@ const UserProfile = () => {
       console.error('Error processing account deletion:', error);
       toast({
         title: "Error",
-        description: "Failed to submit account deletion request. Please try again.",
+        description: error.message || "Failed to submit account deletion request. Please try again.",
         variant: "destructive",
       });
     } finally {
