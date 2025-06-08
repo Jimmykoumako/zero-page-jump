@@ -3,6 +3,7 @@ import { useState } from "react";
 import HymnBook from "@/components/HymnBook";
 import RemoteControl from "@/components/RemoteControl";
 import HymnbookBrowser from "@/components/HymnbookBrowser";
+import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Book, Smartphone, Monitor, Users, Library } from "lucide-react";
 
@@ -39,6 +40,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <AppHeader onModeSelect={setMode} />
+      
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
           <div className="flex justify-center mb-6">
