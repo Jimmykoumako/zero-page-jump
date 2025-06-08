@@ -107,6 +107,10 @@ const FullscreenContent = ({
     };
   }, [currentVerseIndex, hymn, onExit, onVerseChange]);
 
+  // Convert fontSize number to pixel value
+  const baseFontSize = 24; // Base size in pixels
+  const fontSizeInPx = baseFontSize + (fontSize * 8); // Each step adds 8px
+
   return (
     <div className="fixed inset-0 bg-black text-white z-50 overflow-hidden">
       {/* Background with subtle gradient */}
@@ -172,19 +176,19 @@ const FullscreenContent = ({
           <div className="space-y-2">
             <h1 
               className="font-bold text-blue-300"
-              style={{ fontSize: `${fontSize * 0.6}px` }}
+              style={{ fontSize: `${Math.floor(fontSizeInPx * 0.6)}px` }}
             >
               #{hymn.number}
             </h1>
             <h2 
               className="font-bold leading-tight"
-              style={{ fontSize: `${fontSize * 0.8}px` }}
+              style={{ fontSize: `${Math.floor(fontSizeInPx * 0.8)}px` }}
             >
               {title}
             </h2>
             <p 
               className="text-slate-300"
-              style={{ fontSize: `${fontSize * 0.4}px` }}
+              style={{ fontSize: `${Math.floor(fontSizeInPx * 0.4)}px` }}
             >
               {hymn.author}
             </p>
@@ -195,13 +199,13 @@ const FullscreenContent = ({
             <div>
               <h3 
                 className="text-blue-300 mb-4"
-                style={{ fontSize: `${fontSize * 0.5}px` }}
+                style={{ fontSize: `${Math.floor(fontSizeInPx * 0.5)}px` }}
               >
                 {content.type === 'verse' ? `Verse ${content.number}` : 'Chorus'}
               </h3>
               <p 
                 className="leading-relaxed whitespace-pre-line"
-                style={{ fontSize: `${fontSize}px`, lineHeight: '1.6' }}
+                style={{ fontSize: `${fontSizeInPx}px`, lineHeight: '1.6' }}
               >
                 {content.content}
               </p>
