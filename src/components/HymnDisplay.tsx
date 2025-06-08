@@ -1,6 +1,16 @@
 
 import { Card } from "@/components/ui/card";
-import { Hymn } from "@/data/hymns";
+
+interface Hymn {
+  id: string;
+  number: string;
+  title: string;
+  author: string;
+  verses: string[];
+  chorus?: string;
+  key: string;
+  tempo: number;
+}
 
 interface HymnDisplayProps {
   hymn: Hymn;
@@ -33,7 +43,7 @@ const HymnDisplay = ({ hymn, currentVerse, isPlaying, mode }: HymnDisplayProps) 
                 Verse {currentVerse + 1}
               </div>
               <div className={`${displaySize} leading-relaxed text-slate-800`}>
-                {hymn.verses[currentVerse].split('\n').map((line, idx) => (
+                {hymn.verses[currentVerse]?.split('\n').map((line, idx) => (
                   <div key={idx} className="mb-2">
                     {line}
                   </div>

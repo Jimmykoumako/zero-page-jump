@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -31,15 +30,24 @@ const HymnbookBrowser = ({ onBack, onSelectHymnbook }: HymnbookBrowserProps) => 
 
   const fetchHymnbooks = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch hymnbooks with their actual hymn counts
+      const { data: hymnbooksData, error: hymnbooksError } = await supabase
         .from('HymnBook')
-        .select('*')
+        .select(`
+          id,
+          name,
+          description,
+          category,
+          accessLevel,
+          addedHymns
+        `)
         .eq('accessLevel', 'PUBLIC')
         .eq('isActive', true)
         .order('name');
 
-      if (error) throw error;
-      setHymnbooks(data || []);
+      if (hymnbooksError) throw hymnbooksError;
+
+      setHymnbooks(hymnbooksData || []);
     } catch (error) {
       console.error('Error fetching hymnbooks:', error);
       toast({
