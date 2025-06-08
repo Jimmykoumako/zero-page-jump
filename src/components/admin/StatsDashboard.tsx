@@ -11,7 +11,7 @@ interface DashboardStats {
   totalHymns: number;
   totalLyrics: number;
   totalAudioFiles: number;
-  totalUsers: number;
+  totalUserRoles: number;
 }
 
 const StatsDashboard = () => {
@@ -21,7 +21,7 @@ const StatsDashboard = () => {
     totalHymns: 0,
     totalLyrics: 0,
     totalAudioFiles: 0,
-    totalUsers: 0
+    totalUserRoles: 0
   });
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -65,12 +65,12 @@ const StatsDashboard = () => {
 
       if (audioError) throw audioError;
 
-      // Fetch users count
-      const { count: usersCount, error: usersError } = await supabase
-        .from('users')
+      // Fetch user roles count instead of users count
+      const { count: userRolesCount, error: userRolesError } = await supabase
+        .from('user_roles')
         .select('*', { count: 'exact', head: true });
 
-      if (usersError) throw usersError;
+      if (userRolesError) throw userRolesError;
 
       setStats({
         totalHymnbooks,
@@ -78,7 +78,7 @@ const StatsDashboard = () => {
         totalHymns: hymnTitlesCount || 0,
         totalLyrics: lyricsCount || 0,
         totalAudioFiles: audioCount || 0,
-        totalUsers: usersCount || 0
+        totalUserRoles: userRolesCount || 0
       });
 
     } catch (error) {
@@ -138,8 +138,8 @@ const StatsDashboard = () => {
       bgColor: "bg-orange-50"
     },
     {
-      title: "Total Users",
-      value: stats.totalUsers,
+      title: "User Roles",
+      value: stats.totalUserRoles,
       icon: Users,
       color: "text-rose-600",
       bgColor: "bg-rose-50"
@@ -177,7 +177,7 @@ const StatsDashboard = () => {
             </div>
             <div>
               <p>• {((stats.totalAudioFiles / Math.max(stats.totalHymns, 1)) * 100).toFixed(1)}% coverage with audio files</p>
-              <p>• Average {(stats.totalAudioFiles / Math.max(stats.totalLyrics, 1)).toFixed(1)} audio files per hymn with lyrics</p>
+              <p>• {stats.totalUserRoles} user roles configured in the system</p>
             </div>
           </div>
         </div>
