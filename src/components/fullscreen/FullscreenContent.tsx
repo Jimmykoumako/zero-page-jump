@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -21,6 +22,17 @@ interface Hymn {
 }
 
 interface FullscreenContentProps {
+  title: string;
+  content: {
+    type: 'verse' | 'chorus';
+    number: number | null;
+    content: string;
+  };
+  fontSizeClass: string;
+  currentVerse: number;
+  totalVerses: number;
+  hasChorus: boolean;
+  isPlayingAudio: boolean;
   hymn: Hymn;
   onExit: () => void;
   fontSize: number;
@@ -30,6 +42,13 @@ interface FullscreenContentProps {
 }
 
 const FullscreenContent = ({
+  title,
+  content,
+  fontSizeClass,
+  currentVerse,
+  totalVerses,
+  hasChorus,
+  isPlayingAudio,
   hymn,
   onExit,
   fontSize,
@@ -127,27 +146,22 @@ const FullscreenContent = ({
 
         {/* Navigation controls */}
         <FullscreenNavigationControls
-          currentVerseIndex={currentVerseIndex}
-          totalVerses={hymn.verses.length + (hymn.chorus ? 1 : 0)}
+          hymn={hymn}
+          currentVerse={currentVerseIndex}
+          content={content}
+          canGoPrevious={currentVerseIndex > 0}
+          canGoNext={currentVerseIndex < hymn.verses.length - 1 || (hymn.chorus && currentVerseIndex < hymn.verses.length)}
           onVerseChange={onVerseChange}
-          onPreviousHymn={() => {
-            const prevHymn = moveToPrevious();
-            if (prevHymn) {
-              // Handle hymn change in parent component
-            }
-          }}
-          onNextHymn={() => {
-            const nextHymn = moveToNext();
-            if (nextHymn) {
-              // Handle hymn change in parent component
-            }
-          }}
+          onExit={onExit}
+          onStopAudio={() => {}}
         />
 
         {/* Font controls */}
         <FullscreenFontControls
           fontSize={fontSize}
-          onFontSizeChange={onFontSizeChange}
+          maxFontSize={9}
+          onIncreaseFontSize={() => onFontSizeChange(Math.min(fontSize + 1, 8))}
+          onDecreaseFontSize={() => onFontSizeChange(Math.max(fontSize - 1, 0))}
         />
       </div>
 
@@ -166,7 +180,7 @@ const FullscreenContent = ({
               className="font-bold leading-tight"
               style={{ fontSize: `${fontSize * 0.8}px` }}
             >
-              {hymn.title}
+              {title}
             </h2>
             <p 
               className="text-slate-300"
@@ -178,37 +192,20 @@ const FullscreenContent = ({
 
           {/* Current verse/chorus */}
           <div className="space-y-6">
-            {currentVerseIndex < hymn.verses.length ? (
-              <div>
-                <h3 
-                  className="text-blue-300 mb-4"
-                  style={{ fontSize: `${fontSize * 0.5}px` }}
-                >
-                  Verse {currentVerseIndex + 1}
-                </h3>
-                <p 
-                  className="leading-relaxed whitespace-pre-line"
-                  style={{ fontSize: `${fontSize}px`, lineHeight: '1.6' }}
-                >
-                  {hymn.verses[currentVerseIndex]}
-                </p>
-              </div>
-            ) : hymn.chorus && currentVerseIndex === hymn.verses.length ? (
-              <div>
-                <h3 
-                  className="text-blue-300 mb-4"
-                  style={{ fontSize: `${fontSize * 0.5}px` }}
-                >
-                  Chorus
-                </h3>
-                <p 
-                  className="leading-relaxed whitespace-pre-line"
-                  style={{ fontSize: `${fontSize}px`, lineHeight: '1.6' }}
-                >
-                  {hymn.chorus}
-                </p>
-              </div>
-            ) : null}
+            <div>
+              <h3 
+                className="text-blue-300 mb-4"
+                style={{ fontSize: `${fontSize * 0.5}px` }}
+              >
+                {content.type === 'verse' ? `Verse ${content.number}` : 'Chorus'}
+              </h3>
+              <p 
+                className="leading-relaxed whitespace-pre-line"
+                style={{ fontSize: `${fontSize}px`, lineHeight: '1.6' }}
+              >
+                {content.content}
+              </p>
+            </div>
           </div>
 
           {/* Progress indicator */}
@@ -228,8 +225,10 @@ const FullscreenContent = ({
       {/* Search overlay */}
       {isSearchOpen && (
         <FullscreenHymnSearch
-          onSelectHymn={handleSelectHymn}
+          isOpen={isSearchOpen}
           onClose={() => setIsSearchOpen(false)}
+          onAddToBuffer={addToBuffer}
+          bufferHymnIds={hymnBuffer.map(h => h.id)}
         />
       )}
     </div>

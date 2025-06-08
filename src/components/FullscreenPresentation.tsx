@@ -5,12 +5,6 @@ import { useFullscreenControls } from "@/hooks/useFullscreenControls";
 import { useFullscreenKeyboard } from "@/hooks/useFullscreenKeyboard";
 import { useHymnBuffer } from "@/hooks/useHymnBuffer";
 import FullscreenContent from "@/components/fullscreen/FullscreenContent";
-import FullscreenAudioControls from "@/components/fullscreen/FullscreenAudioControls";
-import FullscreenFontControls from "@/components/fullscreen/FullscreenFontControls";
-import FullscreenNavigationControls from "@/components/fullscreen/FullscreenNavigationControls";
-import FullscreenSearchButton from "@/components/fullscreen/FullscreenSearchButton";
-import FullscreenHymnSearch from "@/components/fullscreen/FullscreenHymnSearch";
-import FullscreenHymnBuffer from "@/components/fullscreen/FullscreenHymnBuffer";
 
 interface Hymn {
   id: string;
@@ -33,8 +27,6 @@ interface FullscreenPresentationProps {
 const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: FullscreenPresentationProps) => {
   const [fontSize, setFontSize] = useState(6);
   const [currentHymn, setCurrentHymn] = useState<Hymn>(hymn);
-  const [showSearch, setShowSearch] = useState(false);
-  const [showBuffer, setShowBuffer] = useState(false);
 
   // Font size classes array for easy indexing
   const fontSizeClasses = [
@@ -103,9 +95,6 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
     return null;
   };
 
-  const canGoPrevious = currentVerse > 0;
-  const canGoNext = currentVerse < currentHymn.verses.length - 1 || (currentHymn.chorus && currentVerse < currentHymn.verses.length);
-
   const content = getCurrentContent();
   if (!content) return null;
 
@@ -119,61 +108,12 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
         totalVerses={currentHymn.verses.length}
         hasChorus={!!currentHymn.chorus}
         isPlayingAudio={audioHook.isPlaying}
-      />
-
-      {/* Floating controls */}
-      <div 
-        className={`fixed inset-0 pointer-events-none transition-opacity duration-300 ${
-          showControls ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <FullscreenNavigationControls
-          hymn={currentHymn}
-          currentVerse={currentVerse}
-          content={content}
-          canGoPrevious={canGoPrevious}
-          canGoNext={canGoNext}
-          onVerseChange={onVerseChange}
-          onExit={onExit}
-          onStopAudio={audioHook.stopAudio}
-        />
-
-        <FullscreenFontControls
-          fontSize={fontSize}
-          maxFontSize={fontSizeClasses.length}
-          onIncreaseFontSize={increaseFontSize}
-          onDecreaseFontSize={decreaseFontSize}
-        />
-
-        <FullscreenAudioControls
-          audioFiles={audioHook.audioFiles}
-          currentAudioFile={audioHook.currentAudioFile}
-          currentAudio={audioHook.currentAudio}
-          isPlaying={audioHook.isPlaying}
-          loading={audioHook.loading}
-          onPlayAudio={audioHook.playAudio}
-          onTogglePlayPause={audioHook.togglePlayPause}
-          onStopAudio={audioHook.stopAudio}
-        />
-
-        <FullscreenSearchButton onOpenSearch={() => setShowSearch(true)} />
-
-        <FullscreenHymnBuffer
-          hymnBuffer={hymnBuffer.hymnBuffer}
-          currentBufferIndex={hymnBuffer.currentBufferIndex}
-          onSelectHymn={handleSelectHymnFromBuffer}
-          onRemoveFromBuffer={hymnBuffer.removeFromBuffer}
-          isVisible={showBuffer}
-          onToggleVisibility={() => setShowBuffer(!showBuffer)}
-        />
-      </div>
-
-      {/* Search Dialog */}
-      <FullscreenHymnSearch
-        isOpen={showSearch}
-        onClose={() => setShowSearch(false)}
-        onAddToBuffer={hymnBuffer.addToBuffer}
-        bufferHymnIds={hymnBuffer.hymnBuffer.map(h => h.id)}
+        hymn={currentHymn}
+        onExit={onExit}
+        fontSize={fontSize}
+        onFontSizeChange={setFontSize}
+        currentVerseIndex={currentVerse}
+        onVerseChange={onVerseChange}
       />
 
       {/* Help text - only shows when controls are visible */}

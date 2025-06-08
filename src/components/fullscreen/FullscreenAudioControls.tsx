@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Play, Pause, Stop, Volume2, VolumeX, Music } from "lucide-react";
+import { Play, Pause, Square, Volume2, VolumeX, Music } from "lucide-react";
 import { useFullscreenAudio } from "@/hooks/useFullscreenAudio";
 
 interface FullscreenAudioControlsProps {
@@ -112,7 +112,7 @@ const FullscreenAudioControls = ({
                         size="sm"
                         className="text-slate-400 hover:text-red-400 hover:bg-red-400/20 w-6 h-6 p-0"
                       >
-                        <Stop className="w-3 h-3" />
+                        <Square className="w-3 h-3" />
                       </Button>
                     )}
                   </div>
