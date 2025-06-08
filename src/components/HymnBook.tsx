@@ -86,15 +86,51 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook }: HymnBookProps) =
         const lyrics = hymnLyrics.find(l => l.hymnTitleNumber === title.number);
         const lyricsData = lyrics?.lyrics as any;
         
-        // Extract verses from lyrics data
+        console.log(`Processing hymn ${title.number}:`, lyricsData);
+        
+        // Extract verses from the structured lyrics data
         const verses = [];
-        if (lyricsData?.verses) {
+        if (lyricsData?.verses && Array.isArray(lyricsData.verses)) {
+          // Handle array format where each verse is an array of lines
+          lyricsData.verses.forEach((verse: any, index: number) => {
+            if (Array.isArray(verse)) {
+              // Convert array of line objects to text
+              const verseText = verse.map((line: any) => line.text || line).join('\n');
+              verses.push(verseText);
+            } else if (typeof verse === 'string') {
+              verses.push(verse);
+            }
+          });
+        } else if (lyricsData?.verses && typeof lyricsData.verses === 'object') {
+          // Handle object format with verse1, verse2, etc.
           for (let i = 1; i <= 10; i++) {
-            if (lyricsData.verses[`verse${i}`]) {
-              verses.push(lyricsData.verses[`verse${i}`]);
+            const verseKey = `verse${i}`;
+            if (lyricsData.verses[verseKey]) {
+              const verse = lyricsData.verses[verseKey];
+              if (Array.isArray(verse)) {
+                const verseText = verse.map((line: any) => line.text || line).join('\n');
+                verses.push(verseText);
+              } else if (typeof verse === 'string') {
+                verses.push(verse);
+              }
             }
           }
         }
+
+        // Extract chorus
+        let chorus = undefined;
+        if (lyricsData?.choruses && Array.isArray(lyricsData.choruses) && lyricsData.choruses[0]) {
+          const chorusData = lyricsData.choruses[0];
+          if (Array.isArray(chorusData)) {
+            chorus = chorusData.map((line: any) => line.text || line).join('\n');
+          } else if (typeof chorusData === 'string') {
+            chorus = chorusData;
+          }
+        } else if (lyricsData?.chorus) {
+          chorus = lyricsData.chorus;
+        }
+
+        console.log(`Hymn ${title.number} processed:`, { verses, chorus });
 
         return {
           id: `${bookId}-${title.number}`,
@@ -102,12 +138,13 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook }: HymnBookProps) =
           title: title.titles?.[0] || 'Untitled Hymn',
           author: lyricsData?.author || 'Unknown',
           verses: verses.length > 0 ? verses : ['No lyrics available'],
-          chorus: lyricsData?.chorus || undefined,
+          chorus: chorus,
           key: lyricsData?.key || 'C',
           tempo: lyricsData?.tempo || 120
         };
       });
 
+      console.log('All processed hymns:', combinedHymns);
       setHymns(combinedHymns);
     } catch (error) {
       console.error('Error fetching hymns:', error);
@@ -218,6 +255,8 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook }: HymnBookProps) =
 
   const selectedHymnData = hymns.find(h => h.id === selectedHymn);
   if (!selectedHymnData) return null;
+
+  console.log('Rendering hymn:', selectedHymnData);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
