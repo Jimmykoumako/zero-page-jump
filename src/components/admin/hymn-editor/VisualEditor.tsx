@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, GripVertical, Copy } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Trash2, GripVertical, Copy, FileText, List, Edit3 } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -131,22 +133,29 @@ const SortableSection = ({
       <CardContent>
         <div className="space-y-2">
           {sectionData.map((line, lineIndex) => (
-            <div key={lineIndex} className="flex items-center gap-2">
-              <Textarea
-                value={line.text}
-                onChange={(e) => onUpdateLine(sectionType, sectionIndex, lineIndex, e.target.value)}
-                placeholder="Enter lyrics line..."
-                className="min-h-[40px] resize-none"
-                rows={1}
-              />
-              <Button
-                onClick={() => onDeleteLine(sectionType, sectionIndex, lineIndex)}
-                variant="ghost"
-                size="sm"
-                className="text-red-600 hover:text-red-700"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+            <div key={lineIndex} className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Textarea
+                  value={line.text}
+                  onChange={(e) => onUpdateLine(sectionType, sectionIndex, lineIndex, e.target.value)}
+                  placeholder="Enter lyrics line..."
+                  className="min-h-[40px] resize-none"
+                  rows={1}
+                />
+                <Button
+                  onClick={() => onDeleteLine(sectionType, sectionIndex, lineIndex)}
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+              {line.syllables.length > 0 && (
+                <div className="text-xs text-gray-500 ml-2">
+                  Syllables: {line.syllables.join(' • ')}
+                </div>
+              )}
             </div>
           ))}
           <Button
@@ -164,8 +173,102 @@ const SortableSection = ({
   );
 };
 
+const QuickOrderView = ({ lyricsData, onOrderChange }: { lyricsData: LyricsData; onOrderChange: (newOrder: string[]) => void }) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = lyricsData.order.indexOf(active.id as string);
+      const newIndex = lyricsData.order.indexOf(over.id as string);
+      const newOrder = arrayMove(lyricsData.order, oldIndex, newIndex);
+      onOrderChange(newOrder);
+    }
+  };
+
+  const getSectionTitle = (sectionId: string) => {
+    if (sectionId.startsWith('verse')) {
+      const index = parseInt(sectionId.replace('verse', ''));
+      return `Verse ${index}`;
+    } else if (sectionId.startsWith('chorus')) {
+      const index = parseInt(sectionId.replace('chorus', ''));
+      return `Chorus ${index}`;
+    }
+    return sectionId;
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="text-sm text-gray-600 mb-4">
+        Drag and drop to reorder sections
+      </div>
+      
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={lyricsData.order} strategy={verticalListSortingStrategy}>
+          <div className="space-y-2">
+            {lyricsData.order.map((sectionId, index) => {
+              const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: sectionId });
+              
+              const style = {
+                transform: CSS.Transform.toString(transform),
+                transition,
+                opacity: isDragging ? 0.5 : 1,
+              };
+
+              return (
+                <div
+                  key={sectionId}
+                  ref={setNodeRef}
+                  style={style}
+                  className="flex items-center gap-3 p-3 bg-white border rounded-lg shadow-sm"
+                >
+                  <div {...attributes} {...listeners} className="cursor-grab">
+                    <GripVertical className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-medium">{getSectionTitle(sectionId)}</span>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    Position: {index + 1}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </div>
+  );
+};
+
+const JsonView = ({ lyricsData }: { lyricsData: LyricsData }) => {
+  return (
+    <div className="space-y-4">
+      <div className="text-sm text-gray-600 mb-4">
+        JSON representation of the lyrics data
+      </div>
+      <Textarea
+        value={JSON.stringify(lyricsData, null, 2)}
+        readOnly
+        className="min-h-[400px] font-mono text-sm"
+        placeholder="Lyrics JSON will appear here..."
+      />
+    </div>
+  );
+};
+
 const VisualEditor = ({ lyricsData, hymnNumber, onLyricsChange, onHymnNumberChange }: VisualEditorProps) => {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [selectedHymn, setSelectedHymn] = useState<string>("");
   
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -173,6 +276,16 @@ const VisualEditor = ({ lyricsData, hymnNumber, onLyricsChange, onHymnNumberChan
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  // Sample hymn options - in a real app, this would come from a database
+  const hymnOptions = [
+    { value: "001", label: "Amazing Grace" },
+    { value: "015", label: "How Great Thou Art" },
+    { value: "023", label: "Holy, Holy, Holy" },
+    { value: "032", label: "Be Thou My Vision" },
+    { value: "045", label: "It Is Well With My Soul" },
+    { value: "067", label: "Blessed Assurance" },
+  ];
 
   const addVerse = () => {
     const newVerseIndex = lyricsData.verses.length;
@@ -277,6 +390,10 @@ const VisualEditor = ({ lyricsData, hymnNumber, onLyricsChange, onHymnNumberChan
     }
   };
 
+  const handleOrderChange = (newOrder: string[]) => {
+    onLyricsChange({ ...lyricsData, order: newOrder });
+  };
+
   const renderSection = (sectionId: string) => {
     let sectionData: LyricsLine[] = [];
     let sectionType: 'verse' | 'chorus' = 'verse';
@@ -316,58 +433,101 @@ const VisualEditor = ({ lyricsData, hymnNumber, onLyricsChange, onHymnNumberChan
 
   return (
     <div className="space-y-6">
-      {/* Hymn Number Input */}
-      <div>
-        <Label htmlFor="hymn-number">Hymn Number</Label>
-        <Input
-          id="hymn-number"
-          value={hymnNumber}
-          onChange={(e) => onHymnNumberChange(e.target.value)}
-          placeholder="e.g., 001, 123"
-          className="w-48"
-        />
+      {/* Hymn Selection and Number */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="hymn-selector">Select Hymn</Label>
+          <Select value={selectedHymn} onValueChange={setSelectedHymn}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose a hymn..." />
+            </SelectTrigger>
+            <SelectContent>
+              {hymnOptions.map((hymn) => (
+                <SelectItem key={hymn.value} value={hymn.value}>
+                  {hymn.value} - {hymn.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="hymn-number">Hymn Number</Label>
+          <Input
+            id="hymn-number"
+            value={hymnNumber}
+            onChange={(e) => onHymnNumberChange(e.target.value)}
+            placeholder="e.g., 001, 123"
+          />
+        </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="flex gap-2">
-        <Button onClick={addVerse} variant="outline">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Verse
-        </Button>
-        <Button onClick={addChorus} variant="outline">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Chorus
-        </Button>
-      </div>
+      <Tabs defaultValue="editor" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="editor" className="flex items-center gap-2">
+            <Edit3 className="w-4 h-4" />
+            Editor
+          </TabsTrigger>
+          <TabsTrigger value="order" className="flex items-center gap-2">
+            <List className="w-4 h-4" />
+            Order
+          </TabsTrigger>
+          <TabsTrigger value="json" className="flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            JSON
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Sections */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext items={lyricsData.order} strategy={verticalListSortingStrategy}>
-          <div>
-            {lyricsData.order.map((sectionId) => renderSection(sectionId))}
-          </div>
-        </SortableContext>
-      </DndContext>
-
-      {lyricsData.order.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          <p className="mb-4">No sections added yet</p>
-          <div className="flex justify-center gap-2">
+        <TabsContent value="editor" className="space-y-6">
+          {/* Quick Actions */}
+          <div className="flex gap-2">
             <Button onClick={addVerse} variant="outline">
               <Plus className="w-4 h-4 mr-2" />
-              Add First Verse
+              Add Verse
             </Button>
             <Button onClick={addChorus} variant="outline">
               <Plus className="w-4 h-4 mr-2" />
-              Add First Chorus
+              Add Chorus
             </Button>
           </div>
-        </div>
-      )}
+
+          {/* Sections */}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={lyricsData.order} strategy={verticalListSortingStrategy}>
+              <div>
+                {lyricsData.order.map((sectionId) => renderSection(sectionId))}
+              </div>
+            </SortableContext>
+          </DndContext>
+
+          {lyricsData.order.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              <p className="mb-4">No sections added yet</p>
+              <div className="flex justify-center gap-2">
+                <Button onClick={addVerse} variant="outline">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add First Verse
+                </Button>
+                <Button onClick={addChorus} variant="outline">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add First Chorus
+                </Button>
+              </div>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="order">
+          <QuickOrderView lyricsData={lyricsData} onOrderChange={handleOrderChange} />
+        </TabsContent>
+
+        <TabsContent value="json">
+          <JsonView lyricsData={lyricsData} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
