@@ -5,8 +5,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, GripVertical, Copy, ArrowUp, ArrowDown } from "lucide-react";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { Plus, Trash2, GripVertical, Copy } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface LyricsLine {
   text: string;
@@ -26,8 +44,135 @@ interface VisualEditorProps {
   onHymnNumberChange: (number: string) => void;
 }
 
+interface SortableSectionProps {
+  sectionId: string;
+  sectionData: LyricsLine[];
+  sectionType: 'verse' | 'chorus';
+  sectionIndex: number;
+  sectionTitle: string;
+  selectedSection: string | null;
+  onSectionClick: (sectionId: string) => void;
+  onDeleteSection: (sectionId: string) => void;
+  onDuplicateSection: (sectionId: string) => void;
+  onAddLine: (sectionType: 'verse' | 'chorus', sectionIndex: number) => void;
+  onUpdateLine: (sectionType: 'verse' | 'chorus', sectionIndex: number, lineIndex: number, text: string) => void;
+  onDeleteLine: (sectionType: 'verse' | 'chorus', sectionIndex: number, lineIndex: number) => void;
+}
+
+const SortableSection = ({
+  sectionId,
+  sectionData,
+  sectionType,
+  sectionIndex,
+  sectionTitle,
+  selectedSection,
+  onSectionClick,
+  onDeleteSection,
+  onDuplicateSection,
+  onAddLine,
+  onUpdateLine,
+  onDeleteLine,
+}: SortableSectionProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: sectionId });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <Card
+      ref={setNodeRef}
+      style={style}
+      className={`mb-4 ${selectedSection === sectionId ? 'ring-2 ring-blue-500' : ''}`}
+      onClick={() => onSectionClick(sectionId)}
+    >
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <div {...attributes} {...listeners}>
+              <GripVertical className="w-4 h-4 text-gray-400 cursor-grab" />
+            </div>
+            {sectionTitle}
+          </CardTitle>
+          <div className="flex items-center gap-1">
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDuplicateSection(sectionId);
+              }}
+              variant="ghost"
+              size="sm"
+            >
+              <Copy className="w-4 h-4" />
+            </Button>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteSection(sectionId);
+              }}
+              variant="ghost"
+              size="sm"
+              className="text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          {sectionData.map((line, lineIndex) => (
+            <div key={lineIndex} className="flex items-center gap-2">
+              <Textarea
+                value={line.text}
+                onChange={(e) => onUpdateLine(sectionType, sectionIndex, lineIndex, e.target.value)}
+                placeholder="Enter lyrics line..."
+                className="min-h-[40px] resize-none"
+                rows={1}
+              />
+              <Button
+                onClick={() => onDeleteLine(sectionType, sectionIndex, lineIndex)}
+                variant="ghost"
+                size="sm"
+                className="text-red-600 hover:text-red-700"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            onClick={() => onAddLine(sectionType, sectionIndex)}
+            variant="outline"
+            size="sm"
+            className="w-full"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Line
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 const VisualEditor = ({ lyricsData, hymnNumber, onLyricsChange, onHymnNumberChange }: VisualEditorProps) => {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const addVerse = () => {
     const newVerseIndex = lyricsData.verses.length;
@@ -121,17 +266,18 @@ const VisualEditor = ({ lyricsData, hymnNumber, onLyricsChange, onHymnNumberChan
     }
   };
 
-  const onDragEnd = (result: any) => {
-    if (!result.destination) return;
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
 
-    const newOrder = Array.from(lyricsData.order);
-    const [reorderedItem] = newOrder.splice(result.source.index, 1);
-    newOrder.splice(result.destination.index, 0, reorderedItem);
-
-    onLyricsChange({ ...lyricsData, order: newOrder });
+    if (over && active.id !== over.id) {
+      const oldIndex = lyricsData.order.indexOf(active.id as string);
+      const newIndex = lyricsData.order.indexOf(over.id as string);
+      const newOrder = arrayMove(lyricsData.order, oldIndex, newIndex);
+      onLyricsChange({ ...lyricsData, order: newOrder });
+    }
   };
 
-  const renderSection = (sectionId: string, index: number) => {
+  const renderSection = (sectionId: string) => {
     let sectionData: LyricsLine[] = [];
     let sectionType: 'verse' | 'chorus' = 'verse';
     let sectionIndex = 0;
@@ -150,82 +296,21 @@ const VisualEditor = ({ lyricsData, hymnNumber, onLyricsChange, onHymnNumberChan
     }
 
     return (
-      <Draggable key={sectionId} draggableId={sectionId} index={index}>
-        {(provided) => (
-          <Card
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-            className={`mb-4 ${selectedSection === sectionId ? 'ring-2 ring-blue-500' : ''}`}
-            onClick={() => setSelectedSection(sectionId)}
-          >
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <div {...provided.dragHandleProps}>
-                    <GripVertical className="w-4 h-4 text-gray-400 cursor-grab" />
-                  </div>
-                  {sectionTitle}
-                </CardTitle>
-                <div className="flex items-center gap-1">
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      duplicateSection(sectionId);
-                    }}
-                    variant="ghost"
-                    size="sm"
-                  >
-                    <Copy className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteSection(sectionId);
-                    }}
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {sectionData.map((line, lineIndex) => (
-                  <div key={lineIndex} className="flex items-center gap-2">
-                    <Textarea
-                      value={line.text}
-                      onChange={(e) => updateLine(sectionType, sectionIndex, lineIndex, e.target.value)}
-                      placeholder="Enter lyrics line..."
-                      className="min-h-[40px] resize-none"
-                      rows={1}
-                    />
-                    <Button
-                      onClick={() => deleteLine(sectionType, sectionIndex, lineIndex)}
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  onClick={() => addLine(sectionType, sectionIndex)}
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Line
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </Draggable>
+      <SortableSection
+        key={sectionId}
+        sectionId={sectionId}
+        sectionData={sectionData}
+        sectionType={sectionType}
+        sectionIndex={sectionIndex}
+        sectionTitle={sectionTitle}
+        selectedSection={selectedSection}
+        onSectionClick={setSelectedSection}
+        onDeleteSection={deleteSection}
+        onDuplicateSection={duplicateSection}
+        onAddLine={addLine}
+        onUpdateLine={updateLine}
+        onDeleteLine={deleteLine}
+      />
     );
   };
 
@@ -256,18 +341,17 @@ const VisualEditor = ({ lyricsData, hymnNumber, onLyricsChange, onHymnNumberChan
       </div>
 
       {/* Sections */}
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="lyrics-sections">
-          {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef}>
-              {lyricsData.order.map((sectionId, index) => 
-                renderSection(sectionId, index)
-              )}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={lyricsData.order} strategy={verticalListSortingStrategy}>
+          <div>
+            {lyricsData.order.map((sectionId) => renderSection(sectionId))}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       {lyricsData.order.length === 0 && (
         <div className="text-center py-12 text-gray-500">
