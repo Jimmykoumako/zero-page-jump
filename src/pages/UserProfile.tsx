@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,6 @@ const UserProfile = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [elevateLoading, setElevateLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ const UserProfile = () => {
 
       setUser(user);
 
-      // Check if user is admin using the user_roles table instead of users table
+      // Check if user is admin using the user_roles table
       try {
         const { data: userRoleData } = await supabase
           .from('user_roles')
@@ -52,7 +52,6 @@ const UserProfile = () => {
         
         setIsAdmin(userRoleData?.role === 'admin');
       } catch (error) {
-        // If there's an error checking roles, assume not admin
         console.log('Could not check user role:', error);
         setIsAdmin(false);
       }
@@ -66,44 +65,6 @@ const UserProfile = () => {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const elevateToAdmin = async () => {
-    if (!user) return;
-    
-    setElevateLoading(true);
-    try {
-      // Insert or update the user's role to admin in the user_roles table
-      const { error } = await supabase
-        .from('user_roles')
-        .upsert({ 
-          user_id: user.id, 
-          role: 'admin' 
-        }, { 
-          onConflict: 'user_id,role'
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      // Update local state
-      setIsAdmin(true);
-      
-      toast({
-        title: "Success!",
-        description: "You have been elevated to admin status.",
-      });
-    } catch (error: any) {
-      console.error('Error elevating to admin:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to elevate to admin status.",
-        variant: "destructive",
-      });
-    } finally {
-      setElevateLoading(false);
     }
   };
 
@@ -259,46 +220,19 @@ const UserProfile = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {isAdmin ? (
-                <div className="text-center py-6">
-                  <UserCheck className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-green-600 mb-2">
-                    You are an Administrator
-                  </h3>
-                  <p className="text-slate-600 mb-4">
-                    You have full access to the admin panel and can manage the application.
-                  </p>
-                  <Button onClick={() => navigate('/admin')} className="w-full">
-                    <Shield className="w-4 h-4 mr-2" />
-                    Go to Admin Panel
-                  </Button>
-                </div>
-              ) : (
-                <div className="text-center py-6">
-                  <Shield className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-slate-700 mb-2">
-                    Elevate to Admin
-                  </h3>
-                  <p className="text-slate-600 mb-4">
-                    Click the button below to instantly elevate your account to admin status.
-                  </p>
-                  
-                  <Button 
-                    onClick={elevateToAdmin}
-                    disabled={elevateLoading}
-                    className="w-full"
-                  >
-                    {elevateLoading ? (
-                      "Elevating..."
-                    ) : (
-                      <>
-                        <Shield className="w-4 h-4 mr-2" />
-                        Become Admin
-                      </>
-                    )}
-                  </Button>
-                </div>
-              )}
+              <div className="text-center py-6">
+                <Shield className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-slate-700 mb-2">
+                  Admin Panel Access
+                </h3>
+                <p className="text-slate-600 mb-4">
+                  Access the admin panel to manage hymns, hymnbooks, and audio files. All users have access to view and manage content.
+                </p>
+                <Button onClick={() => navigate('/admin')} className="w-full">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Go to Admin Panel
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
