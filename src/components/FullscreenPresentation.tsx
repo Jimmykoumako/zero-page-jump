@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { X, ChevronLeft, ChevronRight, Home, Square } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Home, Square, ChevronUp, ChevronDown } from "lucide-react";
 
 interface Hymn {
   id: string;
@@ -24,6 +24,28 @@ interface FullscreenPresentationProps {
 const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: FullscreenPresentationProps) => {
   const [showControls, setShowControls] = useState(true);
   const [isIdle, setIsIdle] = useState(false);
+  const [fontSize, setFontSize] = useState(6); // Default to text-6xl (index 6)
+
+  // Font size classes array for easy indexing
+  const fontSizeClasses = [
+    'text-xl',    // 0
+    'text-2xl',   // 1
+    'text-3xl',   // 2
+    'text-4xl',   // 3
+    'text-5xl',   // 4
+    'text-6xl',   // 5
+    'text-7xl',   // 6
+    'text-8xl',   // 7
+    'text-9xl'    // 8
+  ];
+
+  const increaseFontSize = () => {
+    setFontSize(prev => Math.min(prev + 1, fontSizeClasses.length - 1));
+  };
+
+  const decreaseFontSize = () => {
+    setFontSize(prev => Math.max(prev - 1, 0));
+  };
 
   // Auto-hide controls after 3 seconds of inactivity
   useEffect(() => {
@@ -92,6 +114,14 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
             onVerseChange(currentVerse - 1);
           }
           break;
+        case 'ArrowUp':
+          event.preventDefault();
+          increaseFontSize();
+          break;
+        case 'ArrowDown':
+          event.preventDefault();
+          decreaseFontSize();
+          break;
         case 'Home':
           event.preventDefault();
           onVerseChange(0);
@@ -109,7 +139,7 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentVerse, hymn, onVerseChange, onExit]);
+  }, [currentVerse, hymn, onVerseChange, onExit, fontSize]);
 
   const getCurrentContent = () => {
     if (currentVerse < hymn.verses.length) {
@@ -158,7 +188,7 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
         {/* Main lyrics display */}
         <div className="flex-1 flex items-center justify-center max-w-6xl w-full">
           <div className="text-center">
-            <div className="text-4xl md:text-6xl lg:text-7xl leading-relaxed text-white font-light">
+            <div className={`${fontSizeClasses[fontSize]} leading-relaxed text-white font-light`}>
               {content.content.split('\n').map((line, lineIdx) => (
                 <div key={lineIdx} className="mb-4 md:mb-6 lg:mb-8">
                   {line}
@@ -204,6 +234,28 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
           <X className="w-4 h-4 mr-2" />
           Exit Fullscreen
         </Button>
+
+        {/* Font size controls - top left */}
+        <div className="fixed top-6 left-6 pointer-events-auto flex flex-col gap-2">
+          <Button
+            onClick={increaseFontSize}
+            variant="outline"
+            size="sm"
+            className="bg-black/50 border-white/20 text-white hover:bg-black/70 backdrop-blur-sm w-10 h-10 p-0"
+            disabled={fontSize >= fontSizeClasses.length - 1}
+          >
+            <ChevronUp className="w-4 h-4" />
+          </Button>
+          <Button
+            onClick={decreaseFontSize}
+            variant="outline"
+            size="sm"
+            className="bg-black/50 border-white/20 text-white hover:bg-black/70 backdrop-blur-sm w-10 h-10 p-0"
+            disabled={fontSize <= 0}
+          >
+            <ChevronDown className="w-4 h-4" />
+          </Button>
+        </div>
 
         {/* Navigation controls - center sides */}
         {canGoPrevious && (
@@ -273,7 +325,7 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
       {/* Help text - only shows when controls are visible */}
       {showControls && (
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 text-slate-400 text-sm text-center">
-          <div>Arrow keys or spacebar to navigate • Home/End for first/last • Esc to exit</div>
+          <div>Arrow keys or spacebar to navigate • Up/Down arrows for font size • Home/End for first/last • Esc to exit</div>
         </div>
       )}
     </div>
