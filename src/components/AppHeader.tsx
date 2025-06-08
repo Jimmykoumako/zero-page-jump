@@ -1,7 +1,10 @@
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Book, Settings, Info, Github, Monitor } from "lucide-react";
+import { Book, Settings, Info, Github, Monitor, LogIn, LogOut, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface AppHeaderProps {
   onModeSelect?: (mode: 'select' | 'hymnal' | 'remote' | 'display' | 'browse') => void;
@@ -9,6 +12,29 @@ interface AppHeaderProps {
 
 const AppHeader = ({ onModeSelect }: AppHeaderProps) => {
   const navigate = useNavigate();
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Get initial session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
+    };
+
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleQuickAction = (action: string) => {
     switch (action) {
@@ -22,10 +48,16 @@ const AppHeader = ({ onModeSelect }: AppHeaderProps) => {
         navigate('/admin');
         break;
       case 'about':
-        // Show about info
         alert('Digital Hymnbook - A modern solution for congregational singing with synchronized displays and remote controls.');
         break;
+      case 'login':
+        navigate('/auth');
+        break;
     }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
   };
 
   return (
@@ -41,7 +73,7 @@ const AppHeader = ({ onModeSelect }: AppHeaderProps) => {
             </div>
           </div>
 
-          {/* Quick Actions */}
+          {/* Quick Actions and Auth */}
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -93,6 +125,41 @@ const AppHeader = ({ onModeSelect }: AppHeaderProps) => {
                 <Github className="w-4 h-4" />
               </a>
             </Button>
+
+            {/* Authentication Buttons */}
+            {!loading && (
+              <>
+                {user ? (
+                  <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border">
+                    <div className="hidden sm:flex items-center gap-2">
+                      <User className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {user.email}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleQuickAction('login')}
+                    >
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Sign In
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
