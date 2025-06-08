@@ -82,6 +82,7 @@ const HymnDisplay = ({ hymn, currentVerse, isPlaying, mode, onVerseChange }: Hym
               currentVerse={currentVerse}
               isLyricsOnly={isLyricsOnly}
               displaySize={displaySize}
+              onVerseChange={onVerseChange}
             />
           ) : (
             <HymnHymnalMode 

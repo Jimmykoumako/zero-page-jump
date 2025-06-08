@@ -1,5 +1,9 @@
 
+import { useState } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Button } from "@/components/ui/button";
+import { Maximize } from "lucide-react";
+import FullscreenPresentation from "../FullscreenPresentation";
 
 interface Hymn {
   id: string;
@@ -17,11 +21,40 @@ interface HymnDisplayModeProps {
   currentVerse: number;
   isLyricsOnly: boolean;
   displaySize: string;
+  onVerseChange?: (verse: number) => void;
 }
 
-const HymnDisplayMode = ({ hymn, currentVerse, isLyricsOnly, displaySize }: HymnDisplayModeProps) => {
+const HymnDisplayMode = ({ hymn, currentVerse, isLyricsOnly, displaySize, onVerseChange }: HymnDisplayModeProps) => {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  if (isFullscreen) {
+    return (
+      <FullscreenPresentation
+        hymn={hymn}
+        currentVerse={currentVerse}
+        onVerseChange={onVerseChange || (() => {})}
+        onExit={() => setIsFullscreen(false)}
+      />
+    );
+  }
+
   return (
     <div className={`${isLyricsOnly ? 'min-h-[80vh]' : 'min-h-[60vh]'} flex flex-col justify-center`}>
+      {/* Fullscreen button */}
+      {!isLyricsOnly && (
+        <div className="flex justify-end mb-4">
+          <Button
+            onClick={() => setIsFullscreen(true)}
+            variant="outline"
+            size="sm"
+            className="bg-white/50 hover:bg-white/80"
+          >
+            <Maximize className="w-4 h-4 mr-2" />
+            Fullscreen Presentation
+          </Button>
+        </div>
+      )}
+
       <Carousel 
         className="w-full max-w-4xl mx-auto"
         opts={{
