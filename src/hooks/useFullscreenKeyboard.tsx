@@ -43,6 +43,7 @@ export const useFullscreenKeyboard = ({
 }: UseFullscreenKeyboardProps) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Prevent default for all handled keys
       switch (event.key) {
         case 'Escape':
           event.preventDefault();
@@ -52,10 +53,9 @@ export const useFullscreenKeyboard = ({
         case 'ArrowRight':
         case ' ':
           event.preventDefault();
-          if (currentVerse < hymn.verses.length - 1) {
+          const maxVerse = hymn.chorus ? hymn.verses.length : hymn.verses.length - 1;
+          if (currentVerse < maxVerse) {
             onVerseChange(currentVerse + 1);
-          } else if (hymn.chorus && currentVerse === hymn.verses.length - 1) {
-            onVerseChange(hymn.verses.length);
           }
           break;
         case 'ArrowLeft':
@@ -103,5 +103,5 @@ export const useFullscreenKeyboard = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentVerse, hymn, onVerseChange, onExit, fontSize, currentAudio, audioFiles, togglePlayPause, playAudio, stopAudio, increaseFontSize, decreaseFontSize]);
+  }, [currentVerse, hymn, onVerseChange, onExit, currentAudio, audioFiles, togglePlayPause, playAudio, stopAudio, increaseFontSize, decreaseFontSize]);
 };

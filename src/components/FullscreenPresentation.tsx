@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useFullscreenAudio } from "@/hooks/useFullscreenAudio";
 import { useFullscreenControls } from "@/hooks/useFullscreenControls";
-import { useFullscreenKeyboard } from "@/hooks/useFullscreenKeyboard";
 import { useHymnBuffer } from "@/hooks/useHymnBuffer";
 import FullscreenContent from "@/components/fullscreen/FullscreenContent";
 
@@ -41,14 +40,6 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
     'text-9xl'    // 8
   ];
 
-  const increaseFontSize = () => {
-    setFontSize(prev => Math.min(prev + 1, fontSizeClasses.length - 1));
-  };
-
-  const decreaseFontSize = () => {
-    setFontSize(prev => Math.max(prev - 1, 0));
-  };
-
   // Custom hooks
   const { showControls } = useFullscreenControls();
   const audioHook = useFullscreenAudio(currentHymn.number);
@@ -60,22 +51,6 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
     onVerseChange(0); // Reset to first verse
     hymnBuffer.setCurrentHymn(selectedHymn.id);
   };
-
-  // Keyboard controls
-  useFullscreenKeyboard({
-    hymn: currentHymn,
-    currentVerse,
-    onVerseChange,
-    onExit,
-    fontSize,
-    increaseFontSize,
-    decreaseFontSize,
-    currentAudio: audioHook.currentAudio,
-    audioFiles: audioHook.audioFiles,
-    togglePlayPause: audioHook.togglePlayPause,
-    playAudio: audioHook.playAudio,
-    stopAudio: audioHook.stopAudio
-  });
 
   // Get current content based on current verse
   const getCurrentContent = () => {

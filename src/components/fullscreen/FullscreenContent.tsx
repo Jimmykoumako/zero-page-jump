@@ -77,17 +77,6 @@ const FullscreenContent = ({
     addToBuffer(hymn);
   }, [hymn, addToBuffer]);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('FullscreenContent Debug:', {
-      title,
-      content,
-      hymn,
-      currentVerseIndex,
-      fontSize
-    });
-  }, [title, content, hymn, currentVerseIndex, fontSize]);
-
   const handleSelectHymn = (selectedHymn: Hymn) => {
     addToBuffer(selectedHymn);
     setCurrentHymn(selectedHymn.id);
@@ -118,36 +107,9 @@ const FullscreenContent = ({
     }
   }, [currentVerseIndex]);
 
-  // Keyboard event handlers
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowRight' || event.key === ' ') {
-        if (showIntroCarousel) {
-          setShowIntroCarousel(false);
-          return;
-        }
-        onVerseChange(Math.min(currentVerseIndex + 1, hymn.verses.length - 1 + (hymn.chorus ? 1 : 0)));
-      } else if (event.key === 'ArrowLeft') {
-        if (showIntroCarousel) {
-          return; // Don't go back from intro
-        }
-        onVerseChange(Math.max(currentVerseIndex - 1, 0));
-      } else if (event.key === 'Escape') {
-        onExit();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [currentVerseIndex, hymn, onExit, onVerseChange, showIntroCarousel]);
-
   // Calculate responsive font size based on screen size
   const getResponsiveFontSize = () => {
     const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
     
     // Base font size calculation - smaller default
     let baseFontSize = 16; // Reduced from 24
@@ -385,51 +347,40 @@ const FullscreenContent = ({
         />
       </div>
 
-      {/* Main content */}
+      {/* Main content - Just lyrics without redundant header */}
       <div className="flex items-center justify-center h-full p-8 relative z-10">
-        <div className="max-w-4xl w-full text-center space-y-8">
-          {/* Hymn header - smaller now */}
+        <div className="max-w-6xl w-full text-center space-y-8">
+          {/* Minimal verse indicator */}
           <div className="space-y-2">
-            <h1 
-              className="font-bold text-blue-300"
+            <h3 
+              className="text-blue-300"
               style={{ fontSize: `${Math.floor(fontSizeInPx * 0.5)}px` }}
             >
-              #{hymn.number}
-            </h1>
-            <h2 
-              className="font-bold leading-tight"
-              style={{ fontSize: `${Math.floor(fontSizeInPx * 0.7)}px` }}
-            >
-              {title}
-            </h2>
-            <p 
-              className="text-slate-300"
-              style={{ fontSize: `${Math.floor(fontSizeInPx * 0.4)}px` }}
-            >
-              {hymn.author}
-            </p>
+              {content.type === 'verse' ? `Verse ${content.number}` : 'Chorus'}
+            </h3>
           </div>
 
-          {/* Current verse/chorus */}
+          {/* Current verse/chorus with proper line formatting */}
           <div className="space-y-6">
-            <div>
-              <h3 
-                className="text-blue-300 mb-4"
-                style={{ fontSize: `${Math.floor(fontSizeInPx * 0.5)}px` }}
-              >
-                {content.type === 'verse' ? `Verse ${content.number}` : 'Chorus'}
-              </h3>
-              <p 
-                className="leading-relaxed whitespace-pre-line"
-                style={{ fontSize: `${fontSizeInPx}px`, lineHeight: '1.6' }}
-              >
-                {content.content}
-              </p>
+            <div className="space-y-4">
+              {content.content.split('\n').map((line, index) => (
+                <p 
+                  key={index}
+                  className="leading-relaxed whitespace-nowrap overflow-visible"
+                  style={{ 
+                    fontSize: `${fontSizeInPx}px`, 
+                    lineHeight: '1.4',
+                    minHeight: `${fontSizeInPx * 1.4}px`
+                  }}
+                >
+                  {line || '\u00A0'} {/* Non-breaking space for empty lines */}
+                </p>
+              ))}
             </div>
           </div>
 
           {/* Progress indicator */}
-          <div className="flex justify-center space-x-2">
+          <div className="flex justify-center space-x-2 mt-8">
             {Array.from({ length: hymn.verses.length + (hymn.chorus ? 1 : 0) }, (_, i) => (
               <div
                 key={i}
