@@ -5,14 +5,19 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { Plus, Edit, Trash2, Save, X } from "lucide-react";
+import { Plus, Edit, Trash2, Save, X, Search, Eye } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import HymnLyricsViewer from "@/components/HymnLyricsViewer";
 
 const HymnManager = () => {
   const [hymns, setHymns] = useState([]);
   const [hymnbooks, setHymnbooks] = useState([]);
+  const [selectedHymnbook, setSelectedHymnbook] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showLyricsViewer, setShowLyricsViewer] = useState(false);
   const [formData, setFormData] = useState({
     number: '',
     titles: [''],
@@ -24,27 +29,56 @@ const HymnManager = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (selectedHymnbook) {
+      fetchHymns();
+    }
+  }, [selectedHymnbook]);
+
   const fetchData = async () => {
     try {
-      const [hymnsResult, hymnbooksResult] = await Promise.all([
-        supabase.from('HymnTitle').select('*').order('number'),
-        supabase.from('HymnBook').select('id, name')
-      ]);
+      const hymnbooksResult = await supabase.from('HymnBook').select('id, name, description');
 
-      if (hymnsResult.error) throw hymnsResult.error;
       if (hymnbooksResult.error) throw hymnbooksResult.error;
 
-      setHymns(hymnsResult.data || []);
       setHymnbooks(hymnbooksResult.data || []);
+      
+      // Set the first hymnbook as default if available
+      if (hymnbooksResult.data && hymnbooksResult.data.length > 0) {
+        setSelectedHymnbook(hymnbooksResult.data[0]);
+      }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching hymnbooks:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch data.",
+        description: "Failed to fetch hymnbooks.",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchHymns = async () => {
+    if (!selectedHymnbook) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('HymnTitle')
+        .select('*')
+        .eq('bookId', selectedHymnbook.id)
+        .order('number');
+
+      if (error) throw error;
+
+      setHymns(data || []);
+    } catch (error) {
+      console.error('Error fetching hymns:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch hymns.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -83,8 +117,8 @@ const HymnManager = () => {
 
       setEditingId(null);
       setShowAddForm(false);
-      setFormData({ number: '', titles: [''], bookId: '1' });
-      fetchData();
+      setFormData({ number: '', titles: [''], bookId: selectedHymnbook?.id?.toString() || '1' });
+      fetchHymns();
     } catch (error) {
       console.error('Error saving hymn:', error);
       toast({
@@ -121,7 +155,7 @@ const HymnManager = () => {
         description: "Hymn deleted successfully.",
       });
       
-      fetchData();
+      fetchHymns();
     } catch (error) {
       console.error('Error deleting hymn:', error);
       toast({
@@ -135,7 +169,7 @@ const HymnManager = () => {
   const handleCancel = () => {
     setEditingId(null);
     setShowAddForm(false);
-    setFormData({ number: '', titles: [''], bookId: '1' });
+    setFormData({ number: '', titles: [''], bookId: selectedHymnbook?.id?.toString() || '1' });
   };
 
   const addTitleField = () => {
@@ -155,6 +189,22 @@ const HymnManager = () => {
     }
   };
 
+  const filteredHymns = hymns.filter(hymn =>
+    hymn.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (hymn.titles && hymn.titles.some(title => 
+      title.toLowerCase().includes(searchTerm.toLowerCase())
+    ))
+  );
+
+  if (showLyricsViewer) {
+    return (
+      <HymnLyricsViewer 
+        onBack={() => setShowLyricsViewer(false)} 
+        selectedHymnbook={selectedHymnbook}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <Card className="p-6">
@@ -168,10 +218,61 @@ const HymnManager = () => {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-slate-800">Hymn Management</h2>
-          <Button onClick={() => setShowAddForm(true)} disabled={showAddForm || editingId}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Hymn
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button 
+              onClick={() => setShowLyricsViewer(true)}
+              variant="outline"
+              disabled={!selectedHymnbook}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View Lyrics
+            </Button>
+            <Button onClick={() => setShowAddForm(true)} disabled={showAddForm || editingId}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Hymn
+            </Button>
+          </div>
+        </div>
+
+        {/* Hymnbook Filter */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <Label htmlFor="hymnbook-select">Select Hymnbook</Label>
+            <Select
+              value={selectedHymnbook?.id?.toString() || ""}
+              onValueChange={(value) => {
+                const book = hymnbooks.find(b => b.id.toString() === value);
+                setSelectedHymnbook(book);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a hymnbook" />
+              </SelectTrigger>
+              <SelectContent>
+                {hymnbooks.map((book) => (
+                  <SelectItem key={book.id} value={book.id.toString()}>
+                    {book.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Search */}
+          <div>
+            <Label htmlFor="search">Search Hymns</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <Input
+                id="search"
+                type="text"
+                placeholder="Search by number or title..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
         </div>
 
         {(showAddForm || editingId) && (
@@ -191,18 +292,21 @@ const HymnManager = () => {
               </div>
               <div>
                 <Label htmlFor="bookId">Hymnbook</Label>
-                <select
-                  id="bookId"
+                <Select
                   value={formData.bookId}
-                  onChange={(e) => setFormData({ ...formData, bookId: e.target.value })}
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  onValueChange={(value) => setFormData({ ...formData, bookId: value })}
                 >
-                  {hymnbooks.map((book) => (
-                    <option key={book.id} value={book.id.toString()}>
-                      {book.name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {hymnbooks.map((book) => (
+                      <SelectItem key={book.id} value={book.id.toString()}>
+                        {book.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             
@@ -251,42 +355,58 @@ const HymnManager = () => {
           </Card>
         )}
 
+        {selectedHymnbook && (
+          <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+            <h3 className="font-semibold text-blue-800">{selectedHymnbook.name}</h3>
+            <p className="text-blue-600 text-sm">{selectedHymnbook.description}</p>
+            <p className="text-sm text-blue-500 mt-1">
+              Showing {filteredHymns.length} of {hymns.length} hymns
+            </p>
+          </div>
+        )}
+
         <div className="space-y-4">
-          {hymns.map((hymn) => (
-            <Card key={hymn.number} className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold">#{hymn.number}</h3>
-                  <div className="text-slate-600">
-                    {hymn.titles && hymn.titles.map((title, index) => (
-                      <div key={index}>{title}</div>
-                    ))}
+          {filteredHymns.length === 0 ? (
+            <div className="text-center py-8 text-slate-500">
+              {selectedHymnbook ? 'No hymns found for the selected hymnbook' : 'Please select a hymnbook to view hymns'}
+            </div>
+          ) : (
+            filteredHymns.map((hymn) => (
+              <Card key={hymn.number} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold">#{hymn.number}</h3>
+                    <div className="text-slate-600">
+                      {hymn.titles && hymn.titles.map((title, index) => (
+                        <div key={index}>{title}</div>
+                      ))}
+                    </div>
+                    <div className="text-sm text-slate-500 mt-2">
+                      Book: {selectedHymnbook?.name}
+                    </div>
                   </div>
-                  <div className="text-sm text-slate-500 mt-2">
-                    Book ID: {hymn.bookId}
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleEdit(hymn)}
+                      variant="outline"
+                      size="sm"
+                      disabled={editingId || showAddForm}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(hymn.number)}
+                      variant="outline"
+                      size="sm"
+                      disabled={editingId || showAddForm}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => handleEdit(hymn)}
-                    variant="outline"
-                    size="sm"
-                    disabled={editingId || showAddForm}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    onClick={() => handleDelete(hymn.number)}
-                    variant="outline"
-                    size="sm"
-                    disabled={editingId || showAddForm}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            ))
+          )}
         </div>
       </Card>
     </div>

@@ -57,10 +57,10 @@ const HymnLyricsViewer = ({ onBack, selectedHymnbook }: HymnLyricsViewerProps) =
 
       if (error) throw error;
 
-      // Cast the Json type to LyricsData for each hymn
+      // Cast the Json type to LyricsData for each hymn with proper type checking
       const typedHymns: HymnLyric[] = (data || []).map(hymn => ({
         ...hymn,
-        lyrics: hymn.lyrics as LyricsData
+        lyrics: hymn.lyrics as unknown as LyricsData
       }));
 
       setHymns(typedHymns);
