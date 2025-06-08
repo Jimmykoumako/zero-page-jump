@@ -16,7 +16,7 @@ const FullscreenFontControls = ({
   onDecreaseFontSize
 }: FullscreenFontControlsProps) => {
   return (
-    <div className="fixed top-6 left-6 pointer-events-auto flex flex-col gap-2">
+    <div className="fixed top-6 left-6 flex flex-col gap-2 z-50">
       <Button
         onClick={onIncreaseFontSize}
         variant="outline"

@@ -72,6 +72,59 @@ const FullscreenContent = ({
     setCurrentHymn
   } = useHymnBuffer();
 
+  // Add keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      switch (event.key) {
+        case 'Escape':
+          event.preventDefault();
+          onExit();
+          break;
+        case 'ArrowRight':
+        case ' ':
+          event.preventDefault();
+          setShowIntroCarousel(false);
+          const maxVerse = hymn.chorus ? hymn.verses.length : hymn.verses.length - 1;
+          if (currentVerseIndex < maxVerse) {
+            onVerseChange(currentVerseIndex + 1);
+          }
+          break;
+        case 'ArrowLeft':
+          event.preventDefault();
+          setShowIntroCarousel(false);
+          if (currentVerseIndex > 0) {
+            onVerseChange(currentVerseIndex - 1);
+          }
+          break;
+        case 'ArrowUp':
+          event.preventDefault();
+          onFontSizeChange(Math.min(fontSize + 1, 8));
+          break;
+        case 'ArrowDown':
+          event.preventDefault();
+          onFontSizeChange(Math.max(fontSize - 1, 0));
+          break;
+        case 'Home':
+          event.preventDefault();
+          setShowIntroCarousel(false);
+          onVerseChange(0);
+          break;
+        case 'End':
+          event.preventDefault();
+          setShowIntroCarousel(false);
+          if (hymn.chorus) {
+            onVerseChange(hymn.verses.length);
+          } else {
+            onVerseChange(hymn.verses.length - 1);
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentVerseIndex, hymn, onVerseChange, onExit, fontSize, onFontSizeChange]);
+
   // Add current hymn to buffer when component mounts
   useEffect(() => {
     addToBuffer(hymn);
@@ -184,46 +237,43 @@ const FullscreenContent = ({
         {/* Background with subtle gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-black to-slate-900" />
         
-        {/* Controls overlay */}
-        <div className="absolute inset-0 pointer-events-none">
-          {/* Exit button */}
-          <Button
-            onClick={onExit}
-            variant="ghost"
-            size="sm"
-            className="fixed top-6 right-6 pointer-events-auto text-white hover:bg-white/20 backdrop-blur-sm"
-          >
-            <X className="w-5 h-5" />
-          </Button>
+        {/* Exit button */}
+        <Button
+          onClick={onExit}
+          variant="ghost"
+          size="sm"
+          className="fixed top-6 right-6 text-white hover:bg-white/20 backdrop-blur-sm z-50"
+        >
+          <X className="w-5 h-5" />
+        </Button>
 
-          {/* Search button */}
-          <FullscreenSearchButton onOpenSearch={() => setIsSearchOpen(true)} />
+        {/* Search button */}
+        <FullscreenSearchButton onOpenSearch={() => setIsSearchOpen(true)} />
 
-          {/* Audio controls */}
-          <FullscreenAudioControls
-            hymnNumber={hymn.number}
-            isVisible={isAudioVisible}
-            onToggleVisibility={() => setIsAudioVisible(!isAudioVisible)}
-          />
+        {/* Audio controls */}
+        <FullscreenAudioControls
+          hymnNumber={hymn.number}
+          isVisible={isAudioVisible}
+          onToggleVisibility={() => setIsAudioVisible(!isAudioVisible)}
+        />
 
-          {/* Buffer controls */}
-          <FullscreenHymnBuffer
-            hymnBuffer={hymnBuffer}
-            currentBufferIndex={currentBufferIndex}
-            onSelectHymn={handleBufferHymnSelect}
-            onRemoveFromBuffer={removeFromBuffer}
-            isVisible={isBufferVisible}
-            onToggleVisibility={() => setIsBufferVisible(!isBufferVisible)}
-          />
+        {/* Buffer controls */}
+        <FullscreenHymnBuffer
+          hymnBuffer={hymnBuffer}
+          currentBufferIndex={currentBufferIndex}
+          onSelectHymn={handleBufferHymnSelect}
+          onRemoveFromBuffer={removeFromBuffer}
+          isVisible={isBufferVisible}
+          onToggleVisibility={() => setIsBufferVisible(!isBufferVisible)}
+        />
 
-          {/* Font controls */}
-          <FullscreenFontControls
-            fontSize={fontSize}
-            maxFontSize={9}
-            onIncreaseFontSize={() => onFontSizeChange(Math.min(fontSize + 1, 8))}
-            onDecreaseFontSize={() => onFontSizeChange(Math.max(fontSize - 1, 0))}
-          />
-        </div>
+        {/* Font controls */}
+        <FullscreenFontControls
+          fontSize={fontSize}
+          maxFontSize={9}
+          onIncreaseFontSize={() => onFontSizeChange(Math.min(fontSize + 1, 8))}
+          onDecreaseFontSize={() => onFontSizeChange(Math.max(fontSize - 1, 0))}
+        />
 
         {/* Intro Carousel */}
         <div className="flex items-center justify-center h-full p-8 relative z-10">
@@ -294,58 +344,55 @@ const FullscreenContent = ({
       {/* Background with subtle gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-black to-slate-900" />
       
-      {/* Controls overlay */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Exit button */}
-        <Button
-          onClick={onExit}
-          variant="ghost"
-          size="sm"
-          className="fixed top-6 right-6 pointer-events-auto text-white hover:bg-white/20 backdrop-blur-sm"
-        >
-          <X className="w-5 h-5" />
-        </Button>
+      {/* Exit button */}
+      <Button
+        onClick={onExit}
+        variant="ghost"
+        size="sm"
+        className="fixed top-6 right-6 text-white hover:bg-white/20 backdrop-blur-sm z-50"
+      >
+        <X className="w-5 h-5" />
+      </Button>
 
-        {/* Search button */}
-        <FullscreenSearchButton onOpenSearch={() => setIsSearchOpen(true)} />
+      {/* Search button */}
+      <FullscreenSearchButton onOpenSearch={() => setIsSearchOpen(true)} />
 
-        {/* Audio controls */}
-        <FullscreenAudioControls
-          hymnNumber={hymn.number}
-          isVisible={isAudioVisible}
-          onToggleVisibility={() => setIsAudioVisible(!isAudioVisible)}
-        />
+      {/* Audio controls */}
+      <FullscreenAudioControls
+        hymnNumber={hymn.number}
+        isVisible={isAudioVisible}
+        onToggleVisibility={() => setIsAudioVisible(!isAudioVisible)}
+      />
 
-        {/* Buffer controls */}
-        <FullscreenHymnBuffer
-          hymnBuffer={hymnBuffer}
-          currentBufferIndex={currentBufferIndex}
-          onSelectHymn={handleBufferHymnSelect}
-          onRemoveFromBuffer={removeFromBuffer}
-          isVisible={isBufferVisible}
-          onToggleVisibility={() => setIsBufferVisible(!isBufferVisible)}
-        />
+      {/* Buffer controls */}
+      <FullscreenHymnBuffer
+        hymnBuffer={hymnBuffer}
+        currentBufferIndex={currentBufferIndex}
+        onSelectHymn={handleBufferHymnSelect}
+        onRemoveFromBuffer={removeFromBuffer}
+        isVisible={isBufferVisible}
+        onToggleVisibility={() => setIsBufferVisible(!isBufferVisible)}
+      />
 
-        {/* Navigation controls */}
-        <FullscreenNavigationControls
-          hymn={hymn}
-          currentVerse={currentVerseIndex}
-          content={content}
-          canGoPrevious={currentVerseIndex > 0}
-          canGoNext={currentVerseIndex < hymn.verses.length - 1 || (hymn.chorus && currentVerseIndex < hymn.verses.length)}
-          onVerseChange={onVerseChange}
-          onExit={onExit}
-          onStopAudio={() => {}}
-        />
+      {/* Navigation controls */}
+      <FullscreenNavigationControls
+        hymn={hymn}
+        currentVerse={currentVerseIndex}
+        content={content}
+        canGoPrevious={currentVerseIndex > 0}
+        canGoNext={currentVerseIndex < hymn.verses.length - 1 || (hymn.chorus && currentVerseIndex < hymn.verses.length)}
+        onVerseChange={onVerseChange}
+        onExit={onExit}
+        onStopAudio={() => {}}
+      />
 
-        {/* Font controls */}
-        <FullscreenFontControls
-          fontSize={fontSize}
-          maxFontSize={9}
-          onIncreaseFontSize={() => onFontSizeChange(Math.min(fontSize + 1, 8))}
-          onDecreaseFontSize={() => onFontSizeChange(Math.max(fontSize - 1, 0))}
-        />
-      </div>
+      {/* Font controls */}
+      <FullscreenFontControls
+        fontSize={fontSize}
+        maxFontSize={9}
+        onIncreaseFontSize={() => onFontSizeChange(Math.min(fontSize + 1, 8))}
+        onDecreaseFontSize={() => onFontSizeChange(Math.max(fontSize - 1, 0))}
+      />
 
       {/* Main content - Just lyrics without redundant header */}
       <div className="flex items-center justify-center h-full p-8 relative z-10">

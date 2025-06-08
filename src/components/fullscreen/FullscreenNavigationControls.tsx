@@ -40,27 +40,13 @@ const FullscreenNavigationControls = ({
 }: FullscreenNavigationControlsProps) => {
   return (
     <>
-      {/* Exit button - top right */}
-      <Button
-        onClick={() => {
-          onStopAudio();
-          onExit();
-        }}
-        variant="outline"
-        size="sm"
-        className="fixed top-6 right-6 pointer-events-auto bg-black/50 border-white/20 text-white hover:bg-black/70 backdrop-blur-sm"
-      >
-        <X className="w-4 h-4 mr-2" />
-        Exit Fullscreen
-      </Button>
-
       {/* Navigation controls - center sides */}
       {canGoPrevious && (
         <Button
           onClick={() => onVerseChange(currentVerse - 1)}
           variant="outline"
           size="lg"
-          className="fixed left-6 top-1/2 transform -translate-y-1/2 pointer-events-auto bg-black/50 border-white/20 text-white hover:bg-black/70 backdrop-blur-sm w-12 h-12"
+          className="fixed left-6 top-1/2 transform -translate-y-1/2 bg-black/50 border-white/20 text-white hover:bg-black/70 backdrop-blur-sm w-12 h-12 z-50"
         >
           <ChevronLeft className="w-6 h-6" />
         </Button>
@@ -77,14 +63,14 @@ const FullscreenNavigationControls = ({
           }}
           variant="outline"
           size="lg"
-          className="fixed right-6 top-1/2 transform -translate-y-1/2 pointer-events-auto bg-black/50 border-white/20 text-white hover:bg-black/70 backdrop-blur-sm w-12 h-12"
+          className="fixed right-6 top-1/2 transform -translate-y-1/2 bg-black/50 border-white/20 text-white hover:bg-black/70 backdrop-blur-sm w-12 h-12 z-50"
         >
           <ChevronRight className="w-6 h-6" />
         </Button>
       )}
 
       {/* Quick navigation - bottom center */}
-      <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 pointer-events-auto">
+      <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50">
         <div className="flex items-center gap-2 bg-black/50 backdrop-blur-sm rounded-lg p-2 border border-white/20">
           <Button
             onClick={() => onVerseChange(0)}
