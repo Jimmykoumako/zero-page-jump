@@ -447,8 +447,8 @@ const AudioManager = () => {
                   No audio files found matching your criteria.
                 </div>
               )}
-            </div>
-          </Card>
+            </Card>
+          </div>
         )}
       </Card>
     </div>
