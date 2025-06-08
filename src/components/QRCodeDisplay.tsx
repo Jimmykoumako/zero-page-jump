@@ -1,6 +1,6 @@
 
 import { Card } from "@/components/ui/card";
-import { qrCode } from "lucide-react";
+import { QrCode } from "lucide-react";
 
 interface QRCodeDisplayProps {
   deviceId: string;

@@ -1090,6 +1090,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           bio: string | null
@@ -1170,6 +1191,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      is_admin: {
+        Args: { user_uuid?: string }
+        Returns: boolean
+      }
       is_uuid: {
         Args: { "": string }
         Returns: boolean
@@ -1194,6 +1219,7 @@ export type Database = {
         | "ERROR"
         | "APPROVED"
         | "REJECTED"
+      user_role: "admin" | "user"
       UserRole:
         | "ADMIN"
         | "UPLOADER"
@@ -1338,6 +1364,7 @@ export const Constants = {
         "APPROVED",
         "REJECTED",
       ],
+      user_role: ["admin", "user"],
       UserRole: [
         "ADMIN",
         "UPLOADER",
