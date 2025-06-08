@@ -1,11 +1,104 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from "react";
+import HymnBook from "@/components/HymnBook";
+import RemoteControl from "@/components/RemoteControl";
+import { Button } from "@/components/ui/button";
+import { Book, Smartphone, Monitor, Users } from "lucide-react";
 
 const Index = () => {
+  const [mode, setMode] = useState<'select' | 'hymnal' | 'remote' | 'display'>('select');
+  const [deviceId] = useState(() => Math.random().toString(36).substr(2, 9));
+
+  const resetToHome = () => setMode('select');
+
+  if (mode === 'hymnal') {
+    return <HymnBook mode="hymnal" deviceId={deviceId} onBack={resetToHome} />;
+  }
+
+  if (mode === 'remote') {
+    return <RemoteControl deviceId={deviceId} onBack={resetToHome} />;
+  }
+
+  if (mode === 'display') {
+    return <HymnBook mode="display" deviceId={deviceId} onBack={resetToHome} />;
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-12">
+          <div className="flex justify-center mb-6">
+            <Book className="w-16 h-16 text-blue-600" />
+          </div>
+          <h1 className="text-5xl font-bold text-slate-800 mb-4">
+            Digital Hymnbook
+          </h1>
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            Experience the beauty of congregational singing with modern technology. 
+            Perfect for worship, practice, and group singing.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <div 
+            onClick={() => setMode('hymnal')}
+            className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-blue-200 group"
+          >
+            <div className="text-center">
+              <Book className="w-12 h-12 text-blue-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl font-semibold text-slate-800 mb-2">Solo Practice</h3>
+              <p className="text-slate-600 text-sm">
+                Practice hymns at your own pace with karaoke-style guidance
+              </p>
+            </div>
+          </div>
+
+          <div 
+            onClick={() => setMode('display')}
+            className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-blue-200 group"
+          >
+            <div className="text-center">
+              <Monitor className="w-12 h-12 text-green-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl font-semibold text-slate-800 mb-2">Presentation Mode</h3>
+              <p className="text-slate-600 text-sm">
+                Display hymns for group singing or projection
+              </p>
+            </div>
+          </div>
+
+          <div 
+            onClick={() => setMode('remote')}
+            className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-blue-200 group"
+          >
+            <div className="text-center">
+              <Smartphone className="w-12 h-12 text-purple-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl font-semibold text-slate-800 mb-2">Remote Control</h3>
+              <p className="text-slate-600 text-sm">
+                Control the presentation from your phone or tablet
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-dashed border-slate-200">
+            <div className="text-center">
+              <Users className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-slate-500 mb-2">Group Sync</h3>
+              <p className="text-slate-500 text-sm">
+                Sync multiple devices (Coming Soon)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-16 text-center">
+          <div className="bg-white rounded-lg p-6 shadow-md max-w-2xl mx-auto">
+            <h4 className="text-lg font-semibold text-slate-800 mb-2">How it works</h4>
+            <p className="text-slate-600">
+              Choose your mode above to get started. Use Solo Practice to learn hymns, 
+              Presentation Mode for group singing, and Remote Control to manage the display from another device.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
