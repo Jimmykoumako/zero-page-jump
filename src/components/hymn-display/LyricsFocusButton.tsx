@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Focus } from "lucide-react";
+import { Focus, Eye } from "lucide-react";
 
 interface LyricsFocusButtonProps {
   isLyricsOnly: boolean;
@@ -15,7 +15,7 @@ const LyricsFocusButton = ({ isLyricsOnly, onToggle }: LyricsFocusButtonProps) =
         variant="outline"
         className="flex items-center gap-2"
       >
-        <Focus className="w-4 h-4" />
+        {isLyricsOnly ? <Eye className="w-4 h-4" /> : <Focus className="w-4 h-4" />}
         {isLyricsOnly ? 'Show Full View' : 'Focus on Lyrics'}
       </Button>
     </div>
