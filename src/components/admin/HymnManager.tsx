@@ -5,9 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { Plus, Edit, Trash2, Save, X, Search, Eye } from "lucide-react";
+import { Plus, Edit, Trash2, Save, X, Search, Eye, Music } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import HymnLyricsViewer from "@/components/HymnLyricsViewer";
+import HymnLyricsEditor from "./hymn-editor/HymnLyricsEditor";
 
 const HymnManager = () => {
   const [hymns, setHymns] = useState([]);
@@ -18,6 +19,8 @@ const HymnManager = () => {
   const [editingId, setEditingId] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showLyricsViewer, setShowLyricsViewer] = useState(false);
+  const [showLyricsEditor, setShowLyricsEditor] = useState(false);
+  const [selectedHymnForEdit, setSelectedHymnForEdit] = useState(null);
   const [formData, setFormData] = useState({
     number: '',
     titles: [''],
@@ -189,12 +192,60 @@ const HymnManager = () => {
     }
   };
 
+  const handleEditLyrics = async (hymn) => {
+    try {
+      // Fetch existing lyrics for this hymn
+      const { data: lyricsData, error } = await supabase
+        .from('HymnLyric')
+        .select('*')
+        .eq('hymnTitleNumber', hymn.number)
+        .eq('bookId', hymn.bookId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+        throw error;
+      }
+
+      setSelectedHymnForEdit(lyricsData || {
+        hymnTitleNumber: hymn.number,
+        lyrics: { order: [], verses: [], choruses: [] },
+        bookId: hymn.bookId
+      });
+      setShowLyricsEditor(true);
+    } catch (error) {
+      console.error('Error fetching hymn lyrics:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load hymn lyrics for editing.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const filteredHymns = hymns.filter(hymn =>
     hymn.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (hymn.titles && hymn.titles.some(title => 
       title.toLowerCase().includes(searchTerm.toLowerCase())
     ))
   );
+
+  if (showLyricsEditor) {
+    return (
+      <HymnLyricsEditor 
+        hymn={selectedHymnForEdit}
+        onBack={() => {
+          setShowLyricsEditor(false);
+          setSelectedHymnForEdit(null);
+        }}
+        onSave={() => {
+          setShowLyricsEditor(false);
+          setSelectedHymnForEdit(null);
+          // Refresh data if needed
+        }}
+        selectedHymnbook={selectedHymnbook}
+      />
+    );
+  }
 
   if (showLyricsViewer) {
     return (
@@ -386,6 +437,14 @@ const HymnManager = () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleEditLyrics(hymn)}
+                      variant="outline"
+                      size="sm"
+                      disabled={editingId || showAddForm}
+                    >
+                      <Music className="w-4 h-4" />
+                    </Button>
                     <Button
                       onClick={() => handleEdit(hymn)}
                       variant="outline"
