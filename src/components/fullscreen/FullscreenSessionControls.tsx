@@ -30,6 +30,7 @@ const FullscreenSessionControls = ({
         variant="outline"
         size="sm"
         className="bg-black/50 border-white/20 text-white hover:bg-black/70 backdrop-blur-sm h-10 px-3"
+        title={isLeader ? "Manage Session" : "View Session Info"}
       >
         {isLeader ? <Crown className="w-4 h-4 mr-2" /> : <Users className="w-4 h-4 mr-2" />}
         {participantCount}
@@ -41,12 +42,19 @@ const FullscreenSessionControls = ({
           variant="outline"
           size="sm"
           className={`bg-black/50 border-white/20 text-white hover:bg-black/70 backdrop-blur-sm h-10 px-3 ${
-            isFollowingLeader ? 'bg-green-500/50' : 'bg-orange-500/50'
+            isFollowingLeader ? 'bg-green-500/50 border-green-400/30' : 'bg-orange-500/50 border-orange-400/30'
           }`}
+          title={isFollowingLeader ? "Click to navigate independently" : "Click to follow leader"}
         >
           {isFollowingLeader ? <UserCheck className="w-4 h-4 mr-2" /> : <UserX className="w-4 h-4 mr-2" />}
           {isFollowingLeader ? 'Following' : 'Independent'}
         </Button>
+      )}
+      
+      {isCoLeader && (
+        <div className="text-xs text-white/80 bg-black/30 rounded px-2 py-1 backdrop-blur-sm">
+          Co-leader
+        </div>
       )}
     </div>
   );

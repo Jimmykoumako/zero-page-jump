@@ -50,6 +50,8 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
   useEffect(() => {
     if (!state.sessionId) return;
 
+    console.log('Setting up realtime subscription for session:', state.sessionId);
+
     const channel = supabase
       .channel(`session_${state.sessionId}`)
       .on('postgres_changes', 
@@ -60,6 +62,7 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
           filter: `id=eq.${state.sessionId}`
         }, 
         (payload) => {
+          console.log('Session update received:', payload);
           const updatedSession = payload.new;
           setState(prev => ({
             ...prev,
@@ -69,21 +72,23 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
             sessionDetails: updatedSession
           }));
 
-          // Dispatch events for components to listen to
-          if (updatedSession.current_hymn_id !== state.selectedHymn) {
-            window.dispatchEvent(new CustomEvent('group-hymn-change', { 
-              detail: { hymnId: updatedSession.current_hymn_id }
-            }));
-          }
-          if (updatedSession.current_verse !== state.currentVerse) {
-            window.dispatchEvent(new CustomEvent('group-verse-change', { 
-              detail: { verse: updatedSession.current_verse }
-            }));
-          }
-          if (updatedSession.is_playing !== state.isPlaying) {
-            window.dispatchEvent(new CustomEvent('group-play-change', { 
-              detail: { isPlaying: updatedSession.is_playing }
-            }));
+          // Only dispatch events if user is following leader
+          if (state.isFollowingLeader && !state.isLeader && !state.isCoLeader) {
+            if (updatedSession.current_hymn_id !== state.selectedHymn) {
+              window.dispatchEvent(new CustomEvent('group-hymn-change', { 
+                detail: { hymnId: updatedSession.current_hymn_id }
+              }));
+            }
+            if (updatedSession.current_verse !== state.currentVerse) {
+              window.dispatchEvent(new CustomEvent('group-verse-change', { 
+                detail: { verse: updatedSession.current_verse }
+              }));
+            }
+            if (updatedSession.is_playing !== state.isPlaying) {
+              window.dispatchEvent(new CustomEvent('group-play-change', { 
+                detail: { isPlaying: updatedSession.is_playing }
+              }));
+            }
           }
         }
       )
@@ -94,22 +99,24 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
           table: 'session_participants',
           filter: `session_id=eq.${state.sessionId}`
         },
-        () => {
-          // Refresh participants when there are changes
+        (payload) => {
+          console.log('Participants update received:', payload);
           fetchParticipants();
         }
       )
       .subscribe();
 
     return () => {
+      console.log('Cleaning up realtime subscription');
       channel.unsubscribe();
     };
-  }, [state.sessionId]);
+  }, [state.sessionId, state.isFollowingLeader, state.isLeader, state.isCoLeader]);
 
   // Fetch current session participants
   const fetchParticipants = useCallback(async () => {
     if (!state.sessionId) return;
 
+    console.log('Fetching participants for session:', state.sessionId);
     const { data, error } = await supabase
       .from('session_participants')
       .select('*')
@@ -120,8 +127,19 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
       return;
     }
 
+    console.log('Fetched participants:', data);
     setState(prev => ({ ...prev, participants: data || [] }));
-  }, [state.sessionId]);
+
+    // Check if current user is co-leader
+    const currentUser = data?.find(p => p.user_id === userId);
+    if (currentUser) {
+      setState(prev => ({ 
+        ...prev, 
+        isCoLeader: currentUser.is_co_leader || false,
+        isFollowingLeader: currentUser.is_following_leader ?? true
+      }));
+    }
+  }, [state.sessionId, userId]);
 
   // Update participant presence (heartbeat)
   const updateParticipantPresence = useCallback(async () => {
@@ -145,6 +163,9 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
   useEffect(() => {
     if (!state.sessionId) return;
 
+    // Initial presence update
+    updateParticipantPresence();
+
     const interval = setInterval(updateParticipantPresence, 30000); // 30 seconds
     return () => clearInterval(interval);
   }, [state.sessionId, updateParticipantPresence]);
@@ -165,6 +186,7 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
 
   const actions: EnhancedGroupSyncActions = {
     createSession: async (sessionData) => {
+      console.log('Creating session with data:', sessionData);
       const sessionCode = Math.floor(1000 + Math.random() * 9000).toString();
       
       const { data, error } = await supabase
@@ -186,16 +208,22 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
         throw error;
       }
 
+      console.log('Session created:', data);
+
       // Add leader as participant
-      await supabase
+      const { error: participantError } = await supabase
         .from('session_participants')
         .insert({
           session_id: data.id,
           user_id: userId,
-          device_name: navigator.userAgent,
+          device_name: navigator.userAgent.split(' ')[0] + ' Browser',
           device_type: 'web',
           is_co_leader: false
         });
+
+      if (participantError) {
+        console.error('Error adding leader as participant:', participantError);
+      }
 
       setState(prev => ({
         ...prev,
@@ -216,6 +244,8 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
     },
 
     joinSession: async (sessionCode, password) => {
+      console.log('Joining session with code:', sessionCode);
+      
       // Find session by code
       const { data: sessionData, error: sessionError } = await supabase
         .from('group_sessions')
@@ -225,8 +255,11 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
         .single();
 
       if (sessionError || !sessionData) {
+        console.error('Session not found:', sessionError);
         throw new Error('Session not found or inactive');
       }
+
+      console.log('Found session:', sessionData);
 
       // Check password if required
       if (sessionData.password_hash && sessionData.password_hash !== btoa(password || '')) {
@@ -239,7 +272,7 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
         .insert({
           session_id: sessionData.id,
           user_id: userId,
-          device_name: navigator.userAgent,
+          device_name: navigator.userAgent.split(' ')[0] + ' Browser',
           device_type: 'web'
         });
 
@@ -269,6 +302,8 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
 
     leaveSession: async () => {
       if (!state.sessionId) return;
+
+      console.log('Leaving session:', state.sessionId);
 
       await supabase
         .from('session_participants')
@@ -300,6 +335,8 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
     updateSessionSettings: async (settings) => {
       if (!state.isLeader && !state.isCoLeader) return;
 
+      console.log('Updating session settings:', settings);
+
       const { error } = await supabase
         .from('group_sessions')
         .update(settings)
@@ -316,6 +353,8 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
     broadcastHymnChange: async (hymnId) => {
       if (!state.isLeader && !state.isCoLeader) return;
 
+      console.log('Broadcasting hymn change:', hymnId);
+
       const { error } = await supabase
         .from('group_sessions')
         .update({ current_hymn_id: hymnId, current_verse: 0 })
@@ -326,11 +365,19 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
         return;
       }
 
+      setState(prev => ({ 
+        ...prev, 
+        selectedHymn: hymnId, 
+        currentVerse: 0 
+      }));
+
       await logActivity('hymn_changed', { hymnId });
     },
 
     broadcastVerseChange: async (verse) => {
       if (!state.isLeader && !state.isCoLeader) return;
+
+      console.log('Broadcasting verse change:', verse);
 
       const { error } = await supabase
         .from('group_sessions')
@@ -342,11 +389,15 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
         return;
       }
 
+      setState(prev => ({ ...prev, currentVerse: verse }));
+
       await logActivity('verse_changed', { verse });
     },
 
     broadcastPlayState: async (isPlaying) => {
       if (!state.isLeader && !state.isCoLeader) return;
+
+      console.log('Broadcasting play state:', isPlaying);
 
       const { error } = await supabase
         .from('group_sessions')
@@ -358,11 +409,15 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
         return;
       }
 
+      setState(prev => ({ ...prev, isPlaying }));
+
       await logActivity('play_state_changed', { isPlaying });
     },
 
     promoteToCoLeader: async (participantId) => {
       if (!state.isLeader) return;
+
+      console.log('Promoting participant to co-leader:', participantId);
 
       const { error } = await supabase
         .from('session_participants')
@@ -386,6 +441,8 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
     removeParticipant: async (participantId) => {
       if (!state.isLeader) return;
 
+      console.log('Removing participant:', participantId);
+
       const { error } = await supabase
         .from('session_participants')
         .delete()
@@ -408,6 +465,8 @@ export const useEnhancedGroupSync = (userId: string): [EnhancedGroupSyncState, E
     toggleFollowLeader: async () => {
       const newFollowState = !state.isFollowingLeader;
       
+      console.log('Toggling follow leader:', newFollowState);
+
       const { error } = await supabase
         .from('session_participants')
         .update({ is_following_leader: newFollowState })

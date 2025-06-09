@@ -1417,6 +1417,14 @@ export type Database = {
         Args: { user_uuid?: string }
         Returns: boolean
       }
+      is_session_leader: {
+        Args: { session_uuid: string; user_uuid?: string }
+        Returns: boolean
+      }
+      is_session_participant: {
+        Args: { session_uuid: string; user_uuid?: string }
+        Returns: boolean
+      }
       is_uuid: {
         Args: { "": string }
         Returns: boolean
