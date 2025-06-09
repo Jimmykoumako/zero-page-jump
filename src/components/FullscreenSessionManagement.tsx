@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Users, UserCheck, UserX, Settings, Clock, Lock, Share2, Copy } from "lucide-react";
+import { Crown, Users, UserCheck, UserX, Settings, Clock, Lock, Share2, Copy, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface FullscreenSessionManagementProps {
