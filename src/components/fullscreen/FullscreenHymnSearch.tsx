@@ -5,23 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, X } from "lucide-react";
 import { hymns } from "@/data/hymns";
-
-interface Hymn {
-  id: string;
-  number: string;
-  title: string;
-  author: string;
-  verses: string[];
-  chorus?: string;
-  key: string;
-  tempo: number;
-}
+import { Hymn } from "@/data/hymns";
 
 interface FullscreenHymnSearchProps {
   isOpen: boolean;
   onClose: () => void;
   onAddToBuffer: (hymn: Hymn) => void;
-  bufferHymnIds: string[];
+  bufferHymnIds: number[];
 }
 
 const FullscreenHymnSearch = ({ 
@@ -33,25 +23,13 @@ const FullscreenHymnSearch = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredHymns, setFilteredHymns] = useState<Hymn[]>([]);
 
-  // Convert static hymns data to match our Hymn interface
-  const convertedHymns: Hymn[] = hymns.map(hymn => ({
-    id: hymn.id.toString(),
-    number: hymn.number.toString(),
-    title: hymn.title,
-    author: hymn.author,
-    verses: hymn.verses,
-    chorus: hymn.chorus,
-    key: hymn.key,
-    tempo: hymn.tempo
-  }));
-
   useEffect(() => {
     if (searchTerm.trim() === "") {
-      setFilteredHymns(convertedHymns.slice(0, 20)); // Show first 20 hymns when no search
+      setFilteredHymns(hymns.slice(0, 20)); // Show first 20 hymns when no search
     } else {
-      const filtered = convertedHymns.filter(hymn =>
+      const filtered = hymns.filter(hymn =>
         hymn.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        hymn.number.includes(searchTerm) ||
+        hymn.number.toString().includes(searchTerm) ||
         hymn.author.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredHymns(filtered.slice(0, 50)); // Limit to 50 results

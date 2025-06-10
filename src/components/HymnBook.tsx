@@ -131,7 +131,7 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: Hy
 
         return {
           id: parseInt(`${bookId}${title.number.toString().padStart(3, '0')}`), // Create unique numeric id
-          number: title.number,
+          number: parseInt(title.number), // Convert to number
           title: title.titles?.[0] || 'Untitled Hymn',
           author: lyricsData?.author || 'Unknown',
           verses: verses.length > 0 ? verses : ['No lyrics available'],

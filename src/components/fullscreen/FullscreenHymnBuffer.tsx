@@ -1,23 +1,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Music, X, ChevronUp, ChevronDown } from "lucide-react";
-
-interface Hymn {
-  id: string;
-  number: string;
-  title: string;
-  author: string;
-  verses: string[];
-  chorus?: string;
-  key: string;
-  tempo: number;
-}
+import { Hymn } from "@/data/hymns";
 
 interface FullscreenHymnBufferProps {
   hymnBuffer: Hymn[];
   currentBufferIndex: number;
   onSelectHymn: (hymn: Hymn) => void;
-  onRemoveFromBuffer: (hymnId: string) => void;
+  onRemoveFromBuffer: (hymnId: number) => void;
   isVisible: boolean;
   onToggleVisibility: () => void;
 }

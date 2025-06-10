@@ -3,21 +3,11 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-
-interface Hymn {
-  id: string;
-  number: string;
-  title: string;
-  author: string;
-  verses: string[];
-  chorus?: string;
-  key: string;
-  tempo: number;
-}
+import { Hymn } from "@/data/hymns";
 
 interface HymnListProps {
   hymns: Hymn[];
-  onHymnSelect: (hymnId: string) => void;
+  onHymnSelect: (hymnId: number) => void;
   selectedHymnbook?: any;
 }
 
@@ -41,16 +31,12 @@ const HymnList = ({ hymns, onHymnSelect, selectedHymnbook }: HymnListProps) => {
   // Filter hymns based on search term
   const filteredHymns = hymns.filter(hymn => 
     hymn.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    hymn.number.includes(searchTerm) ||
+    hymn.number.toString().includes(searchTerm) ||
     hymn.author.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Sort hymns numerically by their number
-  const sortedHymns = [...filteredHymns].sort((a, b) => {
-    const numA = parseInt(a.number, 10);
-    const numB = parseInt(b.number, 10);
-    return numA - numB;
-  });
+  const sortedHymns = [...filteredHymns].sort((a, b) => a.number - b.number);
 
   return (
     <Card className="p-6">

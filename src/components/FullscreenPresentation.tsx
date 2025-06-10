@@ -32,14 +32,14 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
 
   // Custom hooks
   const { showControls } = useFullscreenControls();
-  const audioHook = useFullscreenAudio(currentHymn.number);
+  const audioHook = useFullscreenAudio(currentHymn.number.toString());
   const hymnBuffer = useHymnBuffer();
 
   // Handle hymn changes from buffer
   const handleSelectHymnFromBuffer = (selectedHymn: Hymn) => {
     setCurrentHymn(selectedHymn);
     onVerseChange(0); // Reset to first verse
-    hymnBuffer.setCurrentHymn(selectedHymn.id.toString());
+    hymnBuffer.setCurrentHymn(selectedHymn.id);
   };
 
   // Get current content based on current verse

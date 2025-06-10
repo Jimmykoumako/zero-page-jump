@@ -1,16 +1,6 @@
 
 import { useState } from "react";
-
-interface Hymn {
-  id: string;
-  number: string;
-  title: string;
-  author: string;
-  verses: string[];
-  chorus?: string;
-  key: string;
-  tempo: number;
-}
+import { Hymn } from "@/data/hymns";
 
 export const useHymnBuffer = () => {
   const [hymnBuffer, setHymnBuffer] = useState<Hymn[]>([]);
@@ -26,7 +16,7 @@ export const useHymnBuffer = () => {
     });
   };
 
-  const removeFromBuffer = (hymnId: string) => {
+  const removeFromBuffer = (hymnId: number) => {
     setHymnBuffer(prev => {
       const newBuffer = prev.filter(h => h.id !== hymnId);
       // Adjust current index if needed
@@ -55,7 +45,7 @@ export const useHymnBuffer = () => {
     return null;
   };
 
-  const setCurrentHymn = (hymnId: string) => {
+  const setCurrentHymn = (hymnId: number) => {
     const index = hymnBuffer.findIndex(h => h.id === hymnId);
     if (index !== -1) {
       setCurrentBufferIndex(index);
