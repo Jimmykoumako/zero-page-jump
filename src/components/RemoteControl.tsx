@@ -15,6 +15,7 @@ const RemoteControl = ({ deviceId, onBack }: RemoteControlProps) => {
   const [connectedDeviceId, setConnectedDeviceId] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const [selectedHymn, setSelectedHymn] = useState<number | null>(null);
+  const [currentInput, setCurrentInput] = useState("");
 
   const sendCommand = (command: string, data?: any) => {
     if (isConnected) {
@@ -22,6 +23,7 @@ const RemoteControl = ({ deviceId, onBack }: RemoteControlProps) => {
         detail: { command, data }
       });
       window.dispatchEvent(event);
+      console.log('Sent remote command:', command, data);
     }
   };
 
@@ -34,6 +36,21 @@ const RemoteControl = ({ deviceId, onBack }: RemoteControlProps) => {
   const selectHymn = (hymnId: number) => {
     setSelectedHymn(hymnId);
     sendCommand('selectHymn', { hymnId });
+  };
+
+  const handleNumberInput = (num: number) => {
+    setCurrentInput(prev => prev + num.toString());
+  };
+
+  const goToHymn = () => {
+    if (currentInput) {
+      sendCommand('goToHymn', { hymnNumber: currentInput });
+      setCurrentInput("");
+    }
+  };
+
+  const clearInput = () => {
+    setCurrentInput("");
   };
 
   if (!isConnected) {
@@ -101,7 +118,7 @@ const RemoteControl = ({ deviceId, onBack }: RemoteControlProps) => {
           </Button>
           <div className="flex items-center gap-2 text-green-600">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            Connected
+            Connected to {connectedDeviceId}
           </div>
         </div>
 
@@ -109,16 +126,19 @@ const RemoteControl = ({ deviceId, onBack }: RemoteControlProps) => {
           <Card className="p-6">
             <h2 className="text-xl font-bold text-slate-800 mb-4">Playback Controls</h2>
             <div className="grid grid-cols-3 gap-4">
-              <Button onClick={() => sendCommand('prevVerse')} size="lg">
+              <Button onClick={() => sendCommand('prevVerse')} size="lg" variant="outline">
                 <SkipBack className="w-6 h-6" />
               </Button>
               <Button onClick={() => sendCommand('togglePlay')} size="lg">
                 <Play className="w-6 h-6" />
               </Button>
-              <Button onClick={() => sendCommand('nextVerse')} size="lg">
+              <Button onClick={() => sendCommand('nextVerse')} size="lg" variant="outline">
                 <SkipForward className="w-6 h-6" />
               </Button>
             </div>
+            <p className="text-sm text-slate-600 mt-2 text-center">
+              Use these controls to navigate between verses
+            </p>
           </Card>
 
           <Card className="p-6">
@@ -143,14 +163,62 @@ const RemoteControl = ({ deviceId, onBack }: RemoteControlProps) => {
 
           <Card className="p-6">
             <h2 className="text-xl font-bold text-slate-800 mb-4">Number Entry</h2>
-            <div className="grid grid-cols-3 gap-2">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((num) => (
-                <Button key={num} variant="outline" size="lg">
+            
+            {/* Display */}
+            <div className="bg-slate-100 rounded-lg p-4 mb-4 text-center">
+              <div className="text-2xl font-mono">
+                {currentInput || "___"}
+              </div>
+              <div className="text-sm text-slate-600 mt-1">
+                Enter hymn number
+              </div>
+            </div>
+
+            {/* Number pad */}
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                <Button 
+                  key={num} 
+                  variant="outline" 
+                  size="lg"
+                  onClick={() => handleNumberInput(num)}
+                >
                   {num}
                 </Button>
               ))}
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={clearInput}
+                className="text-red-600"
+              >
+                Clear
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={() => handleNumberInput(0)}
+              >
+                0
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={goToHymn}
+                disabled={!currentInput}
+                className="text-green-600"
+              >
+                Go
+              </Button>
             </div>
-            <Button className="w-full mt-4">Go to Hymn</Button>
+
+            <Button 
+              className="w-full" 
+              onClick={goToHymn}
+              disabled={!currentInput}
+            >
+              Go to Hymn {currentInput || "___"}
+            </Button>
           </Card>
         </div>
       </div>

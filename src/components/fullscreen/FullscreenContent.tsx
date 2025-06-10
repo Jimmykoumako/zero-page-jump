@@ -10,6 +10,7 @@ import FullscreenFontControls from "./FullscreenFontControls";
 import FullscreenHymnBuffer from "./FullscreenHymnBuffer";
 import FullscreenAudioControls from "./FullscreenAudioControls";
 import { useHymnBuffer } from "@/hooks/useHymnBuffer";
+import { hymns } from "@/data/hymns";
 
 interface Hymn {
   id: string;
@@ -40,6 +41,7 @@ interface FullscreenContentProps {
   onFontSizeChange: (size: number) => void;
   currentVerseIndex: number;
   onVerseChange: (index: number) => void;
+  deviceId?: string;
 }
 
 const FullscreenContent = ({
@@ -55,7 +57,8 @@ const FullscreenContent = ({
   fontSize,
   onFontSizeChange,
   currentVerseIndex,
-  onVerseChange
+  onVerseChange,
+  deviceId
 }: FullscreenContentProps) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isBufferVisible, setIsBufferVisible] = useState(false);
@@ -71,6 +74,55 @@ const FullscreenContent = ({
     moveToPrevious,
     setCurrentHymn
   } = useHymnBuffer();
+
+  // Listen for remote control events
+  useEffect(() => {
+    if (!deviceId) return;
+
+    const handleRemoteCommand = (event: CustomEvent) => {
+      const { command, data } = event.detail;
+      
+      switch (command) {
+        case 'prevVerse':
+          if (currentVerseIndex > 0) {
+            onVerseChange(currentVerseIndex - 1);
+          }
+          break;
+        case 'nextVerse':
+          const maxVerse = hymn.chorus ? hymn.verses.length : hymn.verses.length - 1;
+          if (currentVerseIndex < maxVerse) {
+            onVerseChange(currentVerseIndex + 1);
+          }
+          break;
+        case 'togglePlay':
+          // This could be used for audio control in the future
+          console.log('Toggle play command received');
+          break;
+        case 'selectHymn':
+          if (data?.hymnId) {
+            const selectedHymn = hymns.find(h => h.id === data.hymnId);
+            if (selectedHymn) {
+              handleSelectHymn(selectedHymn);
+            }
+          }
+          break;
+        case 'goToHymn':
+          if (data?.hymnNumber) {
+            const selectedHymn = hymns.find(h => h.number === data.hymnNumber);
+            if (selectedHymn) {
+              handleSelectHymn(selectedHymn);
+            }
+          }
+          break;
+      }
+    };
+
+    window.addEventListener(`remote-${deviceId}`, handleRemoteCommand as EventListener);
+    
+    return () => {
+      window.removeEventListener(`remote-${deviceId}`, handleRemoteCommand as EventListener);
+    };
+  }, [deviceId, currentVerseIndex, hymn, onVerseChange]);
 
   // Add keyboard navigation
   useEffect(() => {
@@ -247,6 +299,16 @@ const FullscreenContent = ({
           <X className="w-5 h-5" />
         </Button>
 
+        {/* Remote Control Indicator */}
+        {deviceId && (
+          <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-black/50 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 z-50">
+            <div className="flex items-center gap-2 text-white text-sm">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              Remote Control Active
+            </div>
+          </div>
+        )}
+
         {/* Search button */}
         <FullscreenSearchButton onOpenSearch={() => setIsSearchOpen(true)} />
 
@@ -353,6 +415,16 @@ const FullscreenContent = ({
       >
         <X className="w-5 h-5" />
       </Button>
+
+      {/* Remote Control Indicator */}
+      {deviceId && (
+        <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-black/50 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 z-50">
+          <div className="flex items-center gap-2 text-white text-sm">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            Remote Control Active
+          </div>
+        </div>
+      )}
 
       {/* Search button */}
       <FullscreenSearchButton onOpenSearch={() => setIsSearchOpen(true)} />
