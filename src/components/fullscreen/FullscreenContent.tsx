@@ -13,8 +13,8 @@ import { useHymnBuffer } from "@/hooks/useHymnBuffer";
 import { hymns } from "@/data/hymns";
 
 interface Hymn {
-  id: string;
-  number: string;
+  id: number;
+  number: number;
   title: string;
   author: string;
   verses: string[];
@@ -108,7 +108,7 @@ const FullscreenContent = ({
           break;
         case 'goToHymn':
           if (data?.hymnNumber) {
-            const selectedHymn = hymns.find(h => h.number === data.hymnNumber);
+            const selectedHymn = hymns.find(h => h.number.toString() === data.hymnNumber);
             if (selectedHymn) {
               handleSelectHymn(selectedHymn);
             }
@@ -184,13 +184,13 @@ const FullscreenContent = ({
 
   const handleSelectHymn = (selectedHymn: Hymn) => {
     addToBuffer(selectedHymn);
-    setCurrentHymn(selectedHymn.id);
+    setCurrentHymn(selectedHymn.id.toString());
     setIsSearchOpen(false);
     setShowIntroCarousel(true); // Show intro for new hymn
   };
 
   const handleBufferHymnSelect = (selectedHymn: Hymn) => {
-    setCurrentHymn(selectedHymn.id);
+    setCurrentHymn(selectedHymn.id.toString());
     setIsBufferVisible(false);
     setShowIntroCarousel(true); // Show intro for new hymn
   };
