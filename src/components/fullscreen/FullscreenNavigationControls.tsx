@@ -1,17 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { X, ChevronLeft, ChevronRight, Home, Square } from "lucide-react";
-
-interface Hymn {
-  id: string;
-  number: string;
-  title: string;
-  author: string;
-  verses: string[];
-  chorus?: string;
-  key: string;
-  tempo: number;
-}
+import { Hymn } from "@/data/hymns";
 
 interface FullscreenNavigationControlsProps {
   hymn: Hymn;

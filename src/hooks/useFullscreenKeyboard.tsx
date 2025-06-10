@@ -1,16 +1,6 @@
 
 import { useEffect } from "react";
-
-interface Hymn {
-  id: string;
-  number: string;
-  title: string;
-  author: string;
-  verses: string[];
-  chorus?: string;
-  key: string;
-  tempo: number;
-}
+import { Hymn } from "@/data/hymns";
 
 interface UseFullscreenKeyboardProps {
   hymn: Hymn;
