@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -10,18 +9,7 @@ import FullscreenFontControls from "./FullscreenFontControls";
 import FullscreenHymnBuffer from "./FullscreenHymnBuffer";
 import FullscreenAudioControls from "./FullscreenAudioControls";
 import { useHymnBuffer } from "@/hooks/useHymnBuffer";
-import { hymns } from "@/data/hymns";
-
-interface Hymn {
-  id: number;
-  number: number;
-  title: string;
-  author: string;
-  verses: string[];
-  chorus?: string;
-  key: string;
-  tempo: number;
-}
+import { hymns, Hymn } from "@/data/hymns";
 
 interface FullscreenContentProps {
   title: string;
