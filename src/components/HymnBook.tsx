@@ -1,24 +1,15 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useEnhancedGroupSync } from "@/hooks/useEnhancedGroupSync";
+import { Hymn } from "@/data/hymns";
 import HymnDisplay from "./HymnDisplay";
 import QRCodeDisplay from "./QRCodeDisplay";
 import HymnList from "./HymnList";
 import HymnControls from "./HymnControls";
 import HymnHeader from "./HymnHeader";
 import HymnPageHeader from "./HymnPageHeader";
-
-interface Hymn {
-  id: string;
-  number: string;
-  title: string;
-  author: string;
-  verses: string[];
-  chorus?: string;
-  key: string;
-  tempo: number;
-}
 
 interface HymnBookProps {
   mode: 'hymnal' | 'display';
@@ -30,7 +21,7 @@ interface HymnBookProps {
 
 const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: HymnBookProps) => {
   const [hymns, setHymns] = useState<Hymn[]>([]);
-  const [selectedHymn, setSelectedHymn] = useState<string | null>(null);
+  const [selectedHymn, setSelectedHymn] = useState<number | null>(null);
   const [currentVerse, setCurrentVerse] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showQR, setShowQR] = useState(false);
@@ -139,7 +130,7 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: Hy
         console.log(`Hymn ${title.number} processed:`, { verses, chorus });
 
         return {
-          id: `${bookId}-${title.number}`,
+          id: parseInt(`${bookId}${title.number.toString().padStart(3, '0')}`), // Create unique numeric id
           number: title.number,
           title: title.titles?.[0] || 'Untitled Hymn',
           author: lyricsData?.author || 'Unknown',
@@ -238,7 +229,7 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: Hy
     return () => window.removeEventListener(`remote-${deviceId}` as any, handleRemoteCommand);
   }, [deviceId, selectedHymn, currentVerse, hymns]);
 
-  const handleHymnSelect = async (hymnId: string) => {
+  const handleHymnSelect = async (hymnId: number) => {
     setSelectedHymn(hymnId);
     setCurrentVerse(0);
     setIsPlaying(false);
