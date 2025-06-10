@@ -4,17 +4,7 @@ import { useFullscreenAudio } from "@/hooks/useFullscreenAudio";
 import { useFullscreenControls } from "@/hooks/useFullscreenControls";
 import { useHymnBuffer } from "@/hooks/useHymnBuffer";
 import FullscreenContent from "@/components/fullscreen/FullscreenContent";
-
-interface Hymn {
-  id: string;
-  number: string;
-  title: string;
-  author: string;
-  verses: string[];
-  chorus?: string;
-  key: string;
-  tempo: number;
-}
+import { Hymn } from "@/data/hymns";
 
 interface FullscreenPresentationProps {
   hymn: Hymn;
@@ -49,7 +39,7 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
   const handleSelectHymnFromBuffer = (selectedHymn: Hymn) => {
     setCurrentHymn(selectedHymn);
     onVerseChange(0); // Reset to first verse
-    hymnBuffer.setCurrentHymn(selectedHymn.id);
+    hymnBuffer.setCurrentHymn(selectedHymn.id.toString());
   };
 
   // Get current content based on current verse
