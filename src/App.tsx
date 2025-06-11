@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import UserProfile from "./pages/UserProfile";
 import AudioBrowser from "./pages/AudioBrowser";
 import ListeningHistory from "./pages/ListeningHistory";
+import TrackManagement from "./pages/TrackManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/music" element={<AudioBrowser />} />
           <Route path="/history" element={<ListeningHistory />} />
+          <Route path="/track-management" element={<TrackManagement />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

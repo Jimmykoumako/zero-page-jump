@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -48,8 +47,12 @@ const TrackManager = () => {
 
   const handleCreateTrack = async (trackData: TrackFormData) => {
     try {
-      // Ensure required fields are present
+      // Generate a UUID for the track ID
+      const trackId = crypto.randomUUID();
+      
+      // Ensure required fields are present and correctly typed
       const insertData = {
+        id: trackId,
         title: trackData.title,
         url: trackData.url,
         duration: trackData.duration,

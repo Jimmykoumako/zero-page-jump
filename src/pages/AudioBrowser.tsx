@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,8 +11,9 @@ import PlaylistCard from '@/components/PlaylistCard';
 import TrackList from '@/components/TrackList';
 import MusicPlayer from '@/components/MusicPlayer';
 import { AudioFile } from '@/types/fullscreen-audio';
+import type { Track } from '@/types/track';
 
-interface Track {
+interface LegacyTrack {
   id: string;
   title: string;
   artist: string;
@@ -38,7 +38,7 @@ const AudioBrowser = () => {
   const [audioFiles, setAudioFiles] = useState<AudioFile[]>([]);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+  const [currentTrack, setCurrentTrack] = useState<LegacyTrack | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -50,17 +50,12 @@ const AudioBrowser = () => {
   const fetchAudioContent = async () => {
     setLoading(true);
     try {
-      // Fetch audio files from both AudioFile and uploads tables
-      const [audioFileResult, uploadsResult, playlistResult] = await Promise.all([
+      // Fetch tracks from the Track table
+      const [trackResult, playlistResult] = await Promise.all([
         supabase
-          .from('AudioFile')
+          .from('Track')
           .select('*')
-          .order('createdAt', { ascending: false })
-          .limit(50),
-        supabase
-          .from('uploads')
-          .select('*')
-          .order('createdAt', { ascending: false })
+          .order('created_at', { ascending: false })
           .limit(50),
         supabase
           .from('Playlist')
@@ -68,40 +63,9 @@ const AudioBrowser = () => {
           .limit(20)
       ]);
 
-      // Combine and transform audio files to tracks
-      const combinedAudioFiles: AudioFile[] = [];
-      
-      if (audioFileResult.data) {
-        combinedAudioFiles.push(...audioFileResult.data);
+      if (trackResult.data) {
+        setTracks(trackResult.data);
       }
-      
-      if (uploadsResult.data) {
-        combinedAudioFiles.push(...uploadsResult.data.map(upload => ({
-          id: upload.id,
-          url: upload.url,
-          audioTypeId: upload.audioTypeId,
-          userId: upload.userId,
-          createdAt: upload.createdAt,
-          hymnTitleNumber: upload.hymnTitle,
-          bookId: upload.bookId
-        })));
-      }
-
-      setAudioFiles(combinedAudioFiles);
-
-      // Transform to tracks format
-      const transformedTracks: Track[] = combinedAudioFiles.map(file => ({
-        id: file.id,
-        title: `Hymn ${file.hymnTitleNumber || 'Unknown'}`,
-        artist: 'Unknown Artist',
-        url: file.url,
-        hymnNumber: file.hymnTitleNumber,
-        album: `Book ${file.bookId || 1}`,
-        duration: '3:30', // Placeholder
-        hasLyrics: true
-      }));
-
-      setTracks(transformedTracks);
 
       // Transform playlists
       if (playlistResult.data) {
@@ -129,7 +93,18 @@ const AudioBrowser = () => {
   const handlePlayTrack = (trackId: string) => {
     const track = tracks.find(t => t.id === trackId);
     if (track) {
-      setCurrentTrack(track);
+      // Convert Track to LegacyTrack for the music player
+      const legacyTrack: LegacyTrack = {
+        id: track.id,
+        title: track.title,
+        artist: track.artist_name || 'Unknown Artist',
+        url: track.url,
+        hymnNumber: track.hymnTitleNumber,
+        album: track.album_name,
+        duration: `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`,
+        hasLyrics: !!track.hymnTitleNumber
+      };
+      setCurrentTrack(legacyTrack);
       setIsPlaying(true);
     }
   };
@@ -142,7 +117,20 @@ const AudioBrowser = () => {
     if (currentTrack) {
       const currentIndex = tracks.findIndex(t => t.id === currentTrack.id);
       const nextIndex = (currentIndex + 1) % tracks.length;
-      setCurrentTrack(tracks[nextIndex]);
+      const nextTrack = tracks[nextIndex];
+      if (nextTrack) {
+        const legacyTrack: LegacyTrack = {
+          id: nextTrack.id,
+          title: nextTrack.title,
+          artist: nextTrack.artist_name || 'Unknown Artist',
+          url: nextTrack.url,
+          hymnNumber: nextTrack.hymnTitleNumber,
+          album: nextTrack.album_name,
+          duration: `${Math.floor(nextTrack.duration / 60)}:${(nextTrack.duration % 60).toString().padStart(2, '0')}`,
+          hasLyrics: !!nextTrack.hymnTitleNumber
+        };
+        setCurrentTrack(legacyTrack);
+      }
     }
   };
 
@@ -150,7 +138,20 @@ const AudioBrowser = () => {
     if (currentTrack) {
       const currentIndex = tracks.findIndex(t => t.id === currentTrack.id);
       const prevIndex = currentIndex === 0 ? tracks.length - 1 : currentIndex - 1;
-      setCurrentTrack(tracks[prevIndex]);
+      const prevTrack = tracks[prevIndex];
+      if (prevTrack) {
+        const legacyTrack: LegacyTrack = {
+          id: prevTrack.id,
+          title: prevTrack.title,
+          artist: prevTrack.artist_name || 'Unknown Artist',
+          url: prevTrack.url,
+          hymnNumber: prevTrack.hymnTitleNumber,
+          album: prevTrack.album_name,
+          duration: `${Math.floor(prevTrack.duration / 60)}:${(prevTrack.duration % 60).toString().padStart(2, '0')}`,
+          hasLyrics: !!prevTrack.hymnTitleNumber
+        };
+        setCurrentTrack(legacyTrack);
+      }
     }
   };
 
@@ -164,8 +165,8 @@ const AudioBrowser = () => {
 
   const filteredTracks = tracks.filter(track =>
     track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    track.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    track.hymnNumber?.toLowerCase().includes(searchQuery.toLowerCase())
+    track.artist_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    track.hymnTitleNumber?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const recentTracks = tracks.slice(0, 6);
@@ -410,7 +411,16 @@ const AudioBrowser = () => {
           onPlayPause={handlePlayPause}
           onNext={handleNext}
           onPrevious={handlePrevious}
-          playlist={tracks}
+          playlist={tracks.map(track => ({
+            id: track.id,
+            title: track.title,
+            artist: track.artist_name || 'Unknown Artist',
+            url: track.url,
+            hymnNumber: track.hymnTitleNumber,
+            album: track.album_name,
+            duration: `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`,
+            hasLyrics: !!track.hymnTitleNumber
+          }))}
         />
       )}
     </div>
