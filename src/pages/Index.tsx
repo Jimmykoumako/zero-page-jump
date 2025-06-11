@@ -1,161 +1,102 @@
-
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { User } from "@supabase/supabase-js";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from 'next/navigation';
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/ui/mode-toggle";
+import {
+  Github,
+  Twitter,
+  Mail,
+  Book,
+  ListMusic,
+  LayoutDashboard,
+  LucideIcon,
+  Speaker,
+  Remote,
+  FileText
+} from "lucide-react";
+import { useUser } from "@/hooks/useUser";
+import { useHymn } from "@/hooks/useHymn";
+import { useToast } from "@/components/ui/use-toast";
+import { useSession } from "next-auth/react";
+import { AuthenticatedLanding } from "@/components/landing/AuthenticatedLanding";
+import { UnauthenticatedLanding } from "@/components/landing/UnauthenticatedLanding";
 import HymnBook from "@/components/HymnBook";
+import HymnLyrics from "@/components/HymnLyrics";
+import GroupSession from "@/components/GroupSession";
+import FullscreenDisplay from "@/components/FullscreenDisplay";
 import RemoteControl from "@/components/RemoteControl";
-import EnhancedGroupSession from "@/components/EnhancedGroupSession";
-import HymnbookBrowser from "@/components/HymnbookBrowser";
-import HymnLyricsViewer from "@/components/HymnLyricsViewer";
-import AppHeader from "@/components/AppHeader";
-import AuthenticatedLanding from "@/components/landing/AuthenticatedLanding";
-import UnauthenticatedLanding from "@/components/landing/UnauthenticatedLanding";
-import { useLandscapeDetection } from "@/hooks/useLandscapeDetection";
+
+interface NavItem {
+  title: string;
+  href: string;
+  icon: LucideIcon;
+}
+
+interface CardProps {
+  title: string;
+  description: string;
+  href: string;
+  icon: LucideIcon;
+}
 
 const Index = () => {
-  const [mode, setMode] = useState<'select' | 'hymnal' | 'remote' | 'display' | 'browse' | 'lyrics' | 'group'>('select');
-  const [deviceId] = useState(() => Math.random().toString(36).substr(2, 9));
-  const [userId] = useState(() => Math.random().toString(36).substr(2, 9));
-  const [selectedHymnbook, setSelectedHymnbook] = useState(null);
-  const [groupSession, setGroupSession] = useState<{sessionId: string, isLeader: boolean} | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const isLandscape = useLandscapeDetection();
-  const navigate = useNavigate();
+  const [currentMode, setCurrentMode] = useState<'browse' | 'lyrics' | 'group' | 'hymnal' | 'display' | 'remote'>('browse');
+  const [currentView, setCurrentView] = useState<'hymn-book' | 'hymn-lyrics' | 'group-session' | 'fullscreen-display' | 'remote-control'>('hymn-book');
+  const { data: session } = useSession();
+  const { toast } = useToast();
+  const { user, isLoading: userLoading } = useUser();
+  const { isLoading: hymnLoading } = useHymn();
+  const router = useRouter();
 
-  // Check authentication status
   useEffect(() => {
-    // Get initial session
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      setLoading(false);
-    };
-
-    getSession();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Check URL for auto-join session code
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const joinCode = urlParams.get('join');
-    if (joinCode && mode === 'select') {
-      setMode('group');
+    if (session?.error === 'RefreshAccessTokenError') {
+      signOut({ callbackUrl: '/', redirect: false });
+      router.push('/');
     }
-  }, [mode]);
+  }, [session?.error, router]);
 
-  // Set default mode based on orientation
-  useEffect(() => {
-    if (mode === 'select' && selectedHymnbook && !groupSession) {
-      // When a hymnbook is selected, choose mode based on orientation
-      if (isLandscape) {
-        setMode('display');
-      } else {
-        setMode('hymnal');
-      }
+  const handleModeSelect = (mode: 'browse' | 'lyrics' | 'group' | 'hymnal' | 'display' | 'remote' | 'music') => {
+    if (mode === 'music') {
+      window.location.href = '/music';
+      return;
     }
-  }, [selectedHymnbook, isLandscape, mode, groupSession]);
-
-  const resetToHome = () => {
-    setMode('select');
-    setSelectedHymnbook(null);
-    setGroupSession(null);
-    // Clear URL parameters
-    window.history.replaceState({}, document.title, window.location.pathname);
+    
+    setCurrentMode(mode);
+    if (mode === 'browse' || mode === 'hymnal') {
+      setCurrentView('hymn-book');
+    } else if (mode === 'lyrics') {
+      setCurrentView('hymn-lyrics');
+    } else if (mode === 'group') {
+      setCurrentView('group-session');
+    } else if (mode === 'display') {
+      setCurrentView('fullscreen-display');
+    } else if (mode === 'remote') {
+      setCurrentView('remote-control');
+    }
   };
 
-  const handleHymnbookSelect = (hymnbook) => {
-    setSelectedHymnbook(hymnbook);
-    // Mode will be set automatically by useEffect based on orientation
-  };
-
-  const handleJoinSession = (sessionId: string, isLeader: boolean) => {
-    setGroupSession({ sessionId, isLeader });
-    // Automatically go to hymnal mode after joining session
-    setMode('hymnal');
-  };
-
-  const handleAuthClick = () => {
-    navigate('/auth');
-  };
-
-  if (loading) {
+  if (userLoading || hymnLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
       </div>
     );
   }
 
-  if (mode === 'browse') {
-    return <HymnbookBrowser onBack={resetToHome} onSelectHymnbook={handleHymnbookSelect} />;
-  }
-
-  if (mode === 'lyrics') {
-    return <HymnLyricsViewer onBack={resetToHome} selectedHymnbook={selectedHymnbook} />;
-  }
-
-  if (mode === 'group') {
-    return (
-      <EnhancedGroupSession 
-        userId={userId} 
-        onBack={resetToHome} 
-        onJoinSession={handleJoinSession} 
-      />
-    );
-  }
-
-  if (mode === 'hymnal') {
-    return (
-      <HymnBook 
-        mode="hymnal" 
-        deviceId={deviceId} 
-        onBack={resetToHome} 
-        selectedHymnbook={selectedHymnbook}
-        groupSession={groupSession}
-      />
-    );
-  }
-
-  if (mode === 'remote') {
-    return <RemoteControl deviceId={deviceId} onBack={resetToHome} />;
-  }
-
-  if (mode === 'display') {
-    return (
-      <HymnBook 
-        mode="display" 
-        deviceId={deviceId} 
-        onBack={resetToHome} 
-        selectedHymnbook={selectedHymnbook}
-        groupSession={groupSession}
-      />
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <AppHeader onModeSelect={setMode} />
-      {user ? (
-        <AuthenticatedLanding user={user} onModeSelect={setMode} />
+    <>
+      {session?.user ? (
+        <AuthenticatedLanding user={user} onModeSelect={handleModeSelect} />
       ) : (
-        <UnauthenticatedLanding onModeSelect={setMode} onAuthClick={handleAuthClick} />
+        <UnauthenticatedLanding />
       )}
-    </div>
+
+      {currentView === 'hymn-book' && <HymnBook />}
+      {currentView === 'hymn-lyrics' && <HymnLyrics />}
+      {currentView === 'group-session' && <GroupSession />}
+      {currentView === 'fullscreen-display' && <FullscreenDisplay />}
+      {currentView === 'remote-control' && <RemoteControl />}
+    </>
   );
 };
 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Library, Users, Monitor, Music, User, Calendar, Edit } from "lucide-react";
@@ -109,26 +108,26 @@ const AuthenticatedLanding = ({ user, onModeSelect }: AuthenticatedLandingProps)
       priority: 'high'
     },
     {
+      id: 'music',
+      icon: Music,
+      title: 'Music Library',
+      description: 'Browse hymns and audio content',
+      color: 'bg-emerald-500 hover:bg-emerald-600',
+      priority: 'high'
+    },
+    {
       id: 'group',
       icon: Users,
       title: 'Join Session',
       description: 'Connect with others in worship',
-      color: 'bg-emerald-500 hover:bg-emerald-600',
-      priority: 'high'
+      color: 'bg-purple-500 hover:bg-purple-600',
+      priority: 'medium'
     },
     {
       id: 'display',
       icon: Monitor,
       title: 'Start Presenting',
       description: 'Lead congregation worship',
-      color: 'bg-purple-500 hover:bg-purple-600',
-      priority: 'medium'
-    },
-    {
-      id: 'lyrics',
-      icon: Music,
-      title: 'Study Hymns',
-      description: 'Explore lyrics and meanings',
       color: 'bg-indigo-500 hover:bg-indigo-600',
       priority: 'medium'
     }
