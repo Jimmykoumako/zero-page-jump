@@ -6,7 +6,7 @@ import { useEnhancedGroupSync } from "@/hooks/useEnhancedGroupSync";
 interface UseHymnGroupSyncProps {
   groupSession?: {sessionId: string, isLeader: boolean} | null;
   userId: string;
-  onHymnSelect: (hymnId: number) => void;
+  onHymnSelect: (hymnId: string) => void;
   onVerseChange: (verse: number) => void;
   onPlayChange: (isPlaying: boolean) => void;
 }
@@ -28,7 +28,7 @@ export const useHymnGroupSync = ({
     const handleGroupHymnChange = (event: CustomEvent) => {
       const { hymnId } = event.detail;
       if (groupState.isFollowingLeader || groupState.isLeader) {
-        onHymnSelect(hymnId);
+        onHymnSelect(hymnId.toString());
         if (!groupState.isLeader && !groupState.isCoLeader) {
           toast({
             title: "Hymn Changed",
@@ -69,7 +69,7 @@ export const useHymnGroupSync = ({
     };
   }, [groupSession, groupState.isLeader, groupState.isCoLeader, groupState.isFollowingLeader, onHymnSelect, onVerseChange, onPlayChange, toast]);
 
-  const broadcastHymnChange = async (hymnId: number) => {
+  const broadcastHymnChange = async (hymnId: string) => {
     if (groupSession && (groupState.isLeader || groupState.isCoLeader)) {
       await groupActions.broadcastHymnChange(hymnId);
     }

@@ -1,14 +1,5 @@
 
-interface Hymn {
-  id: string;
-  number: string;
-  title: string;
-  author: string;
-  verses: string[];
-  chorus?: string;
-  key: string;
-  tempo: number;
-}
+import type { Hymn } from "@/types/hymn";
 
 interface HymnHeaderProps {
   hymn: Hymn;

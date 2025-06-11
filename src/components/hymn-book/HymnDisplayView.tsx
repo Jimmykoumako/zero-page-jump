@@ -3,7 +3,7 @@ import HymnHeader from "../HymnHeader";
 import QRCodeDisplay from "../QRCodeDisplay";
 import HymnDisplay from "../HymnDisplay";
 import HymnControls from "../HymnControls";
-import { Hymn } from "@/data/hymns";
+import type { Hymn } from "@/types/hymn";
 
 interface HymnDisplayViewProps {
   hymn: Hymn;

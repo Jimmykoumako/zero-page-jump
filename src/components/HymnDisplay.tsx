@@ -6,7 +6,7 @@ import LyricsFocusButton from "./hymn-display/LyricsFocusButton";
 import HymnDisplayMode from "./hymn-display/HymnDisplayMode";
 import HymnHymnalMode from "./hymn-display/HymnHymnalMode";
 import PlayingIndicator from "./hymn-display/PlayingIndicator";
-import { Hymn } from "@/data/hymns";
+import type { Hymn } from "@/types/hymn";
 
 interface HymnDisplayProps {
   hymn: Hymn;

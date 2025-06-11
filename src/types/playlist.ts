@@ -1,4 +1,6 @@
 
+import type { Track } from './audio';
+
 export interface PlaylistCardProps {
   title: string;
   description: string;

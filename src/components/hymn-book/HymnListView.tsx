@@ -2,7 +2,7 @@
 import HymnPageHeader from "../HymnPageHeader";
 import QRCodeDisplay from "../QRCodeDisplay";
 import HymnList from "../HymnList";
-import { Hymn } from "@/data/hymns";
+import type { Hymn } from "@/types/hymn";
 
 interface HymnListViewProps {
   hymns: Hymn[];

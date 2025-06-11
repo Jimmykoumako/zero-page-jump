@@ -1,4 +1,6 @@
 
+import type { GroupSession } from './session';
+
 export interface HymnBookProps {
   mode: 'hymnal' | 'display';
   deviceId: string;
