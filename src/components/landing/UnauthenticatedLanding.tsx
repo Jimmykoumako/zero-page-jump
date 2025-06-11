@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { 
@@ -44,9 +43,9 @@ const UnauthenticatedLanding = ({ onModeSelect, onAuthClick }: UnauthenticatedLa
         </div>
       </nav>
 
-      <HeroSection onGetStarted={handleAuthClick} />
+      <HeroSection />
       <FeaturesGrid onModeSelect={onModeSelect || (() => {})} />
-      <GettingStartedSection onGetStarted={handleAuthClick} />
+      <GettingStartedSection isLandscape={false} onModeSelect={onModeSelect || (() => {})} />
 
       {/* Footer */}
       <footer className="bg-gray-800 text-white py-12">
