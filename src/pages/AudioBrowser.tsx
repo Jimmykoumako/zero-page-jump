@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +11,6 @@ import { useToast } from '@/hooks/use-toast';
 import PlaylistCard from '@/components/PlaylistCard';
 import TrackList from '@/components/TrackList';
 import MusicPlayer from '@/components/MusicPlayer';
-import { AudioFile } from '@/types/fullscreen-audio';
 import type { Track } from '@/types/track';
 
 interface LegacyTrack {
@@ -33,9 +33,20 @@ interface Playlist {
   coverImage?: string;
 }
 
+// Audio file type for the track list component
+interface AudioTrack {
+  id: string;
+  title: string;
+  artist: string;
+  url: string;
+  duration: string;
+  hymnNumber?: string;
+  album?: string;
+  hasLyrics?: boolean;
+}
+
 const AudioBrowser = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [audioFiles, setAudioFiles] = useState<AudioFile[]>([]);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [currentTrack, setCurrentTrack] = useState<LegacyTrack | null>(null);
@@ -90,23 +101,20 @@ const AudioBrowser = () => {
     }
   };
 
-  const handlePlayTrack = (trackId: string) => {
-    const track = tracks.find(t => t.id === trackId);
-    if (track) {
-      // Convert Track to LegacyTrack for the music player
-      const legacyTrack: LegacyTrack = {
-        id: track.id,
-        title: track.title,
-        artist: track.artist_name || 'Unknown Artist',
-        url: track.url,
-        hymnNumber: track.hymnTitleNumber,
-        album: track.album_name,
-        duration: `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`,
-        hasLyrics: !!track.hymnTitleNumber
-      };
-      setCurrentTrack(legacyTrack);
-      setIsPlaying(true);
-    }
+  const handlePlayTrack = (audioTrack: AudioTrack) => {
+    // Convert AudioTrack to LegacyTrack for the music player
+    const legacyTrack: LegacyTrack = {
+      id: audioTrack.id,
+      title: audioTrack.title,
+      artist: audioTrack.artist,
+      url: audioTrack.url,
+      hymnNumber: audioTrack.hymnNumber,
+      album: audioTrack.album,
+      duration: audioTrack.duration,
+      hasLyrics: audioTrack.hasLyrics
+    };
+    setCurrentTrack(legacyTrack);
+    setIsPlaying(true);
   };
 
   const handlePlayPause = () => {
@@ -169,7 +177,30 @@ const AudioBrowser = () => {
     track.hymnTitleNumber?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Convert Track[] to AudioTrack[] for the TrackList component
+  const audioTracks: AudioTrack[] = filteredTracks.map(track => ({
+    id: track.id,
+    title: track.title,
+    artist: track.artist_name || 'Unknown Artist',
+    url: track.url,
+    duration: `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`,
+    hymnNumber: track.hymnTitleNumber,
+    album: track.album_name,
+    hasLyrics: !!track.hymnTitleNumber
+  }));
+
   const recentTracks = tracks.slice(0, 6);
+  const recentAudioTracks: AudioTrack[] = recentTracks.map(track => ({
+    id: track.id,
+    title: track.title,
+    artist: track.artist_name || 'Unknown Artist',
+    url: track.url,
+    duration: `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`,
+    hymnNumber: track.hymnTitleNumber,
+    album: track.album_name,
+    hasLyrics: !!track.hymnTitleNumber
+  }));
+
   const featuredPlaylists = playlists.slice(0, 4);
 
   if (loading) {
@@ -294,16 +325,16 @@ const AudioBrowser = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">
-                  {searchQuery ? `Search Results (${filteredTracks.length})` : 'All Tracks'}
+                  {searchQuery ? `Search Results (${audioTracks.length})` : 'All Tracks'}
                 </h2>
                 {searchQuery && (
-                  <Badge variant="secondary">{filteredTracks.length} results</Badge>
+                  <Badge variant="secondary">{audioTracks.length} results</Badge>
                 )}
               </div>
               
-              {filteredTracks.length > 0 ? (
+              {audioTracks.length > 0 ? (
                 <TrackList
-                  tracks={filteredTracks}
+                  tracks={audioTracks}
                   currentTrack={currentTrack?.id}
                   isPlaying={isPlaying}
                   onPlayTrack={handlePlayTrack}
@@ -330,9 +361,9 @@ const AudioBrowser = () => {
           <TabsContent value="recent" className="space-y-6">
             <div className="space-y-4">
               <h2 className="text-xl font-semibold">Recently Played</h2>
-              {recentTracks.length > 0 ? (
+              {recentAudioTracks.length > 0 ? (
                 <TrackList
-                  tracks={recentTracks}
+                  tracks={recentAudioTracks}
                   currentTrack={currentTrack?.id}
                   isPlaying={isPlaying}
                   onPlayTrack={handlePlayTrack}
