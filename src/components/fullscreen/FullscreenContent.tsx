@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -172,13 +173,13 @@ const FullscreenContent = ({
 
   const handleSelectHymn = (selectedHymn: Hymn) => {
     addToBuffer(selectedHymn);
-    setCurrentHymn(selectedHymn.id);
+    setCurrentHymn(selectedHymn.id.toString());
     setIsSearchOpen(false);
     setShowIntroCarousel(true); // Show intro for new hymn
   };
 
   const handleBufferHymnSelect = (selectedHymn: Hymn) => {
-    setCurrentHymn(selectedHymn.id);
+    setCurrentHymn(selectedHymn.id.toString());
     setIsBufferVisible(false);
     setShowIntroCarousel(true); // Show intro for new hymn
   };
