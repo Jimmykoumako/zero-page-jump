@@ -1,13 +1,73 @@
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Library, Users, Monitor, Music, User, Calendar } from "lucide-react";
+import { Library, Users, Monitor, Music, User, Calendar, Edit } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AuthenticatedLandingProps {
   user: any;
   onModeSelect: (mode: 'browse' | 'lyrics' | 'group' | 'hymnal' | 'display' | 'remote') => void;
 }
 
+interface UserProfile {
+  firstName?: string;
+  lastName?: string;
+  pseudoName?: string;
+  bio?: string;
+  profilePicture?: string;
+}
+
 const AuthenticatedLanding = ({ user, onModeSelect }: AuthenticatedLandingProps) => {
+  const [userProfile, setUserProfile] = useState<UserProfile>({});
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchUserProfile();
+    fetchRecentActivity();
+  }, [user]);
+
+  const fetchUserProfile = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data: profile, error } = await supabase
+        .from('users')
+        .select('firstName, lastName, pseudoName, bio, profilePicture')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.log('No additional profile data found:', error);
+        return;
+      }
+
+      if (profile) {
+        setUserProfile(profile);
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
+
+  const fetchRecentActivity = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data: sessions } = await supabase
+        .from('group_sessions')
+        .select('id, title, created_at')
+        .eq('leader_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (sessions) {
+        setRecentActivity(sessions);
+      }
+    } catch (error) {
+      console.error('Error fetching recent activity:', error);
+    }
+  };
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good morning";
@@ -15,7 +75,29 @@ const AuthenticatedLanding = ({ user, onModeSelect }: AuthenticatedLandingProps)
     return "Good evening";
   };
 
-  const userName = user?.email?.split('@')[0] || 'Friend';
+  const getDisplayName = () => {
+    if (userProfile.pseudoName) {
+      return userProfile.pseudoName;
+    }
+    if (userProfile.firstName && userProfile.lastName) {
+      return `${userProfile.firstName} ${userProfile.lastName}`;
+    }
+    if (userProfile.firstName) {
+      return userProfile.firstName;
+    }
+    return user?.email?.split('@')[0] || 'Friend';
+  };
+
+  const getUserRole = () => {
+    if (userProfile.bio) {
+      const bio = userProfile.bio.toLowerCase();
+      if (bio.includes('pastor') || bio.includes('minister')) return 'Pastor';
+      if (bio.includes('worship leader') || bio.includes('music')) return 'Worship Leader';
+      if (bio.includes('choir') || bio.includes('singer')) return 'Choir Member';
+      if (bio.includes('musician') || bio.includes('piano') || bio.includes('organ')) return 'Musician';
+    }
+    return 'Worship Participant';
+  };
 
   const quickActions = [
     {
@@ -62,17 +144,43 @@ const AuthenticatedLanding = ({ user, onModeSelect }: AuthenticatedLandingProps)
         <div className="container mx-auto max-w-6xl">
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20 mb-8">
             <div className="flex items-center gap-6 mb-6">
-              <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-full p-4">
-                <User className="w-8 h-8 text-white" />
+              <div className="relative">
+                {userProfile.profilePicture ? (
+                  <img 
+                    src={userProfile.profilePicture} 
+                    alt="Profile" 
+                    className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
+                  />
+                ) : (
+                  <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-full p-4">
+                    <User className="w-8 h-8 text-white" />
+                  </div>
+                )}
+                <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full w-5 h-5 border-2 border-white"></div>
               </div>
-              <div>
+              <div className="flex-1">
                 <h1 className="text-4xl font-bold text-foreground mb-2">
-                  {getGreeting()}, {userName}!
+                  {getGreeting()}, {getDisplayName()}!
                 </h1>
-                <p className="text-xl text-muted-foreground">
+                <div className="flex items-center gap-4 mb-2">
+                  <span className="text-lg text-blue-600 font-medium">{getUserRole()}</span>
+                  {userProfile.bio && (
+                    <span className="text-sm text-muted-foreground">•</span>
+                  )}
+                </div>
+                {userProfile.bio && (
+                  <p className="text-muted-foreground text-sm max-w-2xl">
+                    {userProfile.bio}
+                  </p>
+                )}
+                <p className="text-xl text-muted-foreground mt-2">
                   Ready to worship? Choose how you'd like to begin today.
                 </p>
               </div>
+              <Button variant="outline" size="sm" onClick={() => window.location.href = '/profile'}>
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Profile
+              </Button>
             </div>
             
             {/* Today's Date */}
@@ -139,12 +247,28 @@ const AuthenticatedLanding = ({ user, onModeSelect }: AuthenticatedLandingProps)
             </div>
           </div>
 
-          {/* Recent Activity Placeholder */}
+          {/* Recent Activity */}
           <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-white/20">
             <h3 className="text-lg font-semibold text-foreground mb-4">Recent Activity</h3>
-            <p className="text-muted-foreground text-center py-8">
-              Your recent hymns and sessions will appear here as you use the app.
-            </p>
+            {recentActivity.length > 0 ? (
+              <div className="space-y-3">
+                {recentActivity.map((session) => (
+                  <div key={session.id} className="flex items-center justify-between p-3 bg-white/50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-foreground">{session.title || 'Worship Session'}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(session.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Users className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-center py-8">
+                Your recent hymns and sessions will appear here as you use the app.
+              </p>
+            )}
           </div>
         </div>
       </section>

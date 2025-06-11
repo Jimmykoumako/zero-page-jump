@@ -1,62 +1,65 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, Book, LogIn, UserPlus, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import TestAdminUtils from "@/components/TestAdminUtils";
+import { Book, LogIn, UserPlus, User, AtSign, FileText } from "lucide-react";
 
 const Auth = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [isForgotPassword, setIsForgotPassword] = useState(false);
-  const [showTestUtils, setShowTestUtils] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [pseudoName, setPseudoName] = useState("");
+  const [bio, setBio] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleAuth = async (e: React.FormEvent) => {
+  useEffect(() => {
+    // Check if user is already logged in
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate('/');
+      }
+    };
+    checkUser();
+  }, [navigate]);
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`
-          }
-        });
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-        if (error) throw error;
-
+      if (error) {
         toast({
-          title: "Success!",
-          description: "Please check your email to confirm your account.",
+          title: "Error signing in",
+          description: error.message,
+          variant: "destructive",
         });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) throw error;
-
         toast({
           title: "Welcome back!",
-          description: "You have been signed in successfully.",
+          description: "You have been successfully signed in.",
         });
         navigate('/');
       }
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message || "An error occurred during authentication.",
+        description: "An unexpected error occurred.",
         variant: "destructive",
       });
     } finally {
@@ -64,35 +67,59 @@ const Auth = () => {
     }
   };
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
-      toast({
-        title: "Email required",
-        description: "Please enter your email address.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth`,
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            firstName,
+            lastName,
+            pseudoName,
+            bio,
+            name: `${firstName} ${lastName}`.trim()
+          }
+        }
       });
 
-      if (error) throw error;
-
-      toast({
-        title: "Reset email sent!",
-        description: "Please check your email for password reset instructions.",
-      });
-      setIsForgotPassword(false);
-    } catch (error: any) {
+      if (error) {
+        if (error.message.includes("already registered")) {
+          toast({
+            title: "Account exists",
+            description: "This email is already registered. Please sign in instead.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error creating account",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Account created!",
+          description: "Please check your email to verify your account.",
+        });
+        // Clear form
+        setEmail("");
+        setPassword("");
+        setFirstName("");
+        setLastName("");
+        setPseudoName("");
+        setBio("");
+      }
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message || "An error occurred while sending reset email.",
+        description: "An unexpected error occurred.",
         variant: "destructive",
       });
     } finally {
@@ -100,155 +127,164 @@ const Auth = () => {
     }
   };
 
-  const resetForm = () => {
-    setIsForgotPassword(false);
-    setIsSignUp(false);
-    setEmail('');
-    setPassword('');
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <Book className="w-12 h-12 text-blue-600" />
+            <Book className="w-12 h-12 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">Digital Hymnbook</h1>
-          <p className="text-slate-600">
-            {isForgotPassword 
-              ? 'Reset your password' 
-              : isSignUp 
-                ? 'Create your account' 
-                : 'Sign in to your account'
-            }
-          </p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Digital Hymnbook</h1>
+          <p className="text-muted-foreground">Join our worship community</p>
         </div>
 
-        <Card className="p-6">
-          {isForgotPassword ? (
-            <form onSubmit={handleForgotPassword} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                />
-              </div>
+        <Card>
+          <CardContent className="p-6">
+            <Tabs defaultValue="signin" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin" className="flex items-center gap-2">
+                  <LogIn className="w-4 h-4" />
+                  Sign In
+                </TabsTrigger>
+                <TabsTrigger value="signup" className="flex items-center gap-2">
+                  <UserPlus className="w-4 h-4" />
+                  Sign Up
+                </TabsTrigger>
+              </TabsList>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  "Sending..."
-                ) : (
-                  <>
-                    <Mail className="w-4 h-4 mr-2" />
-                    Send Reset Email
-                  </>
-                )}
-              </Button>
-            </form>
-          ) : (
-            <form onSubmit={handleAuth} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                />
-              </div>
+              <TabsContent value="signin">
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-email">Email</Label>
+                    <Input
+                      id="signin-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-password">Password</Label>
+                    <Input
+                      id="signin-password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Signing in..." : "Sign In"}
+                  </Button>
+                </form>
+              </TabsContent>
 
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                />
-              </div>
+              <TabsContent value="signup">
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName">
+                        <User className="w-4 h-4 inline mr-1" />
+                        First Name
+                      </Label>
+                      <Input
+                        id="firstName"
+                        type="text"
+                        placeholder="John"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input
+                        id="lastName"
+                        type="text"
+                        placeholder="Doe"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  "Please wait..."
-                ) : isSignUp ? (
-                  <>
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    Sign Up
-                  </>
-                ) : (
-                  <>
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Sign In
-                  </>
-                )}
-              </Button>
-            </form>
-          )}
+                  <div className="space-y-2">
+                    <Label htmlFor="pseudoName">
+                      <AtSign className="w-4 h-4 inline mr-1" />
+                      Display Name (Optional)
+                    </Label>
+                    <Input
+                      id="pseudoName"
+                      type="text"
+                      placeholder="How others will see you"
+                      value={pseudoName}
+                      onChange={(e) => setPseudoName(e.target.value)}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      This will be your public display name in group sessions
+                    </p>
+                  </div>
 
-          <div className="mt-6 space-y-2 text-center">
-            {!isForgotPassword && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setIsSignUp(!isSignUp)}
-                  className="text-blue-600 hover:text-blue-800 text-sm block w-full"
-                >
-                  {isSignUp 
-                    ? 'Already have an account? Sign in' 
-                    : "Don't have an account? Sign up"
-                  }
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={() => setIsForgotPassword(true)}
-                  className="text-slate-600 hover:text-slate-800 text-sm block w-full"
-                >
-                  Forgot your password?
-                </button>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">Email</Label>
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder="john@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
 
-                <button
-                  type="button"
-                  onClick={() => setShowTestUtils(!showTestUtils)}
-                  className="text-orange-600 hover:text-orange-800 text-xs block w-full mt-4"
-                >
-                  {showTestUtils ? 'Hide' : 'Show'} Testing Utils
-                </button>
-              </>
-            )}
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">Password</Label>
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      placeholder="Create a strong password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                  </div>
 
-            {isForgotPassword && (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="text-blue-600 hover:text-blue-800 text-sm block w-full"
-              >
-                Back to sign in
-              </button>
-            )}
-          </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bio">
+                      <FileText className="w-4 h-4 inline mr-1" />
+                      About You (Optional)
+                    </Label>
+                    <Textarea
+                      id="bio"
+                      placeholder="Tell us a bit about yourself and your role in worship..."
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      rows={3}
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Creating account..." : "Create Account"}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
         </Card>
 
-        {showTestUtils && <TestAdminUtils />}
-
-        <div className="mt-6 text-center">
-          <Button
-            variant="ghost"
+        <div className="text-center mt-6">
+          <Button 
+            variant="ghost" 
             onClick={() => navigate('/')}
-            className="text-slate-600"
+            className="text-muted-foreground"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
+            ← Back to Home
           </Button>
         </div>
       </div>
