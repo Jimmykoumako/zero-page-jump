@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Hymn } from "@/data/hymns";
+import { Hymn } from "@/types/hymn";
 
 export const useHymnBuffer = () => {
   const [hymnBuffer, setHymnBuffer] = useState<Hymn[]>([]);

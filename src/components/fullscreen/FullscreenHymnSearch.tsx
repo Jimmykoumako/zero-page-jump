@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, X } from "lucide-react";
 import { hymns } from "@/data/hymns";
-import { Hymn } from "@/data/hymns";
+import { Hymn } from "@/types/hymn";
 
 interface FullscreenHymnSearchProps {
   selectedHymnbook: any;

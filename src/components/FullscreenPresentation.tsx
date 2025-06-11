@@ -4,7 +4,7 @@ import { useFullscreenAudio } from "@/hooks/useFullscreenAudio";
 import { useFullscreenControls } from "@/hooks/useFullscreenControls";
 import { useHymnBuffer } from "@/hooks/useHymnBuffer";
 import FullscreenContent from "@/components/fullscreen/FullscreenContent";
-import { Hymn } from "@/data/hymns";
+import { Hymn } from "@/types/hymn";
 
 interface FullscreenPresentationProps {
   hymn: Hymn;

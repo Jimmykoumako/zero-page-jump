@@ -7,12 +7,12 @@ export interface Hymn {
   author: string;
   verses: string[];
   chorus?: string;
-  key?: string;
-  tempo?: number;
+  key: string;
+  tempo: number;
 }
 
 // Mock data for development - replace with actual data source
-export const mockHymns: Hymn[] = [
+export const hymns: Hymn[] = [
   {
     id: 1,
     number: 1,
@@ -41,10 +41,12 @@ export const mockHymns: Hymn[] = [
   }
 ];
 
+export const mockHymns = hymns; // For backward compatibility
+
 export const getHymnById = (id: number): Hymn | undefined => {
-  return mockHymns.find(hymn => hymn.id === id);
+  return hymns.find(hymn => hymn.id === id);
 };
 
 export const getAllHymns = (): Hymn[] => {
-  return mockHymns;
+  return hymns;
 };
