@@ -1,23 +1,50 @@
 
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { useNavigate } from "react-router-dom";
 import HymnBook from "@/components/HymnBook";
 import RemoteControl from "@/components/RemoteControl";
 import EnhancedGroupSession from "@/components/EnhancedGroupSession";
 import HymnbookBrowser from "@/components/HymnbookBrowser";
 import HymnLyricsViewer from "@/components/HymnLyricsViewer";
 import AppHeader from "@/components/AppHeader";
-import HeroSection from "@/components/landing/HeroSection";
-import FeaturesGrid from "@/components/landing/FeaturesGrid";
-import GettingStartedSection from "@/components/landing/GettingStartedSection";
+import AuthenticatedLanding from "@/components/landing/AuthenticatedLanding";
+import UnauthenticatedLanding from "@/components/landing/UnauthenticatedLanding";
 import { useLandscapeDetection } from "@/hooks/useLandscapeDetection";
 
 const Index = () => {
   const [mode, setMode] = useState<'select' | 'hymnal' | 'remote' | 'display' | 'browse' | 'lyrics' | 'group'>('select');
   const [deviceId] = useState(() => Math.random().toString(36).substr(2, 9));
-  const [userId] = useState(() => Math.random().toString(36).substr(2, 9)); // Simulated user ID
+  const [userId] = useState(() => Math.random().toString(36).substr(2, 9));
   const [selectedHymnbook, setSelectedHymnbook] = useState(null);
   const [groupSession, setGroupSession] = useState<{sessionId: string, isLeader: boolean} | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const isLandscape = useLandscapeDetection();
+  const navigate = useNavigate();
+
+  // Check authentication status
+  useEffect(() => {
+    // Get initial session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
+    };
+
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Check URL for auto-join session code
   useEffect(() => {
@@ -58,6 +85,21 @@ const Index = () => {
     // Automatically go to hymnal mode after joining session
     setMode('hymnal');
   };
+
+  const handleAuthClick = () => {
+    navigate('/auth');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (mode === 'browse') {
     return <HymnbookBrowser onBack={resetToHome} onSelectHymnbook={handleHymnbookSelect} />;
@@ -108,9 +150,11 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <AppHeader onModeSelect={setMode} />
-      <HeroSection />
-      <FeaturesGrid onModeSelect={setMode} />
-      <GettingStartedSection isLandscape={isLandscape} onModeSelect={setMode} />
+      {user ? (
+        <AuthenticatedLanding user={user} onModeSelect={setMode} />
+      ) : (
+        <UnauthenticatedLanding onModeSelect={setMode} onAuthClick={handleAuthClick} />
+      )}
     </div>
   );
 };
