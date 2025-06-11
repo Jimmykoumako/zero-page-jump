@@ -1,4 +1,5 @@
 
+import { useEffect } from "react";
 import { useHymnBuffer } from "@/hooks/useHymnBuffer";
 import { useFullscreenPresentationActions } from "@/hooks/useFullscreenPresentationActions";
 import FullscreenHymnSearch from "./FullscreenHymnSearch";
@@ -47,7 +48,8 @@ const FullscreenContent = ({
     setIsBufferVisible,
     setFontSize,
     setIsAutoScrollEnabled,
-    setAutoScrollSpeed
+    setAutoScrollSpeed,
+    setShowIntroCarousel
   } = useFullscreenPresentationActions();
 
   // Hymn data and display logic
@@ -57,6 +59,13 @@ const FullscreenContent = ({
 
   const handlePrevious = () => handleNavigation('previous');
   const handleNext = () => handleNavigation('next');
+
+  console.log('FullscreenContent state:', {
+    currentHymn: state.currentHymn,
+    currentHymnData,
+    selectedHymnbook: state.selectedHymnbook,
+    showIntroCarousel: state.showIntroCarousel
+  });
 
   return (
     <FullscreenControlsManager>
@@ -155,7 +164,7 @@ const FullscreenContent = ({
               hymn={currentHymnData}
               fontSize={state.fontSize}
               showIntroCarousel={state.showIntroCarousel}
-              setShowIntroCarousel={(show) => setIsAutoScrollEnabled(show)}
+              setShowIntroCarousel={setShowIntroCarousel}
             />
           )}
 
