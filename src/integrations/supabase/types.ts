@@ -1226,33 +1226,60 @@ export type Database = {
       }
       Track: {
         Row: {
+          album_name: string | null
           albumId: string | null
+          artist_name: string | null
           bookId: number | null
+          cover_image_url: string | null
+          created_at: string | null
+          disc_number: number | null
           duration: number
+          explicit: boolean | null
           genreId: number | null
           hymnTitleNumber: string | null
           id: string
+          release_date: string | null
           title: string
+          track_number: number | null
+          updated_at: string | null
           url: string
         }
         Insert: {
+          album_name?: string | null
           albumId?: string | null
+          artist_name?: string | null
           bookId?: number | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          disc_number?: number | null
           duration: number
+          explicit?: boolean | null
           genreId?: number | null
           hymnTitleNumber?: string | null
           id: string
+          release_date?: string | null
           title: string
+          track_number?: number | null
+          updated_at?: string | null
           url: string
         }
         Update: {
+          album_name?: string | null
           albumId?: string | null
+          artist_name?: string | null
           bookId?: number | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          disc_number?: number | null
           duration?: number
+          explicit?: boolean | null
           genreId?: number | null
           hymnTitleNumber?: string | null
           id?: string
+          release_date?: string | null
           title?: string
+          track_number?: number | null
+          updated_at?: string | null
           url?: string
         }
         Relationships: [

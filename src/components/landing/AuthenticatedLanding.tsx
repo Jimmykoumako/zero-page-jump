@@ -1,294 +1,211 @@
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Library, Users, Monitor, Music, User, Calendar, Edit, History } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Github, 
+  Twitter, 
+  Mail, 
+  Book, 
+  ListMusic, 
+  LayoutDashboard, 
+  Speaker, 
+  FileText,
+  Music2,
+  Settings
+} from "lucide-react";
+import HeroSection from "./HeroSection";
+import FeaturesGrid from "./FeaturesGrid";
+import GettingStartedSection from "./GettingStartedSection";
 
-interface AuthenticatedLandingProps {
-  user: any;
-  onModeSelect: (mode: 'browse' | 'lyrics' | 'group' | 'hymnal' | 'display' | 'remote') => void;
-}
-
-interface UserProfile {
+interface User {
+  id: string;
+  email: string;
   firstName?: string;
   lastName?: string;
-  pseudoName?: string;
-  bio?: string;
-  profilePicture?: string;
+  name?: string;
+}
+
+interface AuthenticatedLandingProps {
+  user: User;
+  onModeSelect?: (mode: string) => void;
 }
 
 const AuthenticatedLanding = ({ user, onModeSelect }: AuthenticatedLandingProps) => {
-  const [userProfile, setUserProfile] = useState<UserProfile>({});
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetchUserProfile();
-    fetchRecentActivity();
-  }, [user]);
-
-  const fetchUserProfile = async () => {
-    if (!user?.id) return;
-
-    try {
-      const { data: profile, error } = await supabase
-        .from('users')
-        .select('firstName, lastName, pseudoName, bio, profilePicture')
-        .eq('id', user.id)
-        .single();
-
-      if (error) {
-        console.log('No additional profile data found:', error);
-        return;
-      }
-
-      if (profile) {
-        setUserProfile(profile);
-      }
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-    }
-  };
-
-  const fetchRecentActivity = async () => {
-    if (!user?.id) return;
-
-    try {
-      const { data: sessions } = await supabase
-        .from('group_sessions')
-        .select('id, title, created_at')
-        .eq('leader_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(3);
-
-      if (sessions) {
-        setRecentActivity(sessions);
-      }
-    } catch (error) {
-      console.error('Error fetching recent activity:', error);
-    }
-  };
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
-  };
-
-  const getDisplayName = () => {
-    if (userProfile.pseudoName) {
-      return userProfile.pseudoName;
-    }
-    if (userProfile.firstName && userProfile.lastName) {
-      return `${userProfile.firstName} ${userProfile.lastName}`;
-    }
-    if (userProfile.firstName) {
-      return userProfile.firstName;
-    }
-    return user?.email?.split('@')[0] || 'Friend';
-  };
-
-  const getUserRole = () => {
-    if (userProfile.bio) {
-      const bio = userProfile.bio.toLowerCase();
-      if (bio.includes('pastor') || bio.includes('minister')) return 'Pastor';
-      if (bio.includes('worship leader') || bio.includes('music')) return 'Worship Leader';
-      if (bio.includes('choir') || bio.includes('singer')) return 'Choir Member';
-      if (bio.includes('musician') || bio.includes('piano') || bio.includes('organ')) return 'Musician';
-    }
-    return 'Worship Participant';
-  };
-
-  const quickActions = [
-    {
-      id: 'browse',
-      icon: Library,
-      title: 'Continue Browsing',
-      description: 'Pick up where you left off',
-      color: 'bg-blue-500 hover:bg-blue-600',
-      priority: 'high'
-    },
-    {
-      id: 'music',
-      icon: Music,
-      title: 'Music Library',
-      description: 'Browse hymns and audio content',
-      color: 'bg-emerald-500 hover:bg-emerald-600',
-      priority: 'high'
-    },
-    {
-      id: 'group',
-      icon: Users,
-      title: 'Join Session',
-      description: 'Connect with others in worship',
-      color: 'bg-purple-500 hover:bg-purple-600',
-      priority: 'medium'
-    },
-    {
-      id: 'display',
-      icon: Monitor,
-      title: 'Start Presenting',
-      description: 'Lead congregation worship',
-      color: 'bg-indigo-500 hover:bg-indigo-600',
-      priority: 'medium'
-    },
-    {
-      id: 'history',
-      icon: History,
-      title: 'Listening History',
-      description: 'View your recent activity',
-      color: 'bg-orange-500 hover:bg-orange-600',
-      priority: 'medium'
-    }
-  ];
-
-  const highPriorityActions = quickActions.filter(action => action.priority === 'high');
-  const mediumPriorityActions = quickActions.filter(action => action.priority === 'medium');
-
-  const handleActionClick = (actionId: string) => {
-    if (actionId === 'music') {
+  const handleModeSelect = (mode: string) => {
+    if (mode === 'music') {
       window.location.href = '/music';
-    } else if (actionId === 'history') {
-      window.location.href = '/history';
-    } else {
-      onModeSelect(actionId as any);
+    } else if (mode === 'track-manager') {
+      window.location.href = '/track-management';
+    } else if (onModeSelect) {
+      onModeSelect(mode);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Welcome Header */}
-      <section className="py-12 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20 mb-8">
-            <div className="flex items-center gap-6 mb-6">
-              <div className="relative">
-                {userProfile.profilePicture ? (
-                  <img 
-                    src={userProfile.profilePicture} 
-                    alt="Profile" 
-                    className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
-                  />
-                ) : (
-                  <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-full p-4">
-                    <User className="w-8 h-8 text-white" />
-                  </div>
-                )}
-                <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full w-5 h-5 border-2 border-white"></div>
-              </div>
-              <div className="flex-1">
-                <h1 className="text-4xl font-bold text-foreground mb-2">
-                  {getGreeting()}, {getDisplayName()}!
-                </h1>
-                <div className="flex items-center gap-4 mb-2">
-                  <span className="text-lg text-blue-600 font-medium">{getUserRole()}</span>
-                  {userProfile.bio && (
-                    <span className="text-sm text-muted-foreground">•</span>
-                  )}
-                </div>
-                {userProfile.bio && (
-                  <p className="text-muted-foreground text-sm max-w-2xl">
-                    {userProfile.bio}
-                  </p>
-                )}
-                <p className="text-xl text-muted-foreground mt-2">
-                  Ready to worship? Choose how you'd like to begin today.
-                </p>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => window.location.href = '/profile'}>
-                <Edit className="w-4 h-4 mr-2" />
-                Edit Profile
-              </Button>
-            </div>
-            
-            {/* Today's Date */}
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="w-4 h-4" />
-              <span>{new Date().toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</span>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <nav className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Book className="w-8 h-8 text-blue-600" />
+            <span className="text-xl font-bold text-gray-800">HymnalApp</span>
           </div>
-
-          {/* Quick Actions - Primary */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Quick Start</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {highPriorityActions.map((action) => {
-                const IconComponent = action.icon;
-                return (
-                  <div 
-                    key={action.id}
-                    onClick={() => handleActionClick(action.id)}
-                    className={`${action.color} text-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group transform hover:scale-105`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <IconComponent className="w-12 h-12 group-hover:scale-110 transition-transform" />
-                      <div>
-                        <h3 className="text-2xl font-bold mb-2">{action.title}</h3>
-                        <p className="text-white/90">{action.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Additional Options */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-foreground mb-4">More Options</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {mediumPriorityActions.map((action) => {
-                const IconComponent = action.icon;
-                return (
-                  <div 
-                    key={action.id}
-                    onClick={() => handleActionClick(action.id)}
-                    className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/20 group"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`${action.color} rounded-lg p-3`}>
-                        <IconComponent className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-foreground mb-1">{action.title}</h3>
-                        <p className="text-sm text-muted-foreground">{action.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Recent Activity</h3>
-            {recentActivity.length > 0 ? (
-              <div className="space-y-3">
-                {recentActivity.map((session) => (
-                  <div key={session.id} className="flex items-center justify-between p-3 bg-white/50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-foreground">{session.title || 'Worship Session'}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(session.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <Users className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-center py-8">
-                Your recent hymns and sessions will appear here as you use the app.
-              </p>
-            )}
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-600">
+              Welcome, {user.firstName || user.name || user.email}
+            </span>
+            <Button variant="ghost" onClick={() => window.location.href = '/auth'}>
+              Account
+            </Button>
           </div>
         </div>
-      </section>
+      </nav>
+
+      {/* Welcome Section */}
+      <div className="container mx-auto px-4 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            Welcome back to HymnalApp
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Continue your worship experience with our digital hymnal platform
+          </p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleModeSelect('hymnal')}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Book className="w-6 h-6 text-blue-600" />
+                Hymn Books
+              </CardTitle>
+              <CardDescription>
+                Browse and read digital hymn collections
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleModeSelect('music')}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ListMusic className="w-6 h-6 text-green-600" />
+                Music Library
+              </CardTitle>
+              <CardDescription>
+                Listen to hymns and worship music
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleModeSelect('track-manager')}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Music2 className="w-6 h-6 text-purple-600" />
+                Track Manager
+              </CardTitle>
+              <CardDescription>
+                Manage your music tracks with metadata
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleModeSelect('group')}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <LayoutDashboard className="w-6 h-6 text-orange-600" />
+                Group Sessions
+              </CardTitle>
+              <CardDescription>
+                Lead or join synchronized worship sessions
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleModeSelect('display')}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Speaker className="w-6 h-6 text-red-600" />
+                Presentation
+              </CardTitle>
+              <CardDescription>
+                Display hymns for congregation viewing
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleModeSelect('remote')}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-6 h-6 text-gray-600" />
+                Remote Control
+              </CardTitle>
+              <CardDescription>
+                Control presentations remotely
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+
+        {/* Recent Activity */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>
+              Your recent hymnal usage and sessions
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center text-muted-foreground py-8">
+              Start using the app to see your recent activity here.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-12 mt-16">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Book className="w-6 h-6" />
+                <span className="text-lg font-bold">HymnalApp</span>
+              </div>
+              <p className="text-gray-400">
+                Modern digital hymnals for worship communities worldwide.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Features</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>Digital Hymn Books</li>
+                <li>Group Sessions</li>
+                <li>Audio Playback</li>
+                <li>Remote Control</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Support</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>Documentation</li>
+                <li>Help Center</li>
+                <li>Contact Us</li>
+                <li>Community</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Connect</h3>
+              <div className="flex gap-4">
+                <Github className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
+                <Twitter className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
+                <Mail className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 HymnalApp. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
