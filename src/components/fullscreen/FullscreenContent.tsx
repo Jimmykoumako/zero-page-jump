@@ -88,7 +88,7 @@ const FullscreenContent = ({
           break;
         case 'selectHymn':
           if (data?.hymnId) {
-            const selectedHymn = hymns.find(h => h.id === data.hymnId);
+            const selectedHymn = hymns.find(h => h.id === parseInt(data.hymnId));
             if (selectedHymn) {
               handleSelectHymn(selectedHymn);
             }
@@ -172,13 +172,13 @@ const FullscreenContent = ({
 
   const handleSelectHymn = (selectedHymn: Hymn) => {
     addToBuffer(selectedHymn);
-    setCurrentHymn(selectedHymn.id.toString());
+    setCurrentHymn(selectedHymn.id);
     setIsSearchOpen(false);
     setShowIntroCarousel(true); // Show intro for new hymn
   };
 
   const handleBufferHymnSelect = (selectedHymn: Hymn) => {
-    setCurrentHymn(selectedHymn.id.toString());
+    setCurrentHymn(selectedHymn.id);
     setIsBufferVisible(false);
     setShowIntroCarousel(true); // Show intro for new hymn
   };

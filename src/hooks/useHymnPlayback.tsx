@@ -2,11 +2,11 @@
 import { useState } from "react";
 
 export const useHymnPlayback = () => {
-  const [selectedHymn, setSelectedHymn] = useState<number | null>(null);
+  const [selectedHymn, setSelectedHymn] = useState<string | null>(null);
   const [currentVerse, setCurrentVerse] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const selectHymn = (hymnId: number) => {
+  const selectHymn = (hymnId: string) => {
     setSelectedHymn(hymnId);
     setCurrentVerse(0);
     setIsPlaying(false);

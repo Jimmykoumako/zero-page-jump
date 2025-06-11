@@ -44,15 +44,16 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: Hy
   } = useHymnGroupSync({
     groupSession,
     userId,
-    onHymnSelect: selectHymn,
+    onHymnSelect: (hymnId: string) => selectHymn(hymnId),
     onVerseChange: changeVerse,
     onPlayChange: setIsPlaying
   });
 
   // Enhanced handlers with group sync
   const handleHymnSelect = async (hymnId: number) => {
-    selectHymn(hymnId);
-    await broadcastHymnChange(hymnId);
+    const hymnIdStr = hymnId.toString();
+    selectHymn(hymnIdStr);
+    await broadcastHymnChange(hymnIdStr);
   };
 
   const handleVerseChange = async (verse: number) => {
@@ -62,7 +63,7 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: Hy
 
   const handleNextVerse = async () => {
     if (selectedHymn !== null) {
-      const hymn = hymns.find(h => h.id === selectedHymn);
+      const hymn = hymns.find(h => h.id.toString() === selectedHymn);
       if (hymn && currentVerse < hymn.verses.length - 1) {
         const newVerse = currentVerse + 1;
         changeVerse(newVerse);
@@ -87,7 +88,7 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: Hy
   // Remote control integration
   useRemoteControl({
     deviceId,
-    onHymnSelect: handleHymnSelect,
+    onHymnSelect: (hymnId: number) => handleHymnSelect(hymnId),
     onNextVerse: handleNextVerse,
     onPrevVerse: handlePrevVerse,
     onTogglePlay: handleTogglePlay
@@ -113,7 +114,7 @@ const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: Hy
     );
   }
 
-  const selectedHymnData = hymns.find(h => h.id === selectedHymn);
+  const selectedHymnData = hymns.find(h => h.id.toString() === selectedHymn);
   if (!selectedHymnData) return null;
 
   console.log('Rendering hymn:', selectedHymnData);

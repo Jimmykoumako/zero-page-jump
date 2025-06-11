@@ -22,7 +22,11 @@ export const useRemoteControl = ({
       
       switch (command) {
         case 'selectHymn':
-          onHymnSelect(data.hymnId);
+          if (typeof data.hymnId === 'string') {
+            onHymnSelect(parseInt(data.hymnId));
+          } else {
+            onHymnSelect(data.hymnId);
+          }
           break;
         case 'nextVerse':
           onNextVerse();
