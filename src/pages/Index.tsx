@@ -15,13 +15,9 @@ import {
 import { useUser } from "@/hooks/useUser";
 import { useHymn } from "@/hooks/useHymn";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import AuthenticatedLanding from "@/components/landing/AuthenticatedLanding";
 import UnauthenticatedLanding from "@/components/landing/UnauthenticatedLanding";
-import HymnBook from "@/components/HymnBook";
-import HymnLyrics from "@/components/HymnLyrics";
-import GroupSession from "@/components/GroupSession";
-import FullscreenDisplay from "@/components/FullscreenDisplay";
-import RemoteControl from "@/components/RemoteControl";
 
 interface NavItem {
   title: string;
@@ -37,29 +33,60 @@ interface CardProps {
 }
 
 const Index = () => {
-  const [currentMode, setCurrentMode] = useState<'browse' | 'lyrics' | 'group' | 'hymnal' | 'display' | 'remote'>('browse');
-  const [currentView, setCurrentView] = useState<'hymn-book' | 'hymn-lyrics' | 'group-session' | 'fullscreen-display' | 'remote-control'>('hymn-book');
   const { toast } = useToast();
   const { user, isLoading: userLoading } = useUser();
   const { isLoading: hymnLoading } = useHymn();
+  const navigate = useNavigate();
 
-  const handleModeSelect = (mode: 'browse' | 'lyrics' | 'group' | 'hymnal' | 'display' | 'remote' | 'music') => {
-    if (mode === 'music') {
-      window.location.href = '/music';
-      return;
-    }
+  const handleModeSelect = (mode: 'browse' | 'lyrics' | 'group' | 'hymnal' | 'display' | 'remote' | 'music' | 'track-manager') => {
+    console.log('Mode selected:', mode);
     
-    setCurrentMode(mode);
-    if (mode === 'browse' || mode === 'hymnal') {
-      setCurrentView('hymn-book');
-    } else if (mode === 'lyrics') {
-      setCurrentView('hymn-lyrics');
-    } else if (mode === 'group') {
-      setCurrentView('group-session');
-    } else if (mode === 'display') {
-      setCurrentView('fullscreen-display');
-    } else if (mode === 'remote') {
-      setCurrentView('remote-control');
+    // Navigate to the appropriate route instead of changing views
+    switch (mode) {
+      case 'music':
+        navigate('/music');
+        break;
+      case 'track-manager':
+        navigate('/track-management');
+        break;
+      case 'group':
+        // For now, just show a toast since group sessions might need special handling
+        toast({
+          title: "Group Sessions",
+          description: "Group session functionality coming soon!",
+        });
+        break;
+      case 'display':
+        // For now, just show a toast since fullscreen display might need special handling
+        toast({
+          title: "Presentation Mode",
+          description: "Presentation mode functionality coming soon!",
+        });
+        break;
+      case 'remote':
+        // For now, just show a toast since remote control might need special handling
+        toast({
+          title: "Remote Control",
+          description: "Remote control functionality coming soon!",
+        });
+        break;
+      case 'browse':
+      case 'hymnal':
+        // For now, just show a toast since hymn browsing might need special handling
+        toast({
+          title: "Hymn Books",
+          description: "Hymn book browsing functionality coming soon!",
+        });
+        break;
+      case 'lyrics':
+        // For now, just show a toast since lyrics viewing might need special handling
+        toast({
+          title: "Hymn Lyrics",
+          description: "Hymn lyrics functionality coming soon!",
+        });
+        break;
+      default:
+        console.log('Unknown mode:', mode);
     }
   };
 
@@ -76,14 +103,8 @@ const Index = () => {
       {user ? (
         <AuthenticatedLanding user={user} onModeSelect={handleModeSelect} />
       ) : (
-        <UnauthenticatedLanding onModeSelect={handleModeSelect} onAuthClick={() => window.location.href = '/auth'} />
+        <UnauthenticatedLanding onModeSelect={handleModeSelect} onAuthClick={() => navigate('/auth')} />
       )}
-
-      {currentView === 'hymn-book' && <HymnBook mode="hymnal" deviceId="" onBack={() => {}} />}
-      {currentView === 'hymn-lyrics' && <HymnLyrics />}
-      {currentView === 'group-session' && <GroupSession deviceId="" onBack={() => {}} onJoinSession={() => {}} />}
-      {currentView === 'fullscreen-display' && <FullscreenDisplay />}
-      {currentView === 'remote-control' && <RemoteControl deviceId="" onBack={() => {}} />}
     </>
   );
 };

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Music, Search, Play, Pause, Save, RotateCcw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useUser } from '@/hooks/useUser';
 import SyncProjectList from '@/components/SyncProjectList';
 import SyncEditor from '@/components/SyncEditor';
 import type { Track } from '@/types/track';
@@ -30,12 +30,17 @@ const SyncStudio = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useUser();
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (user) {
+      fetchData();
+    }
+  }, [user]);
 
   const fetchData = async () => {
+    if (!user) return;
+    
     setLoading(true);
     try {
       // Fetch sync projects and tracks in parallel
@@ -46,6 +51,7 @@ const SyncStudio = () => {
             *,
             Track (*)
           `)
+          .eq('user_id', user.id)
           .order('updated_at', { ascending: false }),
         supabase
           .from('Track')
@@ -88,13 +94,16 @@ const SyncStudio = () => {
   };
 
   const handleCreateProject = async (title: string, trackId: string) => {
+    if (!user) return;
+    
     try {
       const { data, error } = await supabase
         .from('sync_projects')
         .insert({
           title,
           track_id: trackId,
-          sync_data: {}
+          sync_data: {},
+          user_id: user.id
         })
         .select(`
           *,
@@ -152,6 +161,17 @@ const SyncStudio = () => {
     project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     project.track?.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Music className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-muted-foreground">Please sign in to access the sync studio.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
