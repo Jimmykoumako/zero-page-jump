@@ -5,26 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Play, Pause, FileText, Calendar, Clock } from 'lucide-react';
 import { useListeningHistory } from '@/hooks/useListeningHistory';
 import type { TrackListProps } from '@/types';
-
-// Updated Track interface to match new database schema
-interface Track {
-  id: string;
-  title: string;
-  artist?: string;
-  artist_name?: string;
-  url: string;
-  hymnNumber?: string;
-  album?: string;
-  album_name?: string;
-  duration?: string;
-  hasLyrics?: boolean;
-  lyrics?: any;
-  track_number?: number;
-  disc_number?: number;
-  explicit?: boolean;
-  cover_image_url?: string;
-  release_date?: string;
-}
+import type { Track } from '@/types/track';
 
 interface UpdatedTrackListProps extends Omit<TrackListProps, 'tracks'> {
   tracks: Track[];
@@ -41,10 +22,10 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlayTrack, onShowLyrics 
         track.id,
         track.title,
         {
-          artistName: track.artist_name || track.artist,
-          albumName: track.album_name || track.album,
-          hymnNumber: track.hymnNumber,
-          duration: track.duration ? parseInt(track.duration.split(':')[0]) * 60 + parseInt(track.duration.split(':')[1]) : undefined
+          artistName: track.artist_name,
+          albumName: track.album_name,
+          hymnNumber: track.hymnTitleNumber,
+          duration: track.duration
         }
       );
       
@@ -56,6 +37,12 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlayTrack, onShowLyrics 
   const formatDate = (dateString?: string) => {
     if (!dateString) return null;
     return new Date(dateString).toLocaleDateString();
+  };
+
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -114,7 +101,7 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlayTrack, onShowLyrics 
                   )}
                 </div>
                 <div className="text-sm text-muted-foreground truncate">
-                  {track.artist_name || track.artist} • {track.album_name || track.album}
+                  {track.artist_name} • {track.album_name}
                 </div>
                 {track.release_date && (
                   <div className="text-xs text-muted-foreground flex items-center gap-1">
@@ -125,17 +112,26 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlayTrack, onShowLyrics 
               </div>
 
               <div className="flex items-center gap-2">
-                {track.hymnNumber && (
+                {track.hymnTitleNumber && (
                   <Badge variant="outline" className="text-xs">
-                    #{track.hymnNumber}
+                    #{track.hymnTitleNumber}
                   </Badge>
                 )}
                 
-                {(track.hasLyrics || track.hymnNumber) && onShowLyrics && (
+                {(track.hymnTitleNumber) && onShowLyrics && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onShowLyrics(track)}
+                    onClick={() => onShowLyrics({
+                      id: track.id,
+                      title: track.title,
+                      artist: track.artist_name || '',
+                      url: track.url,
+                      hymnNumber: track.hymnTitleNumber,
+                      album: track.album_name,
+                      duration: formatDuration(track.duration),
+                      hasLyrics: !!track.hymnTitleNumber
+                    })}
                     className="h-8 w-8 p-0"
                     title="View lyrics"
                   >
@@ -145,7 +141,7 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlayTrack, onShowLyrics 
                 
                 <div className="text-sm text-muted-foreground w-12 text-right flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  {track.duration}
+                  {formatDuration(track.duration)}
                 </div>
               </div>
             </div>

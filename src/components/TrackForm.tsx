@@ -4,36 +4,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Music, Upload, Save, X } from 'lucide-react';
-
-interface Track {
-  id: string;
-  title: string;
-  url: string;
-  duration: number;
-  artist_name?: string;
-  album_name?: string;
-  release_date?: string;
-  track_number?: number;
-  disc_number?: number;
-  explicit?: boolean;
-  cover_image_url?: string;
-  hymnTitleNumber?: string;
-  bookId?: number;
-}
+import { Music, Save, X } from 'lucide-react';
+import type { Track, TrackFormData } from '@/types/track';
 
 interface TrackFormProps {
   track?: Track | null;
   isEditing: boolean;
-  onSubmit: (trackData: Partial<Track>) => void;
+  onSubmit: (trackData: TrackFormData) => void;
   onCancel: () => void;
 }
 
 const TrackForm = ({ track, isEditing, onSubmit, onCancel }: TrackFormProps) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<TrackFormData>({
     title: '',
     url: '',
     duration: 0,
@@ -70,22 +54,15 @@ const TrackForm = ({ track, isEditing, onSubmit, onCancel }: TrackFormProps) => 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const submitData: Partial<Track> = {
-      ...formData,
-      id: isEditing ? track?.id : `track_${Date.now()}`,
-    };
+    // Ensure required fields are provided
+    if (!formData.title || !formData.url || !formData.duration) {
+      return;
+    }
 
-    // Remove empty strings for optional fields
-    Object.keys(submitData).forEach(key => {
-      if (typeof submitData[key as keyof Track] === 'string' && submitData[key as keyof Track] === '') {
-        delete submitData[key as keyof Track];
-      }
-    });
-
-    onSubmit(submitData);
+    onSubmit(formData);
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: keyof TrackFormData, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value

@@ -3,34 +3,13 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit, Trash2, Music, Search, Calendar, Hash } from 'lucide-react';
+import { Plus, Music, Search, Calendar, Hash } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import TrackForm from './TrackForm';
 import TrackCard from './TrackCard';
-
-interface Track {
-  id: string;
-  title: string;
-  url: string;
-  duration: number;
-  artist_name?: string;
-  album_name?: string;
-  release_date?: string;
-  track_number?: number;
-  disc_number?: number;
-  explicit?: boolean;
-  cover_image_url?: string;
-  hymnTitleNumber?: string;
-  bookId?: number;
-  created_at?: string;
-  updated_at?: string;
-}
+import type { Track, TrackFormData } from '@/types/track';
 
 const TrackManager = () => {
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -67,11 +46,27 @@ const TrackManager = () => {
     }
   };
 
-  const handleCreateTrack = async (trackData: Partial<Track>) => {
+  const handleCreateTrack = async (trackData: TrackFormData) => {
     try {
+      // Ensure required fields are present
+      const insertData = {
+        title: trackData.title,
+        url: trackData.url,
+        duration: trackData.duration,
+        artist_name: trackData.artist_name || null,
+        album_name: trackData.album_name || null,
+        release_date: trackData.release_date || null,
+        track_number: trackData.track_number || null,
+        disc_number: trackData.disc_number || 1,
+        explicit: trackData.explicit || false,
+        cover_image_url: trackData.cover_image_url || null,
+        hymnTitleNumber: trackData.hymnTitleNumber || null,
+        bookId: trackData.bookId || null,
+      };
+
       const { data, error } = await supabase
         .from('Track')
-        .insert([trackData])
+        .insert(insertData)
         .select()
         .single();
 
@@ -93,13 +88,28 @@ const TrackManager = () => {
     }
   };
 
-  const handleUpdateTrack = async (trackData: Partial<Track>) => {
+  const handleUpdateTrack = async (trackData: TrackFormData) => {
     if (!selectedTrack) return;
 
     try {
+      const updateData = {
+        title: trackData.title,
+        url: trackData.url,
+        duration: trackData.duration,
+        artist_name: trackData.artist_name || null,
+        album_name: trackData.album_name || null,
+        release_date: trackData.release_date || null,
+        track_number: trackData.track_number || null,
+        disc_number: trackData.disc_number || 1,
+        explicit: trackData.explicit || false,
+        cover_image_url: trackData.cover_image_url || null,
+        hymnTitleNumber: trackData.hymnTitleNumber || null,
+        bookId: trackData.bookId || null,
+      };
+
       const { data, error } = await supabase
         .from('Track')
-        .update(trackData)
+        .update(updateData)
         .eq('id', selectedTrack.id)
         .select()
         .single();
