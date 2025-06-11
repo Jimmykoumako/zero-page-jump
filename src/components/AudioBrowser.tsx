@@ -10,6 +10,7 @@ import MusicPlayer from '@/components/MusicPlayer';
 import PlaylistCard from '@/components/PlaylistCard';
 import TrackList from '@/components/TrackList';
 import { hymns } from '@/data/hymns';
+import type { Track } from '@/types/track';
 
 interface AudioFile {
   id: string;
@@ -29,7 +30,7 @@ interface HymnLyric {
   userId: string;
 }
 
-interface Track {
+interface LegacyTrack {
   id: string;
   title: string;
   artist: string;
@@ -52,7 +53,7 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+  const [currentTrack, setCurrentTrack] = useState<LegacyTrack | null>(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const { toast } = useToast();
@@ -104,13 +105,19 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
         return {
           id: file.id,
           title: hymnData?.title || `Hymn #${file.hymnTitleNumber}`,
-          artist: hymnData?.author || 'HBC Hymns',
           url: getAudioUrl(file.url),
-          hymnNumber: file.hymnTitleNumber,
-          album: `Book ${file.bookId}`,
-          duration: '3:45', // Default duration - you could calculate this
-          hasLyrics: !!lyricsData,
-          lyrics: lyricsData?.lyrics
+          duration: 225, // Default duration in seconds
+          artist_name: hymnData?.author || 'HBC Hymns',
+          album_name: `Book ${file.bookId}`,
+          hymnTitleNumber: file.hymnTitleNumber,
+          bookId: file.bookId,
+          disc_number: 1,
+          explicit: false,
+          cover_image_url: null,
+          release_date: null,
+          track_number: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         };
       });
       
@@ -140,28 +147,44 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
 
     const trackIndex = tracks.findIndex(t => t.id === trackId);
     
+    // Convert Track to LegacyTrack for the music player
+    const legacyTrack: LegacyTrack = {
+      id: track.id,
+      title: track.title,
+      artist: track.artist_name || 'Unknown Artist',
+      url: track.url,
+      hymnNumber: track.hymnTitleNumber,
+      album: track.album_name,
+      duration: `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`,
+      hasLyrics: !!track.hymnTitleNumber
+    };
+    
     if (currentTrack?.id === trackId) {
       setIsPlaying(!isPlaying);
     } else {
-      setCurrentTrack(track);
+      setCurrentTrack(legacyTrack);
       setCurrentTrackIndex(trackIndex);
       setIsPlaying(true);
     }
   };
 
   const handleShowLyrics = (track: Track) => {
-    if (track.hasLyrics && track.lyrics && onShowLyrics) {
-      onShowLyrics(track.hymnNumber || '', track.lyrics);
+    const lyricsData = hymnLyrics.find(
+      lyric => lyric.hymnTitleNumber === track.hymnTitleNumber && lyric.bookId === track.bookId
+    );
+    
+    if (lyricsData && onShowLyrics) {
+      onShowLyrics(track.hymnTitleNumber || '', lyricsData.lyrics);
     } else {
       // Fallback to hymns data if no custom lyrics
-      const hymnData = hymns.find(h => h.number.toString() === track.hymnNumber);
+      const hymnData = hymns.find(h => h.number.toString() === track.hymnTitleNumber);
       if (hymnData && onShowLyrics) {
         // Convert hymn data to lyrics format
-        const lyricsData = {
+        const lyricsDataFallback = {
           verses: hymnData.verses,
           chorus: hymnData.chorus
         };
-        onShowLyrics(track.hymnNumber || '', lyricsData);
+        onShowLyrics(track.hymnTitleNumber || '', lyricsDataFallback);
       } else {
         toast({
           title: "No Lyrics Available",
@@ -178,29 +201,55 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
 
   const handleNext = () => {
     const nextIndex = (currentTrackIndex + 1) % tracks.length;
-    setCurrentTrack(tracks[nextIndex]);
+    const nextTrack = tracks[nextIndex];
+    const legacyTrack: LegacyTrack = {
+      id: nextTrack.id,
+      title: nextTrack.title,
+      artist: nextTrack.artist_name || 'Unknown Artist',
+      url: nextTrack.url,
+      hymnNumber: nextTrack.hymnTitleNumber,
+      album: nextTrack.album_name,
+      duration: `${Math.floor(nextTrack.duration / 60)}:${(nextTrack.duration % 60).toString().padStart(2, '0')}`,
+      hasLyrics: !!nextTrack.hymnTitleNumber
+    };
+    setCurrentTrack(legacyTrack);
     setCurrentTrackIndex(nextIndex);
     setIsPlaying(true);
   };
 
   const handlePrevious = () => {
     const prevIndex = currentTrackIndex === 0 ? tracks.length - 1 : currentTrackIndex - 1;
-    setCurrentTrack(tracks[prevIndex]);
+    const prevTrack = tracks[prevIndex];
+    const legacyTrack: LegacyTrack = {
+      id: prevTrack.id,
+      title: prevTrack.title,
+      artist: prevTrack.artist_name || 'Unknown Artist',
+      url: prevTrack.url,
+      hymnNumber: prevTrack.hymnTitleNumber,
+      album: prevTrack.album_name,
+      duration: `${Math.floor(prevTrack.duration / 60)}:${(prevTrack.duration % 60).toString().padStart(2, '0')}`,
+      hasLyrics: !!prevTrack.hymnTitleNumber
+    };
+    setCurrentTrack(legacyTrack);
     setCurrentTrackIndex(prevIndex);
     setIsPlaying(true);
   };
 
   const filteredTracks = tracks.filter(track =>
     track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    track.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    track.hymnNumber?.includes(searchQuery)
+    track.artist_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    track.hymnTitleNumber?.includes(searchQuery)
   );
 
   const recentTracks = tracks.slice(0, 10);
   const popularHymns = tracks.filter(track => 
-    ['1', '23', '45', '123', '256'].includes(track.hymnNumber || '')
+    ['1', '23', '45', '123', '256'].includes(track.hymnTitleNumber || '')
   );
-  const tracksWithLyrics = tracks.filter(track => track.hasLyrics);
+  const tracksWithLyrics = tracks.filter(track => {
+    return hymnLyrics.some(lyric => 
+      lyric.hymnTitleNumber === track.hymnTitleNumber && lyric.bookId === track.bookId
+    );
+  });
 
   if (loading) {
     return (
@@ -379,7 +428,16 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
         onPlayPause={handlePlayPause}
         onNext={handleNext}
         onPrevious={handlePrevious}
-        playlist={tracks}
+        playlist={tracks.map(track => ({
+          id: track.id,
+          title: track.title,
+          artist: track.artist_name || 'Unknown Artist',
+          url: track.url,
+          hymnNumber: track.hymnTitleNumber,
+          album: track.album_name,
+          duration: `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`,
+          hasLyrics: !!track.hymnTitleNumber
+        }))}
       />
     </div>
   );

@@ -11,6 +11,7 @@ import UserProfile from "./pages/UserProfile";
 import AudioBrowser from "./pages/AudioBrowser";
 import ListeningHistory from "./pages/ListeningHistory";
 import TrackManagement from "./pages/TrackManagement";
+import SyncStudio from "./pages/SyncStudio";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/music" element={<AudioBrowser />} />
           <Route path="/history" element={<ListeningHistory />} />
           <Route path="/track-management" element={<TrackManagement />} />
+          <Route path="/sync-studio" element={<SyncStudio />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

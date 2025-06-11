@@ -927,6 +927,47 @@ export type Database = {
         }
         Relationships: []
       }
+      lyric_sync_data: {
+        Row: {
+          created_at: string
+          end_time: number
+          id: string
+          line_index: number
+          start_time: number
+          sync_project_id: string
+          text: string
+          verse_index: number
+        }
+        Insert: {
+          created_at?: string
+          end_time: number
+          id?: string
+          line_index: number
+          start_time: number
+          sync_project_id: string
+          text: string
+          verse_index: number
+        }
+        Update: {
+          created_at?: string
+          end_time?: number
+          id?: string
+          line_index?: number
+          start_time?: number
+          sync_project_id?: string
+          text?: string
+          verse_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyric_sync_data_sync_project_id_fkey"
+            columns: ["sync_project_id"]
+            isOneToOne: false
+            referencedRelation: "sync_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Metric: {
         Row: {
           id: number
@@ -1169,6 +1210,47 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      sync_projects: {
+        Row: {
+          created_at: string
+          hymn_id: string | null
+          id: string
+          sync_data: Json | null
+          title: string
+          track_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hymn_id?: string | null
+          id?: string
+          sync_data?: Json | null
+          title: string
+          track_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hymn_id?: string | null
+          id?: string
+          sync_data?: Json | null
+          title?: string
+          track_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sync_projects_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "Track"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       TimestampAudioFile: {
         Row: {
