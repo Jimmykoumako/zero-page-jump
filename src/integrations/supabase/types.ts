@@ -885,6 +885,48 @@ export type Database = {
           },
         ]
       }
+      listening_history: {
+        Row: {
+          album_name: string | null
+          artist_name: string | null
+          book_id: number | null
+          created_at: string
+          duration: number | null
+          hymn_id: string
+          hymn_number: string | null
+          hymn_title: string
+          id: string
+          played_at: string
+          user_id: string
+        }
+        Insert: {
+          album_name?: string | null
+          artist_name?: string | null
+          book_id?: number | null
+          created_at?: string
+          duration?: number | null
+          hymn_id: string
+          hymn_number?: string | null
+          hymn_title: string
+          id?: string
+          played_at?: string
+          user_id: string
+        }
+        Update: {
+          album_name?: string | null
+          artist_name?: string | null
+          book_id?: number | null
+          created_at?: string
+          duration?: number | null
+          hymn_id?: string
+          hymn_number?: string | null
+          hymn_title?: string
+          id?: string
+          played_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       Metric: {
         Row: {
           id: number

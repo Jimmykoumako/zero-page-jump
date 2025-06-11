@@ -76,10 +76,10 @@ const Index = () => {
       {user ? (
         <AuthenticatedLanding user={user} onModeSelect={handleModeSelect} />
       ) : (
-        <UnauthenticatedLanding />
+        <UnauthenticatedLanding onModeSelect={handleModeSelect} onAuthClick={() => window.location.href = '/auth'} />
       )}
 
-      {currentView === 'hymn-book' && <HymnBook mode="browse" deviceId="" onBack={() => {}} />}
+      {currentView === 'hymn-book' && <HymnBook mode="hymnal" deviceId="" onBack={() => {}} />}
       {currentView === 'hymn-lyrics' && <HymnLyrics />}
       {currentView === 'group-session' && <GroupSession deviceId="" onBack={() => {}} onJoinSession={() => {}} />}
       {currentView === 'fullscreen-display' && <FullscreenDisplay />}

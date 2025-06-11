@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Clock, TrendingUp, Trash2, Play, BarChart3, Calendar } from 'lucide-react';
 import { useListeningHistory } from '@/hooks/useListeningHistory';
-import { format, isToday, isYesterday, subDays } from 'date-fns';
+import { format, isToday, isYesterday } from 'date-fns';
 
 const ListeningHistoryView = () => {
   const {
@@ -22,7 +22,7 @@ const ListeningHistoryView = () => {
   useEffect(() => {
     // Group history by date
     const grouped = history.reduce((acc, entry) => {
-      const date = new Date(entry.playedAt);
+      const date = new Date(entry.played_at);
       let dateKey = '';
       
       if (isToday(date)) {
@@ -118,14 +118,14 @@ const ListeningHistoryView = () => {
                           <Play className="w-4 h-4 text-primary" />
                         </div>
                         <div>
-                          <h4 className="font-medium">{entry.hymnTitle}</h4>
+                          <h4 className="font-medium">{entry.hymn_title}</h4>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <span>{entry.artistName}</span>
-                            {entry.hymnNumber && (
+                            <span>{entry.artist_name}</span>
+                            {entry.hymn_number && (
                               <>
                                 <span>•</span>
                                 <Badge variant="secondary" className="text-xs">
-                                  #{entry.hymnNumber}
+                                  #{entry.hymn_number}
                                 </Badge>
                               </>
                             )}
@@ -134,10 +134,10 @@ const ListeningHistoryView = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-muted-foreground">
-                          {format(new Date(entry.playedAt), 'h:mm a')}
+                          {format(new Date(entry.played_at), 'h:mm a')}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(entry.playedAt), 'MMM d')}
+                          {format(new Date(entry.played_at), 'MMM d')}
                         </p>
                       </div>
                     </div>
@@ -218,18 +218,18 @@ const ListeningHistoryView = () => {
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-xs text-muted-foreground min-w-[3rem]">
-                            {format(new Date(entry.playedAt), 'h:mm a')}
+                            {format(new Date(entry.played_at), 'h:mm a')}
                           </span>
                           <div>
-                            <p className="font-medium text-sm">{entry.hymnTitle}</p>
+                            <p className="font-medium text-sm">{entry.hymn_title}</p>
                             <p className="text-xs text-muted-foreground">
-                              {entry.artistName}
+                              {entry.artist_name}
                             </p>
                           </div>
                         </div>
-                        {entry.hymnNumber && (
+                        {entry.hymn_number && (
                           <Badge variant="outline" className="text-xs">
-                            #{entry.hymnNumber}
+                            #{entry.hymn_number}
                           </Badge>
                         )}
                       </div>

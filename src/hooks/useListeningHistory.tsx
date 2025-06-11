@@ -5,15 +5,15 @@ import { useToast } from '@/hooks/use-toast';
 
 interface ListeningHistoryEntry {
   id: string;
-  hymnId: string;
-  hymnTitle: string;
-  artistName?: string;
-  albumName?: string;
-  playedAt: string;
+  user_id: string;
+  hymn_id: string;
+  hymn_title: string;
+  artist_name?: string;
+  album_name?: string;
+  played_at: string;
   duration?: number;
-  userId: string;
-  hymnNumber?: string;
-  bookId?: number;
+  hymn_number?: string;
+  book_id?: number;
 }
 
 export const useListeningHistory = () => {
@@ -35,8 +35,8 @@ export const useListeningHistory = () => {
       const { data, error } = await supabase
         .from('listening_history')
         .select('*')
-        .eq('userId', user.id)
-        .order('playedAt', { ascending: false })
+        .eq('user_id', user.id)
+        .order('played_at', { ascending: false })
         .limit(100);
 
       if (error) {
@@ -71,16 +71,15 @@ export const useListeningHistory = () => {
         return;
       }
 
-      const historyEntry: Omit<ListeningHistoryEntry, 'id'> = {
-        hymnId,
-        hymnTitle,
-        artistName: options?.artistName || 'Unknown Artist',
-        albumName: options?.albumName,
-        playedAt: new Date().toISOString(),
+      const historyEntry = {
+        user_id: user.id,
+        hymn_id: hymnId,
+        hymn_title: hymnTitle,
+        artist_name: options?.artistName || 'Unknown Artist',
+        album_name: options?.albumName,
         duration: options?.duration,
-        userId: user.id,
-        hymnNumber: options?.hymnNumber,
-        bookId: options?.bookId
+        hymn_number: options?.hymnNumber,
+        book_id: options?.bookId
       };
 
       const { error } = await supabase
@@ -93,10 +92,13 @@ export const useListeningHistory = () => {
       }
 
       // Update local state
-      setHistory(prev => [
-        { ...historyEntry, id: Date.now().toString() },
-        ...prev.slice(0, 99) // Keep only the latest 100 entries
-      ]);
+      const newEntry: ListeningHistoryEntry = {
+        ...historyEntry,
+        id: Date.now().toString(),
+        played_at: new Date().toISOString()
+      };
+      
+      setHistory(prev => [newEntry, ...prev.slice(0, 99)]);
 
       console.log('Listening session recorded successfully');
     } catch (error) {
@@ -110,7 +112,7 @@ export const useListeningHistory = () => {
 
   const getMostPlayedHymns = () => {
     const playCount = history.reduce((acc, entry) => {
-      acc[entry.hymnId] = (acc[entry.hymnId] || 0) + 1;
+      acc[entry.hymn_id] = (acc[entry.hymn_id] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
@@ -118,13 +120,13 @@ export const useListeningHistory = () => {
       .sort(([, a], [, b]) => b - a)
       .slice(0, 10)
       .map(([hymnId, count]) => {
-        const entry = history.find(h => h.hymnId === hymnId);
+        const entry = history.find(h => h.hymn_id === hymnId);
         return {
           hymnId,
           count,
-          hymnTitle: entry?.hymnTitle || 'Unknown',
-          hymnNumber: entry?.hymnNumber,
-          lastPlayed: entry?.playedAt
+          hymnTitle: entry?.hymn_title || 'Unknown',
+          hymnNumber: entry?.hymn_number,
+          lastPlayed: entry?.played_at
         };
       });
   };
@@ -138,7 +140,7 @@ export const useListeningHistory = () => {
       const { error } = await supabase
         .from('listening_history')
         .delete()
-        .eq('userId', user.id);
+        .eq('user_id', user.id);
 
       if (error) {
         console.error('Error clearing history:', error);
