@@ -11,9 +11,9 @@ import {
   Speaker, 
   FileText 
 } from "lucide-react";
-import { HeroSection } from "./HeroSection";
-import { FeaturesGrid } from "./FeaturesGrid";
-import { GettingStartedSection } from "./GettingStartedSection";
+import HeroSection from "./HeroSection";
+import FeaturesGrid from "./FeaturesGrid";
+import GettingStartedSection from "./GettingStartedSection";
 
 interface UnauthenticatedLandingProps {
   onModeSelect?: (mode: string) => void;
@@ -45,7 +45,7 @@ const UnauthenticatedLanding = ({ onModeSelect, onAuthClick }: UnauthenticatedLa
       </nav>
 
       <HeroSection onGetStarted={handleAuthClick} />
-      <FeaturesGrid />
+      <FeaturesGrid onModeSelect={onModeSelect || (() => {})} />
       <GettingStartedSection onGetStarted={handleAuthClick} />
 
       {/* Footer */}
