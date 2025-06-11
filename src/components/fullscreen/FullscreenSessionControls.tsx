@@ -3,25 +3,31 @@ import { Button } from "@/components/ui/button";
 import { Users, Crown, UserCheck, UserX } from "lucide-react";
 
 interface FullscreenSessionControlsProps {
-  isInSession: boolean;
-  isLeader: boolean;
-  isCoLeader: boolean;
-  isFollowingLeader: boolean;
-  participantCount: number;
-  onToggleFollowLeader: () => void;
-  onSessionManagement: () => void;
+  groupSession: { sessionId: string; isLeader: boolean } | null;
+  currentHymn: number;
+  setCurrentHymn: (id: number) => void;
 }
 
 const FullscreenSessionControls = ({
-  isInSession,
-  isLeader,
-  isCoLeader,
-  isFollowingLeader,
-  participantCount,
-  onToggleFollowLeader,
-  onSessionManagement
+  groupSession,
+  currentHymn,
+  setCurrentHymn
 }: FullscreenSessionControlsProps) => {
-  if (!isInSession) return null;
+  if (!groupSession) return null;
+
+  const isInSession = true;
+  const isLeader = groupSession.isLeader;
+  const isCoLeader = false;
+  const isFollowingLeader = !isLeader;
+  const participantCount = 1;
+
+  const onToggleFollowLeader = () => {
+    // Toggle follow leader logic
+  };
+
+  const onSessionManagement = () => {
+    // Session management logic
+  };
 
   return (
     <div className="fixed bottom-6 left-6 flex flex-col gap-2 z-50">

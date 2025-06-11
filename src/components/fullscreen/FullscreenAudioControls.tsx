@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Play, Pause, Square, Volume2, VolumeX, Music } from "lucide-react";
-import { useFullscreenAudio } from "@/hooks/useFullscreenAudio";
 
 interface FullscreenAudioControlsProps {
   hymnNumber: string;
@@ -15,16 +14,10 @@ const FullscreenAudioControls = ({
   isVisible, 
   onToggleVisibility 
 }: FullscreenAudioControlsProps) => {
-  const {
-    audioFiles,
-    currentAudio,
-    isPlaying,
-    currentAudioFile,
-    loading,
-    playAudio,
-    togglePlayPause,
-    stopAudio
-  } = useFullscreenAudio(hymnNumber);
+  // Mock audio data for now
+  const audioFiles: any[] = [];
+  const isPlaying = false;
+  const loading = false;
 
   if (audioFiles.length === 0 && !loading) {
     return null;
@@ -62,85 +55,11 @@ const FullscreenAudioControls = ({
             </div>
           ) : (
             <div className="overflow-y-auto max-h-64">
-              {audioFiles.map((audioFile) => (
-                <div
-                  key={audioFile.id}
-                  className={`p-3 border-b border-white/10 hover:bg-white/10 cursor-pointer transition-colors ${
-                    currentAudioFile?.id === audioFile.id ? 'bg-white/20' : ''
-                  }`}
-                  onClick={() => playAudio(audioFile)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (currentAudioFile?.id === audioFile.id) {
-                            togglePlayPause();
-                          } else {
-                            playAudio(audioFile);
-                          }
-                        }}
-                        variant="ghost"
-                        size="sm"
-                        className="text-white hover:bg-white/20 w-8 h-8 p-0"
-                      >
-                        {currentAudioFile?.id === audioFile.id && isPlaying ? (
-                          <Pause className="w-4 h-4" />
-                        ) : (
-                          <Play className="w-4 h-4" />
-                        )}
-                      </Button>
-                      
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white text-sm font-medium truncate">
-                          Audio File #{audioFile.audioTypeId}
-                        </p>
-                        <p className="text-slate-400 text-xs truncate">
-                          {new Date(audioFile.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-
-                    {currentAudioFile?.id === audioFile.id && isPlaying && (
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          stopAudio();
-                        }}
-                        variant="ghost"
-                        size="sm"
-                        className="text-slate-400 hover:text-red-400 hover:bg-red-400/20 w-6 h-6 p-0"
-                      >
-                        <Square className="w-3 h-3" />
-                      </Button>
-                    )}
-                  </div>
-
-                  {currentAudioFile?.id === audioFile.id && currentAudio && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="flex-1 bg-white/20 rounded-full h-1">
-                        <div 
-                          className="bg-blue-400 h-1 rounded-full transition-all duration-300"
-                          style={{ 
-                            width: `${(currentAudio.currentTime / currentAudio.duration) * 100 || 0}%` 
-                          }}
-                        />
-                      </div>
-                      <span className="text-xs text-slate-400">
-                        {Math.floor(currentAudio.currentTime / 60)}:
-                        {String(Math.floor(currentAudio.currentTime % 60)).padStart(2, '0')}
-                      </span>
-                    </div>
-                  )}
+              {audioFiles.length === 0 && (
+                <div className="p-4 text-center text-slate-400">
+                  No audio files available for this hymn.
                 </div>
-              ))}
-            </div>
-          )}
-
-          {audioFiles.length === 0 && !loading && (
-            <div className="p-4 text-center text-slate-400">
-              No audio files available for this hymn.
+              )}
             </div>
           )}
         </Card>

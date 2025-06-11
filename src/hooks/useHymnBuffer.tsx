@@ -29,6 +29,11 @@ export const useHymnBuffer = () => {
     });
   };
 
+  const clearBuffer = () => {
+    setHymnBuffer([]);
+    setCurrentBufferIndex(0);
+  };
+
   const moveToNext = () => {
     if (currentBufferIndex < hymnBuffer.length - 1) {
       setCurrentBufferIndex(prev => prev + 1);
@@ -56,10 +61,12 @@ export const useHymnBuffer = () => {
 
   return {
     hymnBuffer,
+    buffer: hymnBuffer, // Add alias for backward compatibility
     currentBufferIndex,
     currentHymn: hymnBuffer[currentBufferIndex] || null,
     addToBuffer,
     removeFromBuffer,
+    clearBuffer, // Add clearBuffer method
     moveToNext,
     moveToPrevious,
     setCurrentHymn,

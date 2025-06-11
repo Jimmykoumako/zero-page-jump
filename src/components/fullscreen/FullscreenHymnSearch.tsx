@@ -8,17 +8,15 @@ import { hymns } from "@/data/hymns";
 import { Hymn } from "@/data/hymns";
 
 interface FullscreenHymnSearchProps {
-  isOpen: boolean;
+  selectedHymnbook: any;
+  onSelectHymn: (hymn: Hymn) => void;
   onClose: () => void;
-  onAddToBuffer: (hymn: Hymn) => void;
-  bufferHymnIds: number[];
 }
 
 const FullscreenHymnSearch = ({ 
-  isOpen, 
-  onClose, 
-  onAddToBuffer,
-  bufferHymnIds 
+  selectedHymnbook,
+  onSelectHymn,
+  onClose
 }: FullscreenHymnSearchProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredHymns, setFilteredHymns] = useState<Hymn[]>([]);
@@ -37,11 +35,12 @@ const FullscreenHymnSearch = ({
   }, [searchTerm]);
 
   const handleAddToBuffer = (hymn: Hymn) => {
-    onAddToBuffer(hymn);
+    onSelectHymn(hymn);
+    onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] bg-slate-900 border-slate-700 text-white">
         <DialogHeader>
           <div className="flex items-center justify-between">
@@ -78,44 +77,37 @@ const FullscreenHymnSearch = ({
                 No hymns found matching your search
               </div>
             ) : (
-              filteredHymns.map((hymn) => {
-                const isInBuffer = bufferHymnIds.includes(hymn.id);
-                return (
-                  <div
-                    key={hymn.id}
-                    className="flex items-center justify-between p-3 bg-slate-800 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors"
-                  >
-                    <div className="flex items-start gap-3 flex-1">
-                      <div className="text-blue-400 font-bold w-12 text-sm">
-                        #{hymn.number}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-white truncate">
-                          {hymn.title}
-                        </h3>
-                        <p className="text-sm text-slate-400">
-                          {hymn.author}
-                        </p>
-                        <p className="text-xs text-slate-500">
-                          {hymn.verses.length} verses • {hymn.key} • {hymn.tempo} BPM
-                        </p>
-                      </div>
+              filteredHymns.map((hymn) => (
+                <div
+                  key={hymn.id}
+                  className="flex items-center justify-between p-3 bg-slate-800 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors"
+                >
+                  <div className="flex items-start gap-3 flex-1">
+                    <div className="text-blue-400 font-bold w-12 text-sm">
+                      #{hymn.number}
                     </div>
-                    <Button
-                      onClick={() => handleAddToBuffer(hymn)}
-                      variant={isInBuffer ? "secondary" : "outline"}
-                      size="sm"
-                      disabled={isInBuffer}
-                      className={isInBuffer 
-                        ? "bg-green-600 text-white hover:bg-green-700" 
-                        : "border-slate-600 text-slate-300 hover:bg-slate-700"
-                      }
-                    >
-                      {isInBuffer ? "Added" : <Plus className="w-4 h-4" />}
-                    </Button>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-white truncate">
+                        {hymn.title}
+                      </h3>
+                      <p className="text-sm text-slate-400">
+                        {hymn.author}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {hymn.verses.length} verses • {hymn.key} • {hymn.tempo} BPM
+                      </p>
+                    </div>
                   </div>
-                );
-              })
+                  <Button
+                    onClick={() => handleAddToBuffer(hymn)}
+                    variant="outline"
+                    size="sm"
+                    className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))
             )}
           </div>
         </div>
