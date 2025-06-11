@@ -34,18 +34,6 @@ interface Playlist {
   coverImage?: string;
 }
 
-// Audio file type for the track list component - matching the expected interface
-interface AudioTrack {
-  id: string;
-  title: string;
-  artist: string;
-  url: string;
-  duration: number; // Changed to number to match Track interface
-  hymnNumber?: string;
-  album?: string;
-  hasLyrics?: boolean;
-}
-
 const AudioBrowser = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -201,13 +189,6 @@ const AudioBrowser = () => {
           return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
       }
     });
-
-  // Convert Track[] to AudioTrack[] for the TrackList component
-  const audioTracks: Track[] = filteredAndSortedTracks.map(track => ({
-    ...track,
-    // Ensure all required properties are present
-    artist: track.artist_name || 'Unknown Artist',
-  }));
 
   const recentTracks = tracks.slice(0, 6);
   const featuredPlaylists = playlists.slice(0, 4);
@@ -416,7 +397,7 @@ const AudioBrowser = () => {
               
               {filteredAndSortedTracks.length > 0 ? (
                 <TrackList
-                  tracks={audioTracks}
+                  tracks={filteredAndSortedTracks}
                   currentTrack={currentTrack?.id}
                   isPlaying={isPlaying}
                   onPlayTrack={handlePlayTrack}
@@ -468,7 +449,10 @@ const AudioBrowser = () => {
                     <p className="text-muted-foreground mb-6">
                       Start listening to some tracks and they'll appear here.
                     </p>
-                    <Button onClick={() => document.querySelector('[value="browse"]')?.click()}>
+                    <Button onClick={() => {
+                      const browseTab = document.querySelector('[value="browse"]') as HTMLElement;
+                      browseTab?.click();
+                    }}>
                       Browse Music
                     </Button>
                   </CardContent>

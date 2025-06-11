@@ -11,6 +11,7 @@ import PlaylistCard from '@/components/PlaylistCard';
 import TrackList from '@/components/TrackList';
 import { hymns } from '@/data/hymns';
 import type { Track } from '@/types/track';
+import type { Track as AudioTrack } from '@/types/audio';
 
 interface AudioFile {
   id: string;
@@ -30,18 +31,6 @@ interface HymnLyric {
   userId: string;
 }
 
-interface LegacyTrack {
-  id: string;
-  title: string;
-  artist: string;
-  url: string;
-  hymnNumber?: string;
-  album?: string;
-  duration?: string;
-  hasLyrics?: boolean;
-  lyrics?: any;
-}
-
 interface AudioBrowserProps {
   onShowLyrics?: (hymnNumber: string, lyrics: any) => void;
 }
@@ -53,7 +42,7 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
-  const [currentTrack, setCurrentTrack] = useState<LegacyTrack | null>(null);
+  const [currentTrack, setCurrentTrack] = useState<AudioTrack | null>(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const { toast } = useToast();
@@ -92,7 +81,7 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
       setAudioFiles(audioResult.data || []);
       setHymnLyrics(lyricsResult.data || []);
       
-      // Transform to tracks format with hymn titles and lyrics
+      // Transform AudioFile to Track format with hymn titles and lyrics
       const transformedTracks: Track[] = (audioResult.data || []).map(file => {
         // Find matching hymn from the hymns data
         const hymnData = hymns.find(h => h.number.toString() === file.hymnTitleNumber);
@@ -106,7 +95,7 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
           id: file.id,
           title: hymnData?.title || `Hymn #${file.hymnTitleNumber}`,
           url: getAudioUrl(file.url),
-          duration: 225, // Default duration in seconds
+          duration: 225, // Default duration in seconds (number for Track type)
           artist_name: hymnData?.author || 'HBC Hymns',
           album_name: `Book ${file.bookId}`,
           hymnTitleNumber: file.hymnTitleNumber,
@@ -141,28 +130,31 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
     return data.publicUrl;
   };
 
-  const handlePlayTrack = (trackId: string) => {
-    const track = tracks.find(t => t.id === trackId);
-    if (!track) return;
-
-    const trackIndex = tracks.findIndex(t => t.id === trackId);
-    
-    // Convert Track to LegacyTrack for the music player
-    const legacyTrack: LegacyTrack = {
+  // Convert Track (from database) to AudioTrack (for player) 
+  const convertToAudioTrack = (track: Track): AudioTrack => {
+    return {
       id: track.id,
       title: track.title,
       artist: track.artist_name || 'Unknown Artist',
       url: track.url,
       hymnNumber: track.hymnTitleNumber,
       album: track.album_name,
-      duration: `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`,
+      duration: `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`, // Convert number to string
       hasLyrics: !!track.hymnTitleNumber
     };
+  };
+
+  const handlePlayTrack = (trackId: string) => {
+    const track = tracks.find(t => t.id === trackId);
+    if (!track) return;
+
+    const trackIndex = tracks.findIndex(t => t.id === trackId);
+    const audioTrack = convertToAudioTrack(track);
     
     if (currentTrack?.id === trackId) {
       setIsPlaying(!isPlaying);
     } else {
-      setCurrentTrack(legacyTrack);
+      setCurrentTrack(audioTrack);
       setCurrentTrackIndex(trackIndex);
       setIsPlaying(true);
     }
@@ -202,17 +194,8 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
   const handleNext = () => {
     const nextIndex = (currentTrackIndex + 1) % tracks.length;
     const nextTrack = tracks[nextIndex];
-    const legacyTrack: LegacyTrack = {
-      id: nextTrack.id,
-      title: nextTrack.title,
-      artist: nextTrack.artist_name || 'Unknown Artist',
-      url: nextTrack.url,
-      hymnNumber: nextTrack.hymnTitleNumber,
-      album: nextTrack.album_name,
-      duration: `${Math.floor(nextTrack.duration / 60)}:${(nextTrack.duration % 60).toString().padStart(2, '0')}`,
-      hasLyrics: !!nextTrack.hymnTitleNumber
-    };
-    setCurrentTrack(legacyTrack);
+    const audioTrack = convertToAudioTrack(nextTrack);
+    setCurrentTrack(audioTrack);
     setCurrentTrackIndex(nextIndex);
     setIsPlaying(true);
   };
@@ -220,17 +203,8 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
   const handlePrevious = () => {
     const prevIndex = currentTrackIndex === 0 ? tracks.length - 1 : currentTrackIndex - 1;
     const prevTrack = tracks[prevIndex];
-    const legacyTrack: LegacyTrack = {
-      id: prevTrack.id,
-      title: prevTrack.title,
-      artist: prevTrack.artist_name || 'Unknown Artist',
-      url: prevTrack.url,
-      hymnNumber: prevTrack.hymnTitleNumber,
-      album: prevTrack.album_name,
-      duration: `${Math.floor(prevTrack.duration / 60)}:${(prevTrack.duration % 60).toString().padStart(2, '0')}`,
-      hasLyrics: !!prevTrack.hymnTitleNumber
-    };
-    setCurrentTrack(legacyTrack);
+    const audioTrack = convertToAudioTrack(prevTrack);
+    setCurrentTrack(audioTrack);
     setCurrentTrackIndex(prevIndex);
     setIsPlaying(true);
   };
@@ -428,16 +402,7 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
         onPlayPause={handlePlayPause}
         onNext={handleNext}
         onPrevious={handlePrevious}
-        playlist={tracks.map(track => ({
-          id: track.id,
-          title: track.title,
-          artist: track.artist_name || 'Unknown Artist',
-          url: track.url,
-          hymnNumber: track.hymnTitleNumber,
-          album: track.album_name,
-          duration: `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`,
-          hasLyrics: !!track.hymnTitleNumber
-        }))}
+        playlist={tracks.map(track => convertToAudioTrack(track))}
       />
     </div>
   );
