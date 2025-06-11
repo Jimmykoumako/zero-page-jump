@@ -16,6 +16,9 @@ interface FullscreenPresentationProps {
 const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: FullscreenPresentationProps) => {
   const [fontSize, setFontSize] = useState(6);
   const [currentHymn, setCurrentHymn] = useState<Hymn>(hymn);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isBufferVisible, setIsBufferVisible] = useState(false);
+  const [showIntroCarousel, setShowIntroCarousel] = useState(true);
 
   // Font size classes array for easy indexing
   const fontSizeClasses = [
@@ -42,43 +45,46 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
     hymnBuffer.setCurrentHymn(selectedHymn.id);
   };
 
-  // Get current content based on current verse
-  const getCurrentContent = () => {
-    if (currentVerse < currentHymn.verses.length) {
-      return {
-        type: 'verse' as const,
-        number: currentVerse + 1,
-        content: currentHymn.verses[currentVerse]
-      };
-    } else if (currentHymn.chorus) {
-      return {
-        type: 'chorus' as const,
-        number: null,
-        content: currentHymn.chorus
-      };
-    }
-    return null;
+  // Create mock selected hymnbook structure to match FullscreenContent expectations
+  const mockSelectedHymnbook = {
+    hymns: [currentHymn] // For now, just include the current hymn
   };
-
-  const content = getCurrentContent();
-  if (!content) return null;
 
   return (
     <div className="fixed inset-0 bg-slate-900 text-white z-50 overflow-hidden">
       <FullscreenContent
-        title={currentHymn.title}
-        content={content}
-        fontSizeClass={fontSizeClasses[fontSize]}
-        currentVerse={currentVerse}
-        totalVerses={currentHymn.verses.length}
-        hasChorus={!!currentHymn.chorus}
-        isPlayingAudio={audioHook.isPlaying}
-        hymn={currentHymn}
-        onExit={onExit}
+        selectedHymnbook={mockSelectedHymnbook}
+        groupSession={null}
+        onBack={onExit}
+        onSettingsClick={() => {}}
+        onExitFullscreen={onExit}
+        currentHymn={currentHymn.id.toString()}
+        setCurrentHymn={(hymnId: string) => {
+          const selectedHymn = mockSelectedHymnbook.hymns.find(h => h.id.toString() === hymnId);
+          if (selectedHymn) {
+            setCurrentHymn(selectedHymn);
+          }
+        }}
+        showIntroCarousel={showIntroCarousel}
+        setShowIntroCarousel={setShowIntroCarousel}
+        playingHymn={null}
+        currentAudio={null}
+        isPlaying={false}
+        currentTime={0}
+        duration={0}
+        volume={1}
+        onPlayPause={() => {}}
+        onVolumeChange={() => {}}
+        onSeek={() => {}}
+        onTrackSelect={() => {}}
+        onPrevious={() => {}}
+        onNext={() => {}}
         fontSize={fontSize}
-        onFontSizeChange={setFontSize}
-        currentVerseIndex={currentVerse}
-        onVerseChange={onVerseChange}
+        setFontSize={setFontSize}
+        isSearchOpen={isSearchOpen}
+        setIsSearchOpen={setIsSearchOpen}
+        isBufferVisible={isBufferVisible}
+        setIsBufferVisible={setIsBufferVisible}
       />
 
       {/* Help text - only shows when controls are visible */}

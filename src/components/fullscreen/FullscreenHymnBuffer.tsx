@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { Music, X, ChevronUp, ChevronDown } from "lucide-react";
-import { Hymn } from "@/data/hymns";
+import { X } from "lucide-react";
+import { Hymn } from "@/types/hymn";
 
 interface FullscreenHymnBufferProps {
   buffer: Hymn[];
@@ -18,7 +18,31 @@ const FullscreenHymnBuffer = ({
   onClearBuffer,
   onClose
 }: FullscreenHymnBufferProps) => {
-  if (buffer.length === 0) return null;
+  if (buffer.length === 0) {
+    return (
+      <div className="fixed top-20 right-6 w-80 pointer-events-auto bg-black/80 backdrop-blur-sm rounded-lg border border-white/20 overflow-hidden">
+        <div className="p-3 border-b border-white/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-white font-semibold">Hymn Buffer</h3>
+              <p className="text-slate-400 text-sm">No hymns in buffer</p>
+            </div>
+            <Button
+              onClick={onClose}
+              variant="ghost"
+              size="sm"
+              className="text-slate-400 hover:text-white w-6 h-6 p-0"
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          </div>
+        </div>
+        <div className="p-4 text-center text-slate-400">
+          Add hymns to your buffer to queue them for presentation.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed top-20 right-6 w-80 max-h-96 pointer-events-auto bg-black/80 backdrop-blur-sm rounded-lg border border-white/20 overflow-hidden">
