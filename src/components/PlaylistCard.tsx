@@ -2,14 +2,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Music } from 'lucide-react';
-
-interface PlaylistCardProps {
-  title: string;
-  description: string;
-  trackCount: number;
-  coverImage?: string;
-  onPlay: () => void;
-}
+import type { PlaylistCardProps } from '@/types/playlist';
 
 const PlaylistCard = ({ title, description, trackCount, coverImage, onPlay }: PlaylistCardProps) => {
   return (

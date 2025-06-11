@@ -2,26 +2,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, FileText } from 'lucide-react';
-
-interface Track {
-  id: string;
-  title: string;
-  artist: string;
-  url: string;
-  hymnNumber?: string;
-  album?: string;
-  duration?: string;
-  hasLyrics?: boolean;
-  lyrics?: any;
-}
-
-interface TrackListProps {
-  tracks: Track[];
-  currentTrack?: string;
-  isPlaying: boolean;
-  onPlayTrack: (trackId: string) => void;
-  onShowLyrics?: (track: Track) => void;
-}
+import type { Track, TrackListProps } from '@/types';
 
 const TrackList = ({ tracks, currentTrack, isPlaying, onPlayTrack, onShowLyrics }: TrackListProps) => {
   return (

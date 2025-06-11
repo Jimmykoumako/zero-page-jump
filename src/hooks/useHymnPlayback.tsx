@@ -1,7 +1,8 @@
 
 import { useState } from "react";
+import type { HymnPlaybackState, HymnPlaybackActions } from "@/types/hymn-book";
 
-export const useHymnPlayback = () => {
+export const useHymnPlayback = (): HymnPlaybackState & HymnPlaybackActions => {
   const [selectedHymn, setSelectedHymn] = useState<string | null>(null);
   const [currentVerse, setCurrentVerse] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);

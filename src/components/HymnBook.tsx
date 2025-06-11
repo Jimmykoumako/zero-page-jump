@@ -7,14 +7,7 @@ import { useRemoteControl } from "@/hooks/useRemoteControl";
 import HymnBookLoading from "./hymn-book/HymnBookLoading";
 import HymnListView from "./hymn-book/HymnListView";
 import HymnDisplayView from "./hymn-book/HymnDisplayView";
-
-interface HymnBookProps {
-  mode: 'hymnal' | 'display';
-  deviceId: string;
-  onBack: () => void;
-  selectedHymnbook?: any;
-  groupSession?: {sessionId: string, isLeader: boolean} | null;
-}
+import type { HymnBookProps } from "@/types/hymn-book";
 
 const HymnBook = ({ mode, deviceId, onBack, selectedHymnbook, groupSession }: HymnBookProps) => {
   const [showQR, setShowQR] = useState(false);

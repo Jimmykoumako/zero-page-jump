@@ -1,13 +1,6 @@
 
 import { useEffect } from "react";
-
-interface UseRemoteControlProps {
-  deviceId: string;
-  onHymnSelect: (hymnId: number) => void;
-  onNextVerse: () => void;
-  onPrevVerse: () => void;
-  onTogglePlay: () => void;
-}
+import type { UseRemoteControlProps, RemoteCommand } from "@/types/remote-control";
 
 export const useRemoteControl = ({
   deviceId,
@@ -17,14 +10,14 @@ export const useRemoteControl = ({
   onTogglePlay
 }: UseRemoteControlProps) => {
   useEffect(() => {
-    const handleRemoteCommand = (event: CustomEvent) => {
+    const handleRemoteCommand = (event: CustomEvent<RemoteCommand>) => {
       const { command, data } = event.detail;
       
       switch (command) {
         case 'selectHymn':
           if (typeof data.hymnId === 'string') {
             onHymnSelect(parseInt(data.hymnId));
-          } else {
+          } else if (typeof data.hymnId === 'number') {
             onHymnSelect(data.hymnId);
           }
           break;
