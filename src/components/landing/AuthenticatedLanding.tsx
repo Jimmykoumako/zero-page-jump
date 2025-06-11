@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Library, Users, Monitor, Music, User, Calendar, Edit } from "lucide-react";
+import { Library, Users, Monitor, Music, User, Calendar, Edit, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AuthenticatedLandingProps {
@@ -130,11 +130,29 @@ const AuthenticatedLanding = ({ user, onModeSelect }: AuthenticatedLandingProps)
       description: 'Lead congregation worship',
       color: 'bg-indigo-500 hover:bg-indigo-600',
       priority: 'medium'
+    },
+    {
+      id: 'history',
+      icon: History,
+      title: 'Listening History',
+      description: 'View your recent activity',
+      color: 'bg-orange-500 hover:bg-orange-600',
+      priority: 'medium'
     }
   ];
 
   const highPriorityActions = quickActions.filter(action => action.priority === 'high');
   const mediumPriorityActions = quickActions.filter(action => action.priority === 'medium');
+
+  const handleActionClick = (actionId: string) => {
+    if (actionId === 'music') {
+      window.location.href = '/music';
+    } else if (actionId === 'history') {
+      window.location.href = '/history';
+    } else {
+      onModeSelect(actionId as any);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -203,7 +221,7 @@ const AuthenticatedLanding = ({ user, onModeSelect }: AuthenticatedLandingProps)
                 return (
                   <div 
                     key={action.id}
-                    onClick={() => onModeSelect(action.id as any)}
+                    onClick={() => handleActionClick(action.id)}
                     className={`${action.color} text-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group transform hover:scale-105`}
                   >
                     <div className="flex items-center gap-4">
@@ -222,13 +240,13 @@ const AuthenticatedLanding = ({ user, onModeSelect }: AuthenticatedLandingProps)
           {/* Additional Options */}
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-foreground mb-4">More Options</h2>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {mediumPriorityActions.map((action) => {
                 const IconComponent = action.icon;
                 return (
                   <div 
                     key={action.id}
-                    onClick={() => onModeSelect(action.id as any)}
+                    onClick={() => handleActionClick(action.id)}
                     className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/20 group"
                   >
                     <div className="flex items-center gap-4">

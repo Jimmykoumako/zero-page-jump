@@ -9,6 +9,7 @@ import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
 import UserProfile from "./pages/UserProfile";
 import AudioBrowser from "./pages/AudioBrowser";
+import ListeningHistory from "./pages/ListeningHistory";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/music" element={<AudioBrowser />} />
+          <Route path="/history" element={<ListeningHistory />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

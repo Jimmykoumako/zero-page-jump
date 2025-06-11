@@ -1,7 +1,6 @@
+
 import { useState, useEffect } from "react";
-import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/ui/mode-toggle";
 import {
   Github,
   Twitter,
@@ -11,15 +10,13 @@ import {
   LayoutDashboard,
   LucideIcon,
   Speaker,
-  Remote,
   FileText
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { useHymn } from "@/hooks/useHymn";
-import { useToast } from "@/components/ui/use-toast";
-import { useSession } from "next-auth/react";
-import { AuthenticatedLanding } from "@/components/landing/AuthenticatedLanding";
-import { UnauthenticatedLanding } from "@/components/landing/UnauthenticatedLanding";
+import { useToast } from "@/hooks/use-toast";
+import AuthenticatedLanding from "@/components/landing/AuthenticatedLanding";
+import UnauthenticatedLanding from "@/components/landing/UnauthenticatedLanding";
 import HymnBook from "@/components/HymnBook";
 import HymnLyrics from "@/components/HymnLyrics";
 import GroupSession from "@/components/GroupSession";
@@ -42,18 +39,9 @@ interface CardProps {
 const Index = () => {
   const [currentMode, setCurrentMode] = useState<'browse' | 'lyrics' | 'group' | 'hymnal' | 'display' | 'remote'>('browse');
   const [currentView, setCurrentView] = useState<'hymn-book' | 'hymn-lyrics' | 'group-session' | 'fullscreen-display' | 'remote-control'>('hymn-book');
-  const { data: session } = useSession();
   const { toast } = useToast();
   const { user, isLoading: userLoading } = useUser();
   const { isLoading: hymnLoading } = useHymn();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (session?.error === 'RefreshAccessTokenError') {
-      signOut({ callbackUrl: '/', redirect: false });
-      router.push('/');
-    }
-  }, [session?.error, router]);
 
   const handleModeSelect = (mode: 'browse' | 'lyrics' | 'group' | 'hymnal' | 'display' | 'remote' | 'music') => {
     if (mode === 'music') {
@@ -85,17 +73,17 @@ const Index = () => {
 
   return (
     <>
-      {session?.user ? (
+      {user ? (
         <AuthenticatedLanding user={user} onModeSelect={handleModeSelect} />
       ) : (
         <UnauthenticatedLanding />
       )}
 
-      {currentView === 'hymn-book' && <HymnBook />}
+      {currentView === 'hymn-book' && <HymnBook mode="browse" deviceId="" onBack={() => {}} />}
       {currentView === 'hymn-lyrics' && <HymnLyrics />}
-      {currentView === 'group-session' && <GroupSession />}
+      {currentView === 'group-session' && <GroupSession deviceId="" onBack={() => {}} onJoinSession={() => {}} />}
       {currentView === 'fullscreen-display' && <FullscreenDisplay />}
-      {currentView === 'remote-control' && <RemoteControl />}
+      {currentView === 'remote-control' && <RemoteControl deviceId="" onBack={() => {}} />}
     </>
   );
 };

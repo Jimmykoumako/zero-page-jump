@@ -2,9 +2,32 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, FileText } from 'lucide-react';
+import { useListeningHistory } from '@/hooks/useListeningHistory';
 import type { Track, TrackListProps } from '@/types';
 
 const TrackList = ({ tracks, currentTrack, isPlaying, onPlayTrack, onShowLyrics }: TrackListProps) => {
+  const { recordListeningSession } = useListeningHistory();
+
+  const handlePlayTrack = async (trackId: string) => {
+    const track = tracks.find(t => t.id === trackId);
+    if (track) {
+      // Record the listening session
+      await recordListeningSession(
+        track.id,
+        track.title,
+        {
+          artistName: track.artist,
+          albumName: track.album,
+          hymnNumber: track.hymnNumber,
+          duration: track.duration ? parseInt(track.duration.split(':')[0]) * 60 + parseInt(track.duration.split(':')[1]) : undefined
+        }
+      );
+      
+      // Call the original play function
+      onPlayTrack(trackId);
+    }
+  };
+
   return (
     <Card>
       <CardContent className="p-0">
@@ -24,7 +47,7 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlayTrack, onShowLyrics 
                 variant="ghost"
                 size="sm"
                 className="w-8 h-8 p-0"
-                onClick={() => onPlayTrack(track.id)}
+                onClick={() => handlePlayTrack(track.id)}
               >
                 {currentTrack === track.id && isPlaying ? (
                   <Pause className="h-4 w-4" />
