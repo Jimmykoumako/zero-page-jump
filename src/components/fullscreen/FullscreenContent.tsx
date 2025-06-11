@@ -1,7 +1,9 @@
 
-import { useEffect } from "react";
 import { useHymnBuffer } from "@/hooks/useHymnBuffer";
-import { useFullscreenPresentationActions } from "@/hooks/useFullscreenPresentationActions";
+import { useFullscreenNavigation } from "@/hooks/useFullscreenNavigation";
+import { useFullscreenSearch } from "@/hooks/useFullscreenSearch";
+import { useFullscreenDisplay } from "@/hooks/useFullscreenDisplay";
+import { useFullscreenSession } from "@/hooks/useFullscreenSession";
 import FullscreenHymnSearch from "./FullscreenHymnSearch";
 import FullscreenHymnBuffer from "./FullscreenHymnBuffer";
 import FullscreenNavigationControls from "./FullscreenNavigationControls";
@@ -39,81 +41,70 @@ const FullscreenContent = ({
   onNext
 }: FullscreenContentProps) => {
   const { buffer, removeFromBuffer, clearBuffer } = useHymnBuffer();
-  const {
-    state,
-    handleSelectHymn,
-    handleBufferHymnSelect,
-    handleNavigation,
-    setIsSearchOpen,
-    setIsBufferVisible,
-    setFontSize,
-    setIsAutoScrollEnabled,
-    setAutoScrollSpeed,
-    setShowIntroCarousel
-  } = useFullscreenPresentationActions();
+  
+  // Use specialized hooks
+  const navigation = useFullscreenNavigation();
+  const search = useFullscreenSearch();
+  const display = useFullscreenDisplay();
+  const session = useFullscreenSession();
 
-  // Hymn data and display logic
-  const currentHymnData = state.selectedHymnbook?.hymns?.find((h: any) => h.id.toString() === state.currentHymn);
-  const displayHymns = state.selectedHymnbook?.hymns || [];
-  const currentIndex = displayHymns.findIndex((h: any) => h.id.toString() === state.currentHymn);
-
-  const handlePrevious = () => handleNavigation('previous');
-  const handleNext = () => handleNavigation('next');
+  const handlePrevious = () => navigation.handleNavigation('previous');
+  const handleNext = () => navigation.handleNavigation('next');
 
   console.log('FullscreenContent state:', {
-    currentHymn: state.currentHymn,
-    currentHymnData,
-    selectedHymnbook: state.selectedHymnbook,
-    showIntroCarousel: state.showIntroCarousel
+    currentHymn: navigation.currentHymn,
+    currentHymnData: navigation.currentHymnData,
+    selectedHymnbook: search.selectedHymnbook,
+    showIntroCarousel: navigation.showIntroCarousel
   });
 
   return (
     <FullscreenControlsManager>
       {(showControls) => (
         <FullscreenMainContent
-          currentHymnData={currentHymnData}
+          currentHymnData={navigation.currentHymnData}
           showControls={showControls}
           onExitFullscreen={onExitFullscreen}
         >
           {/* Keyboard Handler */}
           <FullscreenKeyboardHandler
-            isSearchOpen={state.isSearchOpen}
-            isBufferVisible={state.isBufferVisible}
-            setIsSearchOpen={setIsSearchOpen}
-            setIsBufferVisible={setIsBufferVisible}
+            isSearchOpen={search.isSearchOpen}
+            isBufferVisible={search.isBufferVisible}
+            setIsSearchOpen={search.setIsSearchOpen}
+            setIsBufferVisible={search.setIsBufferVisible}
             onExitFullscreen={onExitFullscreen}
             onPrevious={handlePrevious}
             onNext={handleNext}
             onPlayPause={onPlayPause}
-            fontSize={state.fontSize}
-            setFontSize={setFontSize}
-            isAutoScrollEnabled={state.isAutoScrollEnabled}
-            setIsAutoScrollEnabled={setIsAutoScrollEnabled}
+            fontSize={display.fontSize}
+            setFontSize={display.setFontSize}
+            isAutoScrollEnabled={display.isAutoScrollEnabled}
+            setIsAutoScrollEnabled={display.setIsAutoScrollEnabled}
           />
 
           {/* Auto Scroll */}
           <FullscreenAutoScroll
-            isAutoScrollEnabled={state.isAutoScrollEnabled}
-            autoScrollSpeed={state.autoScrollSpeed}
+            isAutoScrollEnabled={display.isAutoScrollEnabled}
+            autoScrollSpeed={display.autoScrollSpeed}
           />
 
           {/* Search Modal */}
-          {state.isSearchOpen && (
+          {search.isSearchOpen && (
             <FullscreenHymnSearch
-              selectedHymnbook={state.selectedHymnbook}
-              onSelectHymn={handleSelectHymn}
-              onClose={() => setIsSearchOpen(false)}
+              selectedHymnbook={search.selectedHymnbook}
+              onSelectHymn={navigation.handleSelectHymn}
+              onClose={search.closeSearch}
             />
           )}
 
           {/* Buffer Modal */}
-          {state.isBufferVisible && (
+          {search.isBufferVisible && (
             <FullscreenHymnBuffer
               buffer={buffer}
-              onSelectHymn={handleBufferHymnSelect}
+              onSelectHymn={navigation.handleBufferHymnSelect}
               onRemoveFromBuffer={removeFromBuffer}
               onClearBuffer={clearBuffer}
-              onClose={() => setIsBufferVisible(false)}
+              onClose={search.closeBuffer}
             />
           )}
 
@@ -128,29 +119,29 @@ const FullscreenContent = ({
                   <FullscreenNavigationControls
                     onPrevious={handlePrevious}
                     onNext={handleNext}
-                    currentIndex={currentIndex}
-                    totalHymns={displayHymns.length}
-                    onSearchClick={() => setIsSearchOpen(true)}
-                    onBufferClick={() => setIsBufferVisible(true)}
+                    currentIndex={navigation.currentIndex}
+                    totalHymns={navigation.displayHymns.length}
+                    onSearchClick={search.openSearch}
+                    onBufferClick={search.openBuffer}
                     bufferCount={buffer.length}
                   />
                 </div>
                 
                 <div className="flex items-center gap-4">
                   <FullscreenFontControls
-                    fontSize={state.fontSize}
-                    setFontSize={setFontSize}
-                    isAutoScrollEnabled={state.isAutoScrollEnabled}
-                    setIsAutoScrollEnabled={setIsAutoScrollEnabled}
-                    autoScrollSpeed={state.autoScrollSpeed}
-                    setAutoScrollSpeed={setAutoScrollSpeed}
+                    fontSize={display.fontSize}
+                    setFontSize={display.setFontSize}
+                    isAutoScrollEnabled={display.isAutoScrollEnabled}
+                    setIsAutoScrollEnabled={display.setIsAutoScrollEnabled}
+                    autoScrollSpeed={display.autoScrollSpeed}
+                    setAutoScrollSpeed={display.setAutoScrollSpeed}
                   />
                   
-                  {state.groupSession && (
+                  {session.groupSession && (
                     <FullscreenSessionControls
-                      groupSession={state.groupSession}
-                      currentHymn={parseInt(state.currentHymn)}
-                      setCurrentHymn={(id) => handleNavigation('next')}
+                      groupSession={session.groupSession}
+                      currentHymn={parseInt(navigation.currentHymn)}
+                      setCurrentHymn={(id) => navigation.handleNavigation('next')}
                     />
                   )}
                 </div>
@@ -159,12 +150,12 @@ const FullscreenContent = ({
           </div>
 
           {/* Hymn Display */}
-          {currentHymnData && (
+          {navigation.currentHymnData && (
             <FullscreenHymnDisplay
-              hymn={currentHymnData}
-              fontSize={state.fontSize}
-              showIntroCarousel={state.showIntroCarousel}
-              setShowIntroCarousel={setShowIntroCarousel}
+              hymn={navigation.currentHymnData}
+              fontSize={display.fontSize}
+              showIntroCarousel={navigation.showIntroCarousel}
+              setShowIntroCarousel={navigation.setShowIntroCarousel}
             />
           )}
 
@@ -173,12 +164,12 @@ const FullscreenContent = ({
             showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}>
             <FullscreenAudioControls
-              playingHymn={state.playingHymn}
-              currentAudio={state.currentAudio}
-              isPlaying={state.isPlaying}
-              currentTime={state.currentTime}
-              duration={state.duration}
-              volume={state.volume}
+              playingHymn={null}
+              currentAudio={null}
+              isPlaying={false}
+              currentTime={0}
+              duration={0}
+              volume={1}
               onPlayPause={onPlayPause}
               onVolumeChange={onVolumeChange}
               onSeek={onSeek}
