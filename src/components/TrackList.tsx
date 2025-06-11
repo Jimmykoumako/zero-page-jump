@@ -4,20 +4,22 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Play, Pause, FileText, Calendar, Clock } from 'lucide-react';
 import { useListeningHistory } from '@/hooks/useListeningHistory';
-import type { TrackListProps } from '@/types';
 import type { Track } from '@/types/track';
 
-interface UpdatedTrackListProps extends Omit<TrackListProps, 'tracks'> {
+interface TrackListProps {
   tracks: Track[];
+  currentTrack?: string;
+  isPlaying: boolean;
+  onPlayTrack: (trackId: string) => void;
+  onShowLyrics?: (track: any) => void;
 }
 
-const TrackList = ({ tracks, currentTrack, isPlaying, onPlayTrack, onShowLyrics }: UpdatedTrackListProps) => {
+const TrackList = ({ tracks, currentTrack, isPlaying, onPlayTrack, onShowLyrics }: TrackListProps) => {
   const { recordListeningSession } = useListeningHistory();
 
   const handlePlayTrack = async (trackId: string) => {
     const track = tracks.find(t => t.id === trackId);
     if (track) {
-      // Record the listening session
       await recordListeningSession(
         track.id,
         track.title,
@@ -29,7 +31,6 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlayTrack, onShowLyrics 
         }
       );
       
-      // Call the original play function
       onPlayTrack(trackId);
     }
   };
@@ -73,7 +74,6 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlayTrack, onShowLyrics 
                 )}
               </Button>
 
-              {/* Cover Image */}
               <div className="w-10 h-10 rounded overflow-hidden flex-shrink-0">
                 {track.cover_image_url ? (
                   <img
@@ -118,7 +118,7 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlayTrack, onShowLyrics 
                   </Badge>
                 )}
                 
-                {(track.hymnTitleNumber) && onShowLyrics && (
+                {track.hymnTitleNumber && onShowLyrics && (
                   <Button
                     variant="ghost"
                     size="sm"
