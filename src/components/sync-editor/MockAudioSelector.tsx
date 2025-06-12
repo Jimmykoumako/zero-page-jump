@@ -5,11 +5,11 @@ import { Music } from 'lucide-react';
 import { mockAudioFiles, formatTime } from '@/utils/mockAudio';
 
 interface MockAudioSelectorProps {
-  selectedMockAudio: string;
-  onLoadMockAudio: (audioId: string) => void;
+  selectedMockAudio?: string;
+  onLoadMockAudio?: (audioId: string) => void;
 }
 
-const MockAudioSelector = ({ selectedMockAudio, onLoadMockAudio }: MockAudioSelectorProps) => {
+const MockAudioSelector = ({ selectedMockAudio = '', onLoadMockAudio = () => {} }: MockAudioSelectorProps) => {
   return (
     <Card>
       <CardHeader>

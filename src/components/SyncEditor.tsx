@@ -2,27 +2,12 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  Play, 
-  Pause, 
-  Square, 
-  Plus, 
   Save, 
-  Upload, 
   Download,
-  Trash2,
   Edit3,
-  Clock,
-  Music,
-  Type,
   Eye,
   EyeOff
 } from 'lucide-react';
@@ -47,7 +32,7 @@ const SyncEditor: React.FC<SyncEditorProps> = ({ project, onProjectUpdate }) => 
   const [selectedSyncPoint, setSelectedSyncPoint] = useState<SyncPoint | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [syncData, setSyncData] = useState<SyncData[]>(project.syncData || []);
+  const [syncData, setSyncData] = useState<SyncData[]>(project.sync_data || []);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
@@ -73,12 +58,13 @@ const SyncEditor: React.FC<SyncEditorProps> = ({ project, onProjectUpdate }) => 
     }
   }, []);
 
-  const handleSeek = useCallback((time: number) => {
-    if (audioRef.current) {
+  const handleSeek = useCallback((value: number[]) => {
+    if (audioRef.current && duration > 0) {
+      const time = (value[0] / 100) * duration;
       audioRef.current.currentTime = time;
       setCurrentTime(time);
     }
-  }, []);
+  }, [duration]);
 
   const handleVolumeChange = useCallback((newVolume: number) => {
     if (audioRef.current) {
@@ -118,7 +104,7 @@ const SyncEditor: React.FC<SyncEditorProps> = ({ project, onProjectUpdate }) => 
     
     const updatedProject = {
       ...project,
-      syncData: updatedSyncData,
+      sync_data: updatedSyncData,
       lastModified: new Date().toISOString()
     };
     
@@ -149,7 +135,7 @@ const SyncEditor: React.FC<SyncEditorProps> = ({ project, onProjectUpdate }) => 
     
     const updatedProject = {
       ...project,
-      syncData: updatedSyncData,
+      sync_data: updatedSyncData,
       lastModified: new Date().toISOString()
     };
     
@@ -173,7 +159,7 @@ const SyncEditor: React.FC<SyncEditorProps> = ({ project, onProjectUpdate }) => 
     
     const updatedProject = {
       ...project,
-      syncData: updatedSyncData,
+      sync_data: updatedSyncData,
       lastModified: new Date().toISOString()
     };
     
@@ -191,8 +177,11 @@ const SyncEditor: React.FC<SyncEditorProps> = ({ project, onProjectUpdate }) => 
   }, [syncData, project, onProjectUpdate, selectedSyncPoint, toast]);
 
   const handleJumpToSyncPoint = useCallback((timestamp: number) => {
-    handleSeek(timestamp);
-  }, [handleSeek]);
+    if (audioRef.current) {
+      audioRef.current.currentTime = timestamp;
+      setCurrentTime(timestamp);
+    }
+  }, []);
 
   // Audio event handlers
   useEffect(() => {
@@ -225,9 +214,9 @@ const SyncEditor: React.FC<SyncEditorProps> = ({ project, onProjectUpdate }) => 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">{project.name}</h2>
+          <h2 className="text-2xl font-bold">{project.title}</h2>
           <p className="text-muted-foreground">
-            Last modified: {new Date(project.lastModified).toLocaleDateString()}
+            Last modified: {new Date(project.updated_at).toLocaleDateString()}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -253,72 +242,39 @@ const SyncEditor: React.FC<SyncEditorProps> = ({ project, onProjectUpdate }) => 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
         {/* Left Column - Audio Player & Controls */}
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Music className="w-5 h-5" />
-                Audio Player
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <MockAudioSelector />
-              
-              <AudioPlayer
-                audioRef={audioRef}
-                isPlaying={isPlaying}
-                currentTime={currentTime}
-                duration={duration}
-                volume={volume}
-                playbackRate={playbackRate}
-                onPlay={handlePlay}
-                onStop={handleStop}
-                onSeek={handleSeek}
-                onVolumeChange={handleVolumeChange}
-                onPlaybackRateChange={handlePlaybackRateChange}
-              />
-            </CardContent>
-          </Card>
+          <MockAudioSelector />
+          
+          <AudioPlayer
+            audioRef={audioRef}
+            isPlaying={isPlaying}
+            currentTime={currentTime}
+            duration={duration}
+            volume={volume}
+            playbackRate={playbackRate}
+            onPlay={handlePlay}
+            onStop={handleStop}
+            onSeek={handleSeek}
+            onVolumeChange={handleVolumeChange}
+            onPlaybackRateChange={handlePlaybackRateChange}
+          />
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                Sync Controls
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SyncControls
-                currentTime={currentTime}
-                onAddSyncPoint={handleAddSyncPoint}
-                formatTime={formatTime}
-              />
-            </CardContent>
-          </Card>
+          <SyncControls
+            currentTime={currentTime}
+            formatTime={formatTime}
+            onAddSyncPoint={handleAddSyncPoint}
+          />
         </div>
 
         {/* Middle Column - Sync Data List */}
         <div>
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Type className="w-5 h-5" />
-                Sync Points
-                <Badge variant="secondary" className="ml-auto">
-                  {syncData.reduce((acc, data) => acc + data.syncPoints.length, 0)}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <SyncDataList
-                syncData={syncData}
-                selectedSyncPoint={selectedSyncPoint}
-                onEditSyncPoint={handleEditSyncPoint}
-                onDeleteSyncPoint={handleDeleteSyncPoint}
-                onJumpToSyncPoint={handleJumpToSyncPoint}
-                formatTime={formatTime}
-              />
-            </CardContent>
-          </Card>
+          <SyncDataList
+            syncData={syncData}
+            selectedSyncPoint={selectedSyncPoint}
+            onEditSyncPoint={handleEditSyncPoint}
+            onDeleteSyncPoint={handleDeleteSyncPoint}
+            onJumpToSyncPoint={handleJumpToSyncPoint}
+            formatTime={formatTime}
+          />
         </div>
 
         {/* Right Column - Edit Form */}

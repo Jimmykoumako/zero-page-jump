@@ -10,52 +10,56 @@ import type { LyricSyncData } from '@/types/syncEditor';
 
 interface AudioPlayerProps {
   audioRef: RefObject<HTMLAudioElement>;
-  selectedMockAudio: string;
-  selectedMockAudioData: any;
   isPlaying: boolean;
   currentTime: number;
   duration: number;
-  syncData: LyricSyncData[];
-  currentLyric: LyricSyncData | undefined;
-  onPlayPause: () => void;
+  volume: number;
+  playbackRate: number;
+  onPlay: () => void;
+  onStop: () => void;
   onSeek: (value: number[]) => void;
+  onVolumeChange: (volume: number) => void;
+  onPlaybackRateChange: (rate: number) => void;
 }
 
 const AudioPlayer = ({
   audioRef,
-  selectedMockAudio,
-  selectedMockAudioData,
   isPlaying,
   currentTime,
   duration,
-  syncData,
-  currentLyric,
-  onPlayPause,
-  onSeek
+  volume,
+  playbackRate,
+  onPlay,
+  onStop,
+  onSeek,
+  onVolumeChange,
+  onPlaybackRateChange
 }: AudioPlayerProps) => {
+  const handleSeek = (value: number[]) => {
+    onSeek(value);
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>{selectedMockAudioData?.title || 'No Audio Selected'}</span>
+          <span>Audio Player</span>
           <Badge variant="outline">
-            {syncData.length} synced items
+            Player Controls
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <audio
           ref={audioRef}
-          src={selectedMockAudioData?.url}
           preload="metadata"
         />
         
         <div className="flex items-center gap-4">
           <Button
-            onClick={onPlayPause}
+            onClick={onPlay}
             variant="outline"
             size="sm"
-            disabled={!selectedMockAudio}
           >
             {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           </Button>
@@ -63,11 +67,10 @@ const AudioPlayer = ({
           <div className="flex-1">
             <Slider
               value={duration ? [(currentTime / duration) * 100] : [0]}
-              onValueChange={onSeek}
+              onValueChange={handleSeek}
               max={100}
               step={0.1}
               className="w-full"
-              disabled={!selectedMockAudio}
             />
           </div>
           
@@ -75,21 +78,6 @@ const AudioPlayer = ({
             {formatTime(currentTime)} / {formatTime(duration)}
           </div>
         </div>
-
-        {/* Current Lyric Display */}
-        {currentLyric && (
-          <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Now Playing</span>
-              <Badge variant="secondary" className="text-xs">{currentLyric.sync_type}</Badge>
-            </div>
-            <p className="text-lg font-medium">{currentLyric.text}</p>
-            <p className="text-sm text-muted-foreground">
-              {formatTime(currentLyric.start_time)} - {formatTime(currentLyric.end_time)}
-            </p>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
