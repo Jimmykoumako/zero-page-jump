@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { 
   Github, 
   Twitter, 
@@ -47,7 +48,8 @@ const UnauthenticatedLanding = ({ onModeSelect, onAuthClick }: UnauthenticatedLa
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <nav className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-50">
+      {/* Top navigation bar for larger screens */}
+      <nav className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-50 hidden md:block">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Book className="w-8 h-8 text-blue-600" />
@@ -63,6 +65,8 @@ const UnauthenticatedLanding = ({ onModeSelect, onAuthClick }: UnauthenticatedLa
           </div>
         </div>
       </nav>
+
+      {/* Mobile header is now handled in Index.tsx */}
 
       <HeroSection onGetStarted={handleGetStarted} onWatchDemo={handleWatchDemo} />
       

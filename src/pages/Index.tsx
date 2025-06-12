@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Github,
   Twitter,
@@ -10,7 +11,8 @@ import {
   LayoutDashboard,
   LucideIcon,
   Speaker,
-  FileText
+  FileText,
+  Menu
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { useHymn } from "@/hooks/useHymn";
@@ -103,7 +105,16 @@ const Index = () => {
   }
 
   return (
-    <>
+    <div className="min-h-screen">
+      {/* Mobile header with sidebar trigger */}
+      <div className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:hidden">
+        <SidebarTrigger />
+        <div className="flex items-center gap-2">
+          <Book className="w-6 h-6 text-primary" />
+          <span className="font-semibold">HymnalApp</span>
+        </div>
+      </div>
+
       {user ? (
         <div>
           <AuthenticatedLanding user={user} onModeSelect={handleModeSelect} />
@@ -113,7 +124,7 @@ const Index = () => {
       ) : (
         <UnauthenticatedLanding onModeSelect={handleModeSelect} onAuthClick={() => navigate('/auth')} />
       )}
-    </>
+    </div>
   );
 };
 

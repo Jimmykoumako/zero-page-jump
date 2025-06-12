@@ -1,340 +1,354 @@
 
-import { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Play, Pause, Plus, Save, Trash2, Download, Upload, Clock, Music } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { formatTime, mockAudioFiles } from '@/utils/mockAudio';
-import type { LyricSyncData, SyncProject } from '@/types/syncEditor';
-import MockAudioSelector from './sync-editor/MockAudioSelector';
+import { 
+  Play, 
+  Pause, 
+  Square, 
+  Plus, 
+  Save, 
+  Upload, 
+  Download,
+  Trash2,
+  Edit3,
+  Clock,
+  Music,
+  Type,
+  Eye,
+  EyeOff
+} from 'lucide-react';
+import { SyncProject, SyncPoint, SyncData } from '@/types/syncEditor';
 import AudioPlayer from './sync-editor/AudioPlayer';
+import SyncControls from './sync-editor/SyncControls';
+import SyncDataList from './sync-editor/SyncDataList';
+import SyncEditForm from './sync-editor/SyncEditForm';
+import MockAudioSelector from './sync-editor/MockAudioSelector';
 
-const SyncEditor = () => {
-  const { toast } = useToast();
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [selectedMockAudio, setSelectedMockAudio] = useState('');
+interface SyncEditorProps {
+  project: SyncProject;
+  onProjectUpdate: (updatedProject: SyncProject) => void;
+}
+
+const SyncEditor: React.FC<SyncEditorProps> = ({ project, onProjectUpdate }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [syncData, setSyncData] = useState<LyricSyncData[]>([]);
-  const [currentLyric, setCurrentLyric] = useState<LyricSyncData | undefined>();
-  const [newLyric, setNewLyric] = useState({
-    text: '',
-    start_time: 0,
-    end_time: 0,
-    sync_type: 'line' as const,
-    line_index: 0,
-    verse_index: 0,
-    syllable_index: 0,
-    word_index: 0
-  });
+  const [volume, setVolume] = useState(1);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [selectedSyncPoint, setSelectedSyncPoint] = useState<SyncPoint | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [syncData, setSyncData] = useState<SyncData[]>(project.syncData || []);
+  
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { toast } = useToast();
 
-  const selectedMockAudioData = mockAudioFiles.find(audio => audio.id === selectedMockAudio);
-
-  const mockSyncData: LyricSyncData[] = [
-    {
-      id: '1',
-      line_index: 0,
-      verse_index: 0,
-      start_time: 5.2,
-      end_time: 8.7,
-      text: 'Amazing grace, how sweet the sound',
-      sync_type: 'line' as const,
-      syllable_index: 0,
-      word_index: 0
-    },
-    {
-      id: '2',
-      line_index: 1,
-      verse_index: 0,
-      start_time: 9.1,
-      end_time: 12.5,
-      text: 'That saved a wretch like me',
-      sync_type: 'line' as const,
-      syllable_index: 0,
-      word_index: 0
-    },
-    {
-      id: '3',
-      line_index: 2,
-      verse_index: 0,
-      start_time: 13.0,
-      end_time: 16.8,
-      text: 'I once was lost, but now am found',
-      sync_type: 'line' as const,
-      syllable_index: 0,
-      word_index: 0
+  // Audio control functions
+  const handlePlay = useCallback(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
     }
-  ];
+  }, [isPlaying]);
 
-  useEffect(() => {
-    if (selectedMockAudio && mockSyncData.length > 0) {
-      setSyncData(mockSyncData);
-    }
-  }, [selectedMockAudio]);
-
-  const handleLoadMockAudio = (audioId: string) => {
-    setSelectedMockAudio(audioId);
-    setIsPlaying(false);
-    setCurrentTime(0);
-    
-    toast({
-      title: "Mock Audio Loaded",
-      description: `Loaded ${mockAudioFiles.find(a => a.id === audioId)?.title}`,
-    });
-  };
-
-  const handlePlayPause = () => {
-    if (!audioRef.current) return;
-    
-    if (isPlaying) {
+  const handleStop = useCallback(() => {
+    if (audioRef.current) {
       audioRef.current.pause();
-    } else {
-      audioRef.current.play();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      setCurrentTime(0);
     }
-    setIsPlaying(!isPlaying);
-  };
+  }, []);
 
-  const handleSeek = (value: number[]) => {
-    if (!audioRef.current || !duration) return;
-    
-    const newTime = (value[0] / 100) * duration;
-    audioRef.current.currentTime = newTime;
-    setCurrentTime(newTime);
-  };
+  const handleSeek = useCallback((time: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  }, []);
 
-  const handleAddSync = () => {
-    const newSync: LyricSyncData = {
-      id: Date.now().toString(),
-      ...newLyric
+  const handleVolumeChange = useCallback((newVolume: number) => {
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+      setVolume(newVolume);
+    }
+  }, []);
+
+  const handlePlaybackRateChange = useCallback((rate: number) => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = rate;
+      setPlaybackRate(rate);
+    }
+  }, []);
+
+  // Sync point management
+  const handleAddSyncPoint = useCallback(() => {
+    const newSyncPoint: SyncPoint = {
+      id: `sync_${Date.now()}`,
+      timestamp: currentTime,
+      text: '',
+      type: 'line' as const,
+      metadata: {}
     };
     
-    setSyncData([...syncData, newSync]);
-    setNewLyric({
-      text: '',
-      start_time: currentTime,
-      end_time: currentTime + 3,
-      sync_type: 'line' as const,
-      line_index: syncData.length,
-      verse_index: 0,
-      syllable_index: 0,
-      word_index: 0
-    });
+    const newSyncData: SyncData = {
+      id: `data_${Date.now()}`,
+      syncPoints: [newSyncPoint],
+      metadata: {
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    };
+    
+    const updatedSyncData = [...syncData, newSyncData];
+    setSyncData(updatedSyncData);
+    
+    const updatedProject = {
+      ...project,
+      syncData: updatedSyncData,
+      lastModified: new Date().toISOString()
+    };
+    
+    onProjectUpdate(updatedProject);
+    setSelectedSyncPoint(newSyncPoint);
+    setIsEditing(true);
     
     toast({
       title: "Sync Point Added",
-      description: `Added sync for: "${newSync.text}"`,
+      description: `Added sync point at ${currentTime.toFixed(2)}s`
     });
-  };
+  }, [currentTime, project, syncData, onProjectUpdate, toast]);
 
-  const handleDeleteSync = (id: string) => {
-    setSyncData(syncData.filter(sync => sync.id !== id));
+  const handleEditSyncPoint = useCallback((syncPoint: SyncPoint) => {
+    setSelectedSyncPoint(syncPoint);
+    setIsEditing(true);
+  }, []);
+
+  const handleUpdateSyncPoint = useCallback((updatedSyncPoint: SyncPoint) => {
+    const updatedSyncData = syncData.map(data => ({
+      ...data,
+      syncPoints: data.syncPoints.map(point => 
+        point.id === updatedSyncPoint.id ? updatedSyncPoint : point
+      )
+    }));
+    
+    setSyncData(updatedSyncData);
+    
+    const updatedProject = {
+      ...project,
+      syncData: updatedSyncData,
+      lastModified: new Date().toISOString()
+    };
+    
+    onProjectUpdate(updatedProject);
+    setIsEditing(false);
+    setSelectedSyncPoint(null);
+    
+    toast({
+      title: "Sync Point Updated",
+      description: "Sync point has been updated successfully"
+    });
+  }, [syncData, project, onProjectUpdate, toast]);
+
+  const handleDeleteSyncPoint = useCallback((syncPointId: string) => {
+    const updatedSyncData = syncData.map(data => ({
+      ...data,
+      syncPoints: data.syncPoints.filter(point => point.id !== syncPointId)
+    })).filter(data => data.syncPoints.length > 0);
+    
+    setSyncData(updatedSyncData);
+    
+    const updatedProject = {
+      ...project,
+      syncData: updatedSyncData,
+      lastModified: new Date().toISOString()
+    };
+    
+    onProjectUpdate(updatedProject);
+    
+    if (selectedSyncPoint?.id === syncPointId) {
+      setSelectedSyncPoint(null);
+      setIsEditing(false);
+    }
+    
     toast({
       title: "Sync Point Deleted",
-      description: "Sync point removed successfully",
+      description: "Sync point has been removed"
     });
-  };
+  }, [syncData, project, onProjectUpdate, selectedSyncPoint, toast]);
 
-  const handleSetCurrentTime = () => {
-    setNewLyric({
-      ...newLyric,
-      start_time: currentTime
-    });
-  };
+  const handleJumpToSyncPoint = useCallback((timestamp: number) => {
+    handleSeek(timestamp);
+  }, [handleSeek]);
 
-  const handleSetEndTime = () => {
-    setNewLyric({
-      ...newLyric,
-      end_time: currentTime
-    });
-  };
-
-  const handleSyncTypeChange = (value: string) => {
-    if (value === 'verse' || value === 'line' || value === 'group' || value === 'syllable' || value === 'word') {
-      setNewLyric({
-        ...newLyric,
-        sync_type: value
-      });
-    }
-  };
-
+  // Audio event handlers
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setDuration(audio.duration || 0);
+    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const handleLoadedMetadata = () => setDuration(audio.duration);
     const handleEnded = () => setIsPlaying(false);
 
-    audio.addEventListener('timeupdate', updateTime);
-    audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('ended', handleEnded);
 
     return () => {
-      audio.removeEventListener('timeupdate', updateTime);
-      audio.removeEventListener('loadedmetadata', updateDuration);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [selectedMockAudio]);
+  }, []);
 
-  useEffect(() => {
-    const current = syncData.find(sync => 
-      currentTime >= sync.start_time && currentTime <= sync.end_time
-    );
-    setCurrentLyric(current);
-  }, [currentTime, syncData]);
+  const formatTime = (time: number): string => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="flex flex-col h-full space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Sync Studio</h1>
-          <p className="text-muted-foreground">Synchronize lyrics with audio tracks</p>
+          <h2 className="text-2xl font-bold">{project.name}</h2>
+          <p className="text-muted-foreground">
+            Last modified: {new Date(project.lastModified).toLocaleDateString()}
+          </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Upload className="w-4 h-4 mr-2" />
-            Import Project
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowPreview(!showPreview)}
+          >
+            {showPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            {showPreview ? 'Hide Preview' : 'Show Preview'}
           </Button>
-          <Button>
+          <Button variant="outline" size="sm">
             <Save className="w-4 h-4 mr-2" />
-            Save Project
+            Save
+          </Button>
+          <Button variant="outline" size="sm">
+            <Download className="w-4 h-4 mr-2" />
+            Export
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+        {/* Left Column - Audio Player & Controls */}
         <div className="space-y-6">
-          <MockAudioSelector 
-            selectedMockAudio={selectedMockAudio}
-            onLoadMockAudio={handleLoadMockAudio}
-          />
-          
-          <AudioPlayer
-            audioRef={audioRef}
-            selectedMockAudio={selectedMockAudio}
-            selectedMockAudioData={selectedMockAudioData}
-            isPlaying={isPlaying}
-            currentTime={currentTime}
-            duration={duration}
-            syncData={syncData}
-            currentLyric={currentLyric}
-            onPlayPause={handlePlayPause}
-            onSeek={handleSeek}
-          />
-        </div>
-
-        <div className="space-y-6">
-          {/* Add New Sync Point */}
           <Card>
             <CardHeader>
-              <CardTitle>Add Sync Point</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Music className="w-5 h-5" />
+                Audio Player
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="lyric-text">Lyric Text</Label>
-                <Input
-                  id="lyric-text"
-                  value={newLyric.text}
-                  onChange={(e) => setNewLyric({ ...newLyric, text: e.target.value })}
-                  placeholder="Enter lyric text..."
-                />
-              </div>
+              <MockAudioSelector />
               
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Start Time</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={newLyric.start_time}
-                      onChange={(e) => setNewLyric({ ...newLyric, start_time: parseFloat(e.target.value) || 0 })}
-                    />
-                    <Button size="sm" variant="outline" onClick={handleSetCurrentTime}>
-                      <Clock className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-                
-                <div>
-                  <Label>End Time</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={newLyric.end_time}
-                      onChange={(e) => setNewLyric({ ...newLyric, end_time: parseFloat(e.target.value) || 0 })}
-                    />
-                    <Button size="sm" variant="outline" onClick={handleSetEndTime}>
-                      <Clock className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <Label>Sync Type</Label>
-                <Select value={newLyric.sync_type} onValueChange={handleSyncTypeChange}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="verse">Verse</SelectItem>
-                    <SelectItem value="line">Line</SelectItem>
-                    <SelectItem value="group">Group</SelectItem>
-                    <SelectItem value="syllable">Syllable</SelectItem>
-                    <SelectItem value="word">Word</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button onClick={handleAddSync} className="w-full" disabled={!newLyric.text.trim()}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Sync Point
-              </Button>
+              <AudioPlayer
+                audioRef={audioRef}
+                isPlaying={isPlaying}
+                currentTime={currentTime}
+                duration={duration}
+                volume={volume}
+                playbackRate={playbackRate}
+                onPlay={handlePlay}
+                onStop={handleStop}
+                onSeek={handleSeek}
+                onVolumeChange={handleVolumeChange}
+                onPlaybackRateChange={handlePlaybackRateChange}
+              />
             </CardContent>
           </Card>
 
-          {/* Sync Data List */}
           <Card>
             <CardHeader>
-              <CardTitle>Sync Points ({syncData.length})</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                Sync Controls
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {syncData.map((sync) => (
-                  <div
-                    key={sync.id}
-                    className={`p-3 rounded-lg border ${
-                      currentLyric?.id === sync.id ? 'border-primary bg-primary/10' : 'border-border'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="font-medium">{sync.text}</p>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <span>{formatTime(sync.start_time)} - {formatTime(sync.end_time)}</span>
-                          <Badge variant="secondary" className="text-xs">{sync.sync_type}</Badge>
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => sync.id && handleDeleteSync(sync.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <SyncControls
+                currentTime={currentTime}
+                onAddSyncPoint={handleAddSyncPoint}
+                formatTime={formatTime}
+              />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Middle Column - Sync Data List */}
+        <div>
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Type className="w-5 h-5" />
+                Sync Points
+                <Badge variant="secondary" className="ml-auto">
+                  {syncData.reduce((acc, data) => acc + data.syncPoints.length, 0)}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <SyncDataList
+                syncData={syncData}
+                selectedSyncPoint={selectedSyncPoint}
+                onEditSyncPoint={handleEditSyncPoint}
+                onDeleteSyncPoint={handleDeleteSyncPoint}
+                onJumpToSyncPoint={handleJumpToSyncPoint}
+                formatTime={formatTime}
+              />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Edit Form */}
+        <div>
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Edit3 className="w-5 h-5" />
+                {isEditing ? 'Edit Sync Point' : 'Sync Point Details'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {selectedSyncPoint && isEditing ? (
+                <SyncEditForm
+                  syncPoint={selectedSyncPoint}
+                  onUpdate={handleUpdateSyncPoint}
+                  onCancel={() => {
+                    setIsEditing(false);
+                    setSelectedSyncPoint(null);
+                  }}
+                />
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
+                  <Edit3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Select a sync point to edit its properties</p>
+                  <p className="text-sm mt-2">
+                    Use the controls on the left to add new sync points while playing audio
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
