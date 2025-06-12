@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import AuthenticatedLanding from "@/components/landing/AuthenticatedLanding";
 import UnauthenticatedLanding from "@/components/landing/UnauthenticatedLanding";
+import TestAdminUtils from "@/components/TestAdminUtils";
 
 interface NavItem {
   title: string;
@@ -101,7 +102,11 @@ const Index = () => {
   return (
     <>
       {user ? (
-        <AuthenticatedLanding user={user} onModeSelect={handleModeSelect} />
+        <div>
+          <AuthenticatedLanding user={user} onModeSelect={handleModeSelect} />
+          {/* Show the admin utility for logged-in users */}
+          <TestAdminUtils />
+        </div>
       ) : (
         <UnauthenticatedLanding onModeSelect={handleModeSelect} onAuthClick={() => navigate('/auth')} />
       )}
