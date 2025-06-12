@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -116,7 +115,21 @@ const SyncEditor = ({ project, onProjectUpdate }: SyncEditorProps) => {
         .order('line_index', { ascending: true });
 
       if (error) throw error;
-      setSyncData(data || []);
+      
+      // Ensure the data matches our LyricSyncData interface
+      const formattedData: LyricSyncData[] = (data || []).map(item => ({
+        id: item.id,
+        line_index: item.line_index,
+        verse_index: item.verse_index,
+        start_time: item.start_time,
+        end_time: item.end_time,
+        text: item.text,
+        sync_type: item.sync_type || 'line',
+        syllable_index: item.syllable_index,
+        word_index: item.word_index
+      }));
+      
+      setSyncData(formattedData);
     } catch (error) {
       console.error('Error fetching sync data:', error);
     }
@@ -187,14 +200,33 @@ const SyncEditor = ({ project, onProjectUpdate }: SyncEditorProps) => {
         .from('lyric_sync_data')
         .insert({
           sync_project_id: project.id,
-          ...newSync
+          line_index: newSync.line_index,
+          verse_index: newSync.verse_index,
+          start_time: newSync.start_time,
+          end_time: newSync.end_time,
+          text: newSync.text,
+          sync_type: newSync.sync_type,
+          syllable_index: newSync.syllable_index,
+          word_index: newSync.word_index
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      setSyncData(prev => [...prev, data]);
+      const formattedNewSync: LyricSyncData = {
+        id: data.id,
+        line_index: data.line_index,
+        verse_index: data.verse_index,
+        start_time: data.start_time,
+        end_time: data.end_time,
+        text: data.text,
+        sync_type: data.sync_type,
+        syllable_index: data.syllable_index,
+        word_index: data.word_index
+      };
+
+      setSyncData(prev => [...prev, formattedNewSync]);
       setNewLyricText('');
       toast({
         title: "Success",
