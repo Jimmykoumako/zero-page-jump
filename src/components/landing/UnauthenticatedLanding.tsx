@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { 
@@ -13,6 +14,8 @@ import {
 import HeroSection from "./HeroSection";
 import FeaturesGrid from "./FeaturesGrid";
 import GettingStartedSection from "./GettingStartedSection";
+import TestimonialsSection from "./TestimonialsSection";
+import PricingSection from "./PricingSection";
 
 interface UnauthenticatedLandingProps {
   onModeSelect?: (mode: string) => void;
@@ -22,6 +25,24 @@ interface UnauthenticatedLandingProps {
 const UnauthenticatedLanding = ({ onModeSelect, onAuthClick }: UnauthenticatedLandingProps) => {
   const handleAuthClick = () => {
     window.location.href = '/auth';
+  };
+
+  const handleGetStarted = () => {
+    handleAuthClick();
+  };
+
+  const handleWatchDemo = () => {
+    // For now, scroll to features section
+    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleSelectPlan = (plan: string) => {
+    if (plan === 'community') {
+      handleAuthClick();
+    } else {
+      // For paid plans, could open contact form or payment flow
+      handleAuthClick();
+    }
   };
 
   return (
@@ -43,8 +64,14 @@ const UnauthenticatedLanding = ({ onModeSelect, onAuthClick }: UnauthenticatedLa
         </div>
       </nav>
 
-      <HeroSection />
-      <FeaturesGrid onModeSelect={onModeSelect || (() => {})} />
+      <HeroSection onGetStarted={handleGetStarted} onWatchDemo={handleWatchDemo} />
+      
+      <div id="features">
+        <FeaturesGrid onModeSelect={onModeSelect || (() => {})} />
+      </div>
+      
+      <TestimonialsSection />
+      <PricingSection onSelectPlan={handleSelectPlan} />
       <GettingStartedSection isLandscape={false} onModeSelect={onModeSelect || (() => {})} />
 
       {/* Footer */}

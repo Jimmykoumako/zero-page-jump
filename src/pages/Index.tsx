@@ -39,7 +39,7 @@ const Index = () => {
   const { isLoading: hymnLoading } = useHymn();
   const navigate = useNavigate();
 
-  const handleModeSelect = (mode: 'browse' | 'lyrics' | 'group' | 'hymnal' | 'display' | 'remote' | 'music' | 'track-manager') => {
+  const handleModeSelect = (mode: 'browse' | 'lyrics' | 'group' | 'hymnal' | 'display' | 'remote' | 'music' | 'track-manager' | 'sync') => {
     console.log('Mode selected:', mode);
     
     // Navigate to the appropriate route instead of changing views
@@ -49,6 +49,9 @@ const Index = () => {
         break;
       case 'track-manager':
         navigate('/track-management');
+        break;
+      case 'sync':
+        navigate('/sync-studio');
         break;
       case 'group':
         // For now, just show a toast since group sessions might need special handling
