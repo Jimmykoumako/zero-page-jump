@@ -28,11 +28,19 @@ const TrackManager = () => {
     try {
       const { data, error } = await supabase
         .from('Track')
-        .select('*')
+        .select('*, url_with_bucket:get_storage_url(bucket_name, url), cover_image_with_bucket:get_storage_url(image_bucket_name, cover_image_url)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTracks(data || []);
+      
+      // Transform tracks to use the generated URLs
+      const transformedTracks = (data || []).map(track => ({
+        ...track,
+        url: track.url_with_bucket || track.url,
+        cover_image_url: track.cover_image_with_bucket || track.cover_image_url
+      }));
+      
+      setTracks(transformedTracks);
     } catch (error) {
       console.error('Error fetching tracks:', error);
       toast({
@@ -65,6 +73,8 @@ const TrackManager = () => {
         cover_image_url: trackData.cover_image_url || null,
         hymnTitleNumber: trackData.hymnTitleNumber || null,
         bookId: trackData.bookId || null,
+        bucket_name: trackData.bucket_name || 'audio_files',
+        image_bucket_name: trackData.image_bucket_name || 'album-covers',
       };
 
       const { data, error } = await supabase
@@ -108,6 +118,8 @@ const TrackManager = () => {
         cover_image_url: trackData.cover_image_url || null,
         hymnTitleNumber: trackData.hymnTitleNumber || null,
         bookId: trackData.bookId || null,
+        bucket_name: trackData.bucket_name || 'audio_files',
+        image_bucket_name: trackData.image_bucket_name || 'album-covers',
       };
 
       const { data, error } = await supabase

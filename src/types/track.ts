@@ -17,6 +17,8 @@ export interface Track {
   albumId?: string;
   created_at?: string;
   updated_at?: string;
+  bucket_name?: string;
+  image_bucket_name?: string;
 }
 
 export interface TrackFormData {
@@ -32,6 +34,8 @@ export interface TrackFormData {
   cover_image_url?: string;
   hymnTitleNumber?: string;
   bookId?: number;
+  bucket_name?: string;
+  image_bucket_name?: string;
 }
 
 export interface TrackManagerProps {

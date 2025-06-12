@@ -24,7 +24,7 @@ export const useAudioContent = () => {
       const [trackResult, playlistResult] = await Promise.all([
         supabase
           .from('Track')
-          .select('*')
+          .select('*, url_with_bucket:get_storage_url(bucket_name, url), cover_image_with_bucket:get_storage_url(image_bucket_name, cover_image_url)')
           .order('created_at', { ascending: false })
           .limit(50),
         supabase
@@ -34,7 +34,13 @@ export const useAudioContent = () => {
       ]);
 
       if (trackResult.data) {
-        setTracks(trackResult.data);
+        // Transform tracks to use the generated URLs
+        const transformedTracks = trackResult.data.map(track => ({
+          ...track,
+          url: track.url_with_bucket || track.url,
+          cover_image_url: track.cover_image_with_bucket || track.cover_image_url
+        }));
+        setTracks(transformedTracks);
       }
 
       if (playlistResult.data) {

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +20,7 @@ interface AudioFile {
   audioTypeId: number;
   createdAt: string;
   bookId: number;
+  bucket_name?: string;
 }
 
 interface HymnLyric {
@@ -57,7 +57,7 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
       const [audioResult, lyricsResult] = await Promise.all([
         supabase
           .from('AudioFile')
-          .select('*')
+          .select('*, url_with_bucket:get_storage_url(bucket_name, url)')
           .order('createdAt', { ascending: false }),
         supabase
           .from('HymnLyric')
@@ -78,11 +78,17 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
         console.error('Error fetching lyrics:', lyricsResult.error);
       }
 
-      setAudioFiles(audioResult.data || []);
+      // Transform AudioFile records to include bucket URLs
+      const transformedAudioFiles = (audioResult.data || []).map(file => ({
+        ...file,
+        url: file.url_with_bucket || file.url
+      }));
+
+      setAudioFiles(transformedAudioFiles);
       setHymnLyrics(lyricsResult.data || []);
       
       // Transform AudioFile to Track format with hymn titles and lyrics
-      const transformedTracks: Track[] = (audioResult.data || []).map(file => {
+      const transformedTracks: Track[] = transformedAudioFiles.map(file => {
         // Find matching hymn from the hymns data
         const hymnData = hymns.find(h => h.number.toString() === file.hymnTitleNumber);
         
@@ -94,7 +100,7 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
         return {
           id: file.id,
           title: hymnData?.title || `Hymn #${file.hymnTitleNumber}`,
-          url: getAudioUrl(file.url),
+          url: file.url, // Now using the transformed URL with bucket
           duration: 225, // Default duration in seconds (number for Track type)
           artist_name: hymnData?.author || 'HBC Hymns',
           album_name: `Book ${file.bookId}`,
@@ -106,7 +112,8 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
           release_date: null,
           track_number: null,
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          bucket_name: file.bucket_name || 'audio_files'
         };
       });
       

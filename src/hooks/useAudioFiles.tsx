@@ -17,12 +17,12 @@ export const useAudioFiles = (hymnNumber: string) => {
         const [audioFileResult, uploadsResult] = await Promise.all([
           supabase
             .from('AudioFile')
-            .select('*')
+            .select('*, url_with_bucket:get_storage_url(bucket_name, url)')
             .eq('hymnTitleNumber', hymnNumber)
             .order('createdAt', { ascending: false }),
           supabase
             .from('uploads')
-            .select('*')
+            .select('*, url_with_bucket:get_storage_url(bucket_name, url)')
             .eq('hymnTitle', hymnNumber)
             .order('createdAt', { ascending: false })
         ]);
@@ -33,7 +33,7 @@ export const useAudioFiles = (hymnNumber: string) => {
         if (audioFileResult.data) {
           combinedFiles.push(...audioFileResult.data.map(file => ({
             id: file.id,
-            url: file.url,
+            url: file.url_with_bucket || file.url,
             audioTypeId: file.audioTypeId,
             userId: file.userId,
             createdAt: file.createdAt,
@@ -46,7 +46,7 @@ export const useAudioFiles = (hymnNumber: string) => {
         if (uploadsResult.data) {
           combinedFiles.push(...uploadsResult.data.map(upload => ({
             id: upload.id,
-            url: upload.url,
+            url: upload.url_with_bucket || upload.url,
             audioTypeId: upload.audioTypeId,
             userId: upload.userId,
             createdAt: upload.createdAt,

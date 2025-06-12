@@ -502,6 +502,7 @@ export type Database = {
       }
       Album: {
         Row: {
+          cover_image_bucket: string | null
           coverImage: string | null
           description: string | null
           genreId: number | null
@@ -511,6 +512,7 @@ export type Database = {
           userId: string
         }
         Insert: {
+          cover_image_bucket?: string | null
           coverImage?: string | null
           description?: string | null
           genreId?: number | null
@@ -520,6 +522,7 @@ export type Database = {
           userId: string
         }
         Update: {
+          cover_image_bucket?: string | null
           coverImage?: string | null
           description?: string | null
           genreId?: number | null
@@ -577,6 +580,7 @@ export type Database = {
         Row: {
           audioTypeId: number
           bookId: number | null
+          bucket_name: string | null
           createdAt: string
           hymnTitleNumber: string | null
           id: string
@@ -586,6 +590,7 @@ export type Database = {
         Insert: {
           audioTypeId: number
           bookId?: number | null
+          bucket_name?: string | null
           createdAt?: string
           hymnTitleNumber?: string | null
           id: string
@@ -595,6 +600,7 @@ export type Database = {
         Update: {
           audioTypeId?: number
           bookId?: number | null
+          bucket_name?: string | null
           createdAt?: string
           hymnTitleNumber?: string | null
           id?: string
@@ -1312,6 +1318,7 @@ export type Database = {
           albumId: string | null
           artist_name: string | null
           bookId: number | null
+          bucket_name: string | null
           cover_image_url: string | null
           created_at: string | null
           disc_number: number | null
@@ -1320,6 +1327,7 @@ export type Database = {
           genreId: number | null
           hymnTitleNumber: string | null
           id: string
+          image_bucket_name: string | null
           release_date: string | null
           title: string
           track_number: number | null
@@ -1331,6 +1339,7 @@ export type Database = {
           albumId?: string | null
           artist_name?: string | null
           bookId?: number | null
+          bucket_name?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           disc_number?: number | null
@@ -1339,6 +1348,7 @@ export type Database = {
           genreId?: number | null
           hymnTitleNumber?: string | null
           id: string
+          image_bucket_name?: string | null
           release_date?: string | null
           title: string
           track_number?: number | null
@@ -1350,6 +1360,7 @@ export type Database = {
           albumId?: string | null
           artist_name?: string | null
           bookId?: number | null
+          bucket_name?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           disc_number?: number | null
@@ -1358,6 +1369,7 @@ export type Database = {
           genreId?: number | null
           hymnTitleNumber?: string | null
           id?: string
+          image_bucket_name?: string | null
           release_date?: string | null
           title?: string
           track_number?: number | null
@@ -1407,6 +1419,7 @@ export type Database = {
         Row: {
           audioTypeId: number
           bookId: number
+          bucket_name: string | null
           createdAt: string
           description: string
           hymnTitle: string
@@ -1418,6 +1431,7 @@ export type Database = {
         Insert: {
           audioTypeId: number
           bookId?: number
+          bucket_name?: string | null
           createdAt?: string
           description: string
           hymnTitle: string
@@ -1429,6 +1443,7 @@ export type Database = {
         Update: {
           audioTypeId?: number
           bookId?: number
+          bucket_name?: string | null
           createdAt?: string
           description?: string
           hymnTitle?: string
@@ -1563,6 +1578,10 @@ export type Database = {
           hymns_with_audio: number
           total_audio_files: number
         }[]
+      }
+      get_storage_url: {
+        Args: { bucket_name: string; file_path: string }
+        Returns: string
       }
       is_admin: {
         Args: { user_uuid?: string }

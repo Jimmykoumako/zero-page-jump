@@ -30,6 +30,8 @@ const TrackForm = ({ track, isEditing, onSubmit, onCancel }: TrackFormProps) => 
     cover_image_url: '',
     hymnTitleNumber: '',
     bookId: 1,
+    bucket_name: 'audio_files',
+    image_bucket_name: 'album-covers',
   });
 
   useEffect(() => {
@@ -47,6 +49,8 @@ const TrackForm = ({ track, isEditing, onSubmit, onCancel }: TrackFormProps) => 
         cover_image_url: track.cover_image_url || '',
         hymnTitleNumber: track.hymnTitleNumber || '',
         bookId: track.bookId || 1,
+        bucket_name: track.bucket_name || 'audio_files',
+        image_bucket_name: track.image_bucket_name || 'album-covers',
       });
     }
   }, [track]);
@@ -146,6 +150,46 @@ const TrackForm = ({ track, isEditing, onSubmit, onCancel }: TrackFormProps) => 
             </CardContent>
           </Card>
 
+          {/* Storage Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Storage Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="bucketName">Audio Bucket Name</Label>
+                  <Input
+                    id="bucketName"
+                    value={formData.bucket_name}
+                    onChange={(e) => handleInputChange('bucket_name', e.target.value)}
+                    placeholder="audio_files"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="imageBucketName">Cover Image Bucket Name</Label>
+                  <Input
+                    id="imageBucketName"
+                    value={formData.image_bucket_name}
+                    onChange={(e) => handleInputChange('image_bucket_name', e.target.value)}
+                    placeholder="album-covers"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="coverImage">Cover Image URL</Label>
+                <Input
+                  id="coverImage"
+                  type="url"
+                  value={formData.cover_image_url}
+                  onChange={(e) => handleInputChange('cover_image_url', e.target.value)}
+                  placeholder="https://example.com/cover.jpg"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Track Details */}
           <Card>
             <CardHeader>
@@ -182,17 +226,6 @@ const TrackForm = ({ track, isEditing, onSubmit, onCancel }: TrackFormProps) => 
                     onChange={(e) => handleInputChange('release_date', e.target.value)}
                   />
                 </div>
-              </div>
-
-              <div>
-                <Label htmlFor="coverImage">Cover Image URL</Label>
-                <Input
-                  id="coverImage"
-                  type="url"
-                  value={formData.cover_image_url}
-                  onChange={(e) => handleInputChange('cover_image_url', e.target.value)}
-                  placeholder="https://example.com/cover.jpg"
-                />
               </div>
 
               <div className="flex items-center space-x-2">
