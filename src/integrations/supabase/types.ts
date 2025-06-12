@@ -940,9 +940,12 @@ export type Database = {
           id: string
           line_index: number
           start_time: number
+          syllable_index: number | null
           sync_project_id: string
+          sync_type: string
           text: string
           verse_index: number
+          word_index: number | null
         }
         Insert: {
           created_at?: string
@@ -950,9 +953,12 @@ export type Database = {
           id?: string
           line_index: number
           start_time: number
+          syllable_index?: number | null
           sync_project_id: string
+          sync_type?: string
           text: string
           verse_index: number
+          word_index?: number | null
         }
         Update: {
           created_at?: string
@@ -960,9 +966,12 @@ export type Database = {
           id?: string
           line_index?: number
           start_time?: number
+          syllable_index?: number | null
           sync_project_id?: string
+          sync_type?: string
           text?: string
           verse_index?: number
+          word_index?: number | null
         }
         Relationships: [
           {
