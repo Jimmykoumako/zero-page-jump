@@ -17,7 +17,7 @@ import {
 import { useUser } from "@/hooks/useUser";
 import { useHymn } from "@/hooks/useHymn";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import AuthenticatedLanding from "@/components/landing/AuthenticatedLanding";
 import UnauthenticatedLanding from "@/components/landing/UnauthenticatedLanding";
 import TestAdminUtils from "@/components/TestAdminUtils";
@@ -40,6 +40,11 @@ const Index = () => {
   const { user, isLoading: userLoading } = useUser();
   const { isLoading: hymnLoading } = useHymn();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check if we should show the sidebar trigger (only when sidebar is available)
+  const isLandingPageForGuest = location.pathname === "/" && !user && !userLoading;
+  const shouldShowSidebarTrigger = !isLandingPageForGuest;
 
   const handleModeSelect = (mode: 'browse' | 'lyrics' | 'group' | 'hymnal' | 'display' | 'remote' | 'music' | 'track-manager' | 'sync') => {
     console.log('Mode selected:', mode);
@@ -106,14 +111,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Mobile header with sidebar trigger */}
-      <div className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:hidden">
-        <SidebarTrigger />
-        <div className="flex items-center gap-2">
-          <Book className="w-6 h-6 text-primary" />
-          <span className="font-semibold">HymnalApp</span>
+      {/* Mobile header with sidebar trigger - only show when sidebar is available */}
+      {shouldShowSidebarTrigger && (
+        <div className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:hidden">
+          <SidebarTrigger />
+          <div className="flex items-center gap-2">
+            <Book className="w-6 h-6 text-primary" />
+            <span className="font-semibold">HymnalApp</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {user ? (
         <div>
