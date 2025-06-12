@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Music, Save, X } from 'lucide-react';
+import AudioUpload from '@/components/ui/audio-upload';
+import ImageUpload from '@/components/ui/image-upload';
 import type { Track, TrackFormData } from '@/types/track';
 
 interface TrackFormProps {
@@ -73,9 +75,38 @@ const TrackForm = ({ track, isEditing, onSubmit, onCancel }: TrackFormProps) => 
     }));
   };
 
+  const handleAudioUpload = (fileName: string, originalName: string) => {
+    setFormData(prev => ({
+      ...prev,
+      url: fileName
+    }));
+  };
+
+  const handleImageUpload = (fileName: string, originalName: string) => {
+    setFormData(prev => ({
+      ...prev,
+      cover_image_url: fileName
+    }));
+  };
+
+  // Generate preview URLs for uploaded files
+  const getAudioPreviewUrl = () => {
+    if (formData.url && formData.bucket_name) {
+      return `https://sqnvnolccwghpqrcezwf.supabase.co/storage/v1/object/public/${formData.bucket_name}/${formData.url}`;
+    }
+    return '';
+  };
+
+  const getImagePreviewUrl = () => {
+    if (formData.cover_image_url && formData.image_bucket_name) {
+      return `https://sqnvnolccwghpqrcezwf.supabase.co/storage/v1/object/public/${formData.image_bucket_name}/${formData.cover_image_url}`;
+    }
+    return '';
+  };
+
   return (
     <Dialog open={true} onOpenChange={onCancel}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Music className="w-5 h-5" />
@@ -112,18 +143,6 @@ const TrackForm = ({ track, isEditing, onSubmit, onCancel }: TrackFormProps) => 
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="url">Audio URL *</Label>
-                <Input
-                  id="url"
-                  type="url"
-                  value={formData.url}
-                  onChange={(e) => handleInputChange('url', e.target.value)}
-                  placeholder="https://example.com/audio.mp3"
-                  required
-                />
-              </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="album">Album Name</Label>
@@ -150,13 +169,32 @@ const TrackForm = ({ track, isEditing, onSubmit, onCancel }: TrackFormProps) => 
             </CardContent>
           </Card>
 
-          {/* Storage Information */}
+          {/* File Uploads */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Storage Information</CardTitle>
+              <CardTitle className="text-lg">File Uploads</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <AudioUpload
+                  bucketName={formData.bucket_name || 'audio_files'}
+                  onUploadComplete={handleAudioUpload}
+                  label="Audio File *"
+                  currentAudioUrl={getAudioPreviewUrl()}
+                  maxFileSizeMB={50}
+                />
+                
+                <ImageUpload
+                  bucketName={formData.image_bucket_name || 'album-covers'}
+                  onUploadComplete={handleImageUpload}
+                  label="Cover Image"
+                  currentImageUrl={getImagePreviewUrl()}
+                  maxFileSizeMB={5}
+                />
+              </div>
+
+              {/* Storage bucket configuration */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
                 <div>
                   <Label htmlFor="bucketName">Audio Bucket Name</Label>
                   <Input
@@ -175,17 +213,6 @@ const TrackForm = ({ track, isEditing, onSubmit, onCancel }: TrackFormProps) => 
                     placeholder="album-covers"
                   />
                 </div>
-              </div>
-
-              <div>
-                <Label htmlFor="coverImage">Cover Image URL</Label>
-                <Input
-                  id="coverImage"
-                  type="url"
-                  value={formData.cover_image_url}
-                  onChange={(e) => handleInputChange('cover_image_url', e.target.value)}
-                  placeholder="https://example.com/cover.jpg"
-                />
               </div>
             </CardContent>
           </Card>

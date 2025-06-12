@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { User, Save, Upload } from "lucide-react";
+import { User, Save } from "lucide-react";
+import ImageUpload from "@/components/ui/image-upload";
 
 interface UserProfileFormProps {
   user: any;
@@ -102,6 +103,17 @@ const UserProfileForm = ({ user, onClose }: UserProfileFormProps) => {
     }
   };
 
+  const handleProfileImageUpload = (fileName: string, originalName: string) => {
+    setProfilePicture(fileName);
+  };
+
+  const getProfileImageUrl = () => {
+    if (profilePicture) {
+      return `https://sqnvnolccwghpqrcezwf.supabase.co/storage/v1/object/public/album-covers/${profilePicture}`;
+    }
+    return '';
+  };
+
   if (loading) {
     return (
       <Card>
@@ -122,65 +134,67 @@ const UserProfileForm = ({ user, onClose }: UserProfileFormProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder="John"
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First Name</Label>
+                <Input
+                  id="firstName"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="John"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Doe"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="pseudoName">Display Name</Label>
+              <Input
+                id="pseudoName"
+                value={pseudoName}
+                onChange={(e) => setPseudoName(e.target.value)}
+                placeholder="How others will see you in sessions"
+              />
+              <p className="text-xs text-muted-foreground">
+                This will be your public display name in group sessions
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bio">About You</Label>
+              <Textarea
+                id="bio"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Tell us about your role in worship, musical background, or anything you'd like to share..."
+                rows={4}
+              />
+              <p className="text-xs text-muted-foreground">
+                This helps us personalize your experience and helps others know your role in worship
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <ImageUpload
+              bucketName="album-covers"
+              onUploadComplete={handleProfileImageUpload}
+              label="Profile Picture"
+              currentImageUrl={getProfileImageUrl()}
+              maxFileSizeMB={2}
+              className="w-full"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input
-              id="lastName"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="Doe"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="pseudoName">Display Name</Label>
-          <Input
-            id="pseudoName"
-            value={pseudoName}
-            onChange={(e) => setPseudoName(e.target.value)}
-            placeholder="How others will see you in sessions"
-          />
-          <p className="text-xs text-muted-foreground">
-            This will be your public display name in group sessions
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="profilePicture">Profile Picture URL</Label>
-          <Input
-            id="profilePicture"
-            value={profilePicture}
-            onChange={(e) => setProfilePicture(e.target.value)}
-            placeholder="https://example.com/your-photo.jpg"
-          />
-          <p className="text-xs text-muted-foreground">
-            Enter a URL to your profile picture
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="bio">About You</Label>
-          <Textarea
-            id="bio"
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            placeholder="Tell us about your role in worship, musical background, or anything you'd like to share..."
-            rows={4}
-          />
-          <p className="text-xs text-muted-foreground">
-            This helps us personalize your experience and helps others know your role in worship
-          </p>
         </div>
 
         <div className="flex gap-4">
