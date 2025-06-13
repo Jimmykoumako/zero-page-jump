@@ -1,0 +1,4218 @@
+[
+    {
+      "table_schema": "auth",
+      "table_name": "audit_log_entries",
+      "column_name": "instance_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "audit_log_entries",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "audit_log_entries",
+      "column_name": "payload",
+      "data_type": "json",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "audit_log_entries",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "audit_log_entries",
+      "column_name": "ip_address",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": "''::character varying"
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "flow_state",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "flow_state",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "flow_state",
+      "column_name": "auth_code",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "flow_state",
+      "column_name": "code_challenge_method",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "flow_state",
+      "column_name": "code_challenge",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "flow_state",
+      "column_name": "provider_type",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "flow_state",
+      "column_name": "provider_access_token",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "flow_state",
+      "column_name": "provider_refresh_token",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "flow_state",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "flow_state",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "flow_state",
+      "column_name": "authentication_method",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "flow_state",
+      "column_name": "auth_code_issued_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "identities",
+      "column_name": "provider_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "identities",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "identities",
+      "column_name": "identity_data",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "identities",
+      "column_name": "provider",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "identities",
+      "column_name": "last_sign_in_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "identities",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "identities",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "identities",
+      "column_name": "email",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "identities",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "instances",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "instances",
+      "column_name": "uuid",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "instances",
+      "column_name": "raw_base_config",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "instances",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "instances",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_amr_claims",
+      "column_name": "session_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_amr_claims",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_amr_claims",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_amr_claims",
+      "column_name": "authentication_method",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_amr_claims",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_challenges",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_challenges",
+      "column_name": "factor_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_challenges",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_challenges",
+      "column_name": "verified_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_challenges",
+      "column_name": "ip_address",
+      "data_type": "inet",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_challenges",
+      "column_name": "otp_code",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_challenges",
+      "column_name": "web_authn_session_data",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_factors",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_factors",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_factors",
+      "column_name": "friendly_name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_factors",
+      "column_name": "factor_type",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_factors",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_factors",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_factors",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_factors",
+      "column_name": "secret",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_factors",
+      "column_name": "phone",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_factors",
+      "column_name": "last_challenged_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_factors",
+      "column_name": "web_authn_credential",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "mfa_factors",
+      "column_name": "web_authn_aaguid",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "one_time_tokens",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "one_time_tokens",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "one_time_tokens",
+      "column_name": "token_type",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "one_time_tokens",
+      "column_name": "token_hash",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "one_time_tokens",
+      "column_name": "relates_to",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "one_time_tokens",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "one_time_tokens",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "refresh_tokens",
+      "column_name": "instance_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "refresh_tokens",
+      "column_name": "id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": "nextval('auth.refresh_tokens_id_seq'::regclass)"
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "refresh_tokens",
+      "column_name": "token",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "refresh_tokens",
+      "column_name": "user_id",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "refresh_tokens",
+      "column_name": "revoked",
+      "data_type": "boolean",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "refresh_tokens",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "refresh_tokens",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "refresh_tokens",
+      "column_name": "parent",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "refresh_tokens",
+      "column_name": "session_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_providers",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_providers",
+      "column_name": "sso_provider_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_providers",
+      "column_name": "entity_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_providers",
+      "column_name": "metadata_xml",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_providers",
+      "column_name": "metadata_url",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_providers",
+      "column_name": "attribute_mapping",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_providers",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_providers",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_providers",
+      "column_name": "name_id_format",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_relay_states",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_relay_states",
+      "column_name": "sso_provider_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_relay_states",
+      "column_name": "request_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_relay_states",
+      "column_name": "for_email",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_relay_states",
+      "column_name": "redirect_to",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_relay_states",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_relay_states",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "saml_relay_states",
+      "column_name": "flow_state_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "schema_migrations",
+      "column_name": "version",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sessions",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sessions",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sessions",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sessions",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sessions",
+      "column_name": "factor_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sessions",
+      "column_name": "aal",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sessions",
+      "column_name": "not_after",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sessions",
+      "column_name": "refreshed_at",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sessions",
+      "column_name": "user_agent",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sessions",
+      "column_name": "ip",
+      "data_type": "inet",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sessions",
+      "column_name": "tag",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sso_domains",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sso_domains",
+      "column_name": "sso_provider_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sso_domains",
+      "column_name": "domain",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sso_domains",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sso_domains",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sso_providers",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sso_providers",
+      "column_name": "resource_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sso_providers",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "sso_providers",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "instance_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "aud",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "role",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "email",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "encrypted_password",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "email_confirmed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "invited_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "confirmation_token",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "confirmation_sent_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "recovery_token",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "recovery_sent_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "email_change_token_new",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "email_change",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "email_change_sent_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "last_sign_in_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "raw_app_meta_data",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "raw_user_meta_data",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "is_super_admin",
+      "data_type": "boolean",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "phone",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": "NULL::character varying"
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "phone_confirmed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "phone_change",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": "''::character varying"
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "phone_change_token",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": "''::character varying"
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "phone_change_sent_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "confirmed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "email_change_token_current",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": "''::character varying"
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "email_change_confirm_status",
+      "data_type": "smallint",
+      "is_nullable": "YES",
+      "column_default": "0"
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "banned_until",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "reauthentication_token",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": "''::character varying"
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "reauthentication_sent_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "is_sso_user",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "deleted_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "auth",
+      "table_name": "users",
+      "column_name": "is_anonymous",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "userid",
+      "data_type": "oid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "dbid",
+      "data_type": "oid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "toplevel",
+      "data_type": "boolean",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "queryid",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "query",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "plans",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "total_plan_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "min_plan_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "max_plan_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "mean_plan_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "stddev_plan_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "calls",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "total_exec_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "min_exec_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "max_exec_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "mean_exec_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "stddev_exec_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "rows",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "shared_blks_hit",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "shared_blks_read",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "shared_blks_dirtied",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "shared_blks_written",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "local_blks_hit",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "local_blks_read",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "local_blks_dirtied",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "local_blks_written",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "temp_blks_read",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "temp_blks_written",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "blk_read_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "blk_write_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "temp_blk_read_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "temp_blk_write_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "wal_records",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "wal_fpi",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "wal_bytes",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "jit_functions",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "jit_generation_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "jit_inlining_count",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "jit_inlining_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "jit_optimization_count",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "jit_optimization_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "jit_emission_count",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements",
+      "column_name": "jit_emission_time",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements_info",
+      "column_name": "dealloc",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "extensions",
+      "table_name": "pg_stat_statements_info",
+      "column_name": "stats_reset",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "created",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "expires",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "key_type",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "key_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "key_context",
+      "data_type": "bytea",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "associated_data",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "raw_key",
+      "data_type": "bytea",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "decrypted_raw_key",
+      "data_type": "bytea",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "raw_key_nonce",
+      "data_type": "bytea",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "parent_key",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "decrypted_key",
+      "column_name": "comment",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "YES",
+      "column_default": "'valid'::pgsodium.key_status"
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "created",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "expires",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "key_type",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "key_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": "nextval('pgsodium.key_key_id_seq'::regclass)"
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "key_context",
+      "data_type": "bytea",
+      "is_nullable": "YES",
+      "column_default": "'\\x7067736f6469756d'::bytea"
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "associated_data",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": "'associated'::text"
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "raw_key",
+      "data_type": "bytea",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "raw_key_nonce",
+      "data_type": "bytea",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "parent_key",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "comment",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "key",
+      "column_name": "user_data",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "mask_columns",
+      "column_name": "attname",
+      "data_type": "name",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "mask_columns",
+      "column_name": "attrelid",
+      "data_type": "oid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "mask_columns",
+      "column_name": "key_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "mask_columns",
+      "column_name": "key_id_column",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "mask_columns",
+      "column_name": "associated_columns",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "mask_columns",
+      "column_name": "nonce_column",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "mask_columns",
+      "column_name": "format_type",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "attrelid",
+      "data_type": "oid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "attnum",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "relnamespace",
+      "data_type": "regnamespace",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "relname",
+      "data_type": "name",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "attname",
+      "data_type": "name",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "format_type",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "col_description",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "key_id_column",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "key_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "associated_columns",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "nonce_column",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "view_name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "priority",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "masking_rule",
+      "column_name": "security_invoker",
+      "data_type": "boolean",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "valid_key",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "valid_key",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "valid_key",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "valid_key",
+      "column_name": "key_type",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "valid_key",
+      "column_name": "key_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "valid_key",
+      "column_name": "key_context",
+      "data_type": "bytea",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "valid_key",
+      "column_name": "created",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "valid_key",
+      "column_name": "expires",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "pgsodium",
+      "table_name": "valid_key",
+      "column_name": "associated_data",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ActivityLog",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"ActivityLog_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ActivityLog",
+      "column_name": "actionType",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ActivityLog",
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ActivityLog",
+      "column_name": "timestamp",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ActivityLog",
+      "column_name": "userId",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ActivityLog",
+      "column_name": "hymnTitleNumber",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ActivityLog",
+      "column_name": "audioFileId",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ActivityLog",
+      "column_name": "audioTypeId",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ActivityLog",
+      "column_name": "bookId",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": "1"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Album",
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Album",
+      "column_name": "title",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Album",
+      "column_name": "releaseDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Album",
+      "column_name": "coverImage",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Album",
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Album",
+      "column_name": "genreId",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Album",
+      "column_name": "userId",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Album",
+      "column_name": "cover_image_bucket",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": "'album-covers'::text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ArtistProfile",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"ArtistProfile_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ArtistProfile",
+      "column_name": "userId",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ArtistProfile",
+      "column_name": "genre",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ArtistProfile",
+      "column_name": "socialMediaLinks",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ArtistProfile",
+      "column_name": "website",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ArtistProfile",
+      "column_name": "genreId",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "AudioFile",
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "AudioFile",
+      "column_name": "url",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "AudioFile",
+      "column_name": "hymnTitleNumber",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "AudioFile",
+      "column_name": "userId",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "AudioFile",
+      "column_name": "audioTypeId",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "AudioFile",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "AudioFile",
+      "column_name": "bookId",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "AudioFile",
+      "column_name": "bucket_name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": "'audio_files'::text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "AudioType",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"AudioType_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "AudioType",
+      "column_name": "type",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "AudioType",
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Author",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"Author_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Author",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Composer",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"Composer_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Composer",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Follow",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"Follow_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Follow",
+      "column_name": "followerId",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Follow",
+      "column_name": "followingId",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Follow",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Genre",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"Genre_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Genre",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnBook",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"HymnBook_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnBook",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnBook",
+      "column_name": "added_hymns",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnBook",
+      "column_name": "category",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": "'General'::text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnBook",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnBook",
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'A digital hymnbook for extended worship songs'::text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnBook",
+      "column_name": "is_active",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "true"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnBook",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnBook",
+      "column_name": "version",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "1"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnBook",
+      "column_name": "access_level",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'PRIVATE'::\"AccessLevel\""
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnLyric",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"HymnLyric_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnLyric",
+      "column_name": "hymnTitleNumber",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnLyric",
+      "column_name": "lyrics",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnLyric",
+      "column_name": "userId",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnLyric",
+      "column_name": "bookId",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "1"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnTitle",
+      "column_name": "number",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnTitle",
+      "column_name": "titles",
+      "data_type": "ARRAY",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "HymnTitle",
+      "column_name": "bookId",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "1"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Metric",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"Metric_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Metric",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Playlist",
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Playlist",
+      "column_name": "title",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Playlist",
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Playlist",
+      "column_name": "userId",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Source",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"Source_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Source",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "TimestampAudioFile",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"TimestampAudioFile_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "TimestampAudioFile",
+      "column_name": "hymnLyricId",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "TimestampAudioFile",
+      "column_name": "timestampData",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "TimestampAudioFile",
+      "column_name": "audioFileUrl",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "TimestampAudioFile",
+      "column_name": "userId",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Topic",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"Topic_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Topic",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "title",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "duration",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "url",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "hymnTitleNumber",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "albumId",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "bookId",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "genreId",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "artist_name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "album_name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "release_date",
+      "data_type": "date",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "track_number",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "disc_number",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": "1"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "explicit",
+      "data_type": "boolean",
+      "is_nullable": "YES",
+      "column_default": "false"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "cover_image_url",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "bucket_name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": "'audio_files'::text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Track",
+      "column_name": "image_bucket_name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": "'album-covers'::text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Tune",
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"Tune_id_seq\"'::regclass)"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "Tune",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_HymnTitleAuthors",
+      "column_name": "A",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_HymnTitleAuthors",
+      "column_name": "B",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_HymnTitleComposers",
+      "column_name": "A",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_HymnTitleComposers",
+      "column_name": "B",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_HymnTitleMetrics",
+      "column_name": "A",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_HymnTitleMetrics",
+      "column_name": "B",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_HymnTitleSources",
+      "column_name": "A",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_HymnTitleSources",
+      "column_name": "B",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_HymnTitleTopics",
+      "column_name": "A",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_HymnTitleTopics",
+      "column_name": "B",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_HymnTitleTunes",
+      "column_name": "A",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_HymnTitleTunes",
+      "column_name": "B",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_LikedAlbums",
+      "column_name": "A",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_LikedAlbums",
+      "column_name": "B",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_LikedPlaylists",
+      "column_name": "A",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_LikedPlaylists",
+      "column_name": "B",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_LikedTracks",
+      "column_name": "A",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_LikedTracks",
+      "column_name": "B",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_PlaylistTracks",
+      "column_name": "A",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_PlaylistTracks",
+      "column_name": "B",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_prisma_migrations",
+      "column_name": "id",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_prisma_migrations",
+      "column_name": "checksum",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_prisma_migrations",
+      "column_name": "finished_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_prisma_migrations",
+      "column_name": "migration_name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_prisma_migrations",
+      "column_name": "logs",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_prisma_migrations",
+      "column_name": "rolled_back_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_prisma_migrations",
+      "column_name": "started_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "_prisma_migrations",
+      "column_name": "applied_steps_count",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "account_deletion_requests",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "account_deletion_requests",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "account_deletion_requests",
+      "column_name": "email",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "account_deletion_requests",
+      "column_name": "reason",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "account_deletion_requests",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'pending'::text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "account_deletion_requests",
+      "column_name": "requested_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "account_deletion_requests",
+      "column_name": "processed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "account_deletion_requests",
+      "column_name": "processed_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "accounts",
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "accounts",
+      "column_name": "user_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "accounts",
+      "column_name": "type",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "accounts",
+      "column_name": "provider",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "accounts",
+      "column_name": "provider_account_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "accounts",
+      "column_name": "refresh_token",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "accounts",
+      "column_name": "access_token",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "accounts",
+      "column_name": "expires_at",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "accounts",
+      "column_name": "token_type",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "accounts",
+      "column_name": "scope",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "accounts",
+      "column_name": "id_token",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "accounts",
+      "column_name": "session_state",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "session_code",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "leader_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "title",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "password_hash",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "is_active",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "true"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "scheduled_start",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "scheduled_end",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "current_hymn_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "current_verse",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": "0"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "is_playing",
+      "data_type": "boolean",
+      "is_nullable": "YES",
+      "column_default": "false"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "tempo_override",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "group_sessions",
+      "column_name": "key_override",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "listening_history",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "listening_history",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "listening_history",
+      "column_name": "hymn_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "listening_history",
+      "column_name": "hymn_title",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "listening_history",
+      "column_name": "artist_name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "listening_history",
+      "column_name": "album_name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "listening_history",
+      "column_name": "hymn_number",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "listening_history",
+      "column_name": "book_id",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "listening_history",
+      "column_name": "duration",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "listening_history",
+      "column_name": "played_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "listening_history",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "lyric_sync_data",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "lyric_sync_data",
+      "column_name": "sync_project_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "lyric_sync_data",
+      "column_name": "line_index",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "lyric_sync_data",
+      "column_name": "verse_index",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "lyric_sync_data",
+      "column_name": "start_time",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "lyric_sync_data",
+      "column_name": "end_time",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "lyric_sync_data",
+      "column_name": "text",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "lyric_sync_data",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "lyric_sync_data",
+      "column_name": "sync_type",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'line'::text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "lyric_sync_data",
+      "column_name": "syllable_index",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "lyric_sync_data",
+      "column_name": "word_index",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notifications",
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notifications",
+      "column_name": "message",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notifications",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notifications",
+      "column_name": "type",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notifications",
+      "column_name": "userId",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_activity_logs",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_activity_logs",
+      "column_name": "session_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_activity_logs",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_activity_logs",
+      "column_name": "action_type",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_activity_logs",
+      "column_name": "action_data",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_activity_logs",
+      "column_name": "timestamp",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_analytics",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_analytics",
+      "column_name": "session_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_analytics",
+      "column_name": "hymn_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_analytics",
+      "column_name": "play_count",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": "1"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_analytics",
+      "column_name": "total_time_seconds",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": "0"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_analytics",
+      "column_name": "participant_count",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": "0"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_analytics",
+      "column_name": "engagement_score",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_analytics",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_participants",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_participants",
+      "column_name": "session_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_participants",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_participants",
+      "column_name": "device_name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_participants",
+      "column_name": "device_type",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_participants",
+      "column_name": "connection_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'connected'::text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_participants",
+      "column_name": "is_co_leader",
+      "data_type": "boolean",
+      "is_nullable": "YES",
+      "column_default": "false"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_participants",
+      "column_name": "joined_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_participants",
+      "column_name": "last_seen",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "session_participants",
+      "column_name": "is_following_leader",
+      "data_type": "boolean",
+      "is_nullable": "YES",
+      "column_default": "true"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "sessions",
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "sessions",
+      "column_name": "session_token",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "sessions",
+      "column_name": "user_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "sessions",
+      "column_name": "expires",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "sync_projects",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "sync_projects",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "sync_projects",
+      "column_name": "title",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "sync_projects",
+      "column_name": "hymn_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "sync_projects",
+      "column_name": "track_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "sync_projects",
+      "column_name": "sync_data",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": "'{}'::jsonb"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "sync_projects",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "sync_projects",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "uploads",
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "uploads",
+      "column_name": "hymnTitle",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "uploads",
+      "column_name": "url",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "uploads",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'UPLOADED'::\"UploadStatus\""
+    },
+    {
+      "table_schema": "public",
+      "table_name": "uploads",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "uploads",
+      "column_name": "userId",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "uploads",
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "uploads",
+      "column_name": "audioTypeId",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "uploads",
+      "column_name": "bookId",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "1"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "uploads",
+      "column_name": "bucket_name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": "'uploads'::text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "user_roles",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "user_roles",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "user_roles",
+      "column_name": "role",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'user'::user_role"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "user_roles",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "email",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "email_verified",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "password",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "firstName",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "lastName",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "pseudoName",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "profilePicture",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "image",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "bio",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "role",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'VIEWER'::\"UserRole\""
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'ACTIVE'::\"UserStatus\""
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "users",
+      "column_name": "lastLogin",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "verificationtokens",
+      "column_name": "identifier",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "verificationtokens",
+      "column_name": "token",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "verificationtokens",
+      "column_name": "expires",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "supabase_migrations",
+      "table_name": "schema_migrations",
+      "column_name": "version",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "supabase_migrations",
+      "table_name": "schema_migrations",
+      "column_name": "statements",
+      "data_type": "ARRAY",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "supabase_migrations",
+      "table_name": "schema_migrations",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "supabase_migrations",
+      "table_name": "schema_migrations",
+      "column_name": "created_by",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "supabase_migrations",
+      "table_name": "schema_migrations",
+      "column_name": "idempotency_key",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "decrypted_secrets",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "decrypted_secrets",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "decrypted_secrets",
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "decrypted_secrets",
+      "column_name": "secret",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "decrypted_secrets",
+      "column_name": "decrypted_secret",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "decrypted_secrets",
+      "column_name": "key_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "decrypted_secrets",
+      "column_name": "nonce",
+      "data_type": "bytea",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "decrypted_secrets",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "decrypted_secrets",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "secrets",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "secrets",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "secrets",
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "''::text"
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "secrets",
+      "column_name": "secret",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "secrets",
+      "column_name": "key_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "secrets",
+      "column_name": "nonce",
+      "data_type": "bytea",
+      "is_nullable": "YES",
+      "column_default": "vault._crypto_aead_det_noncegen()"
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "secrets",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "table_schema": "vault",
+      "table_name": "secrets",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    }
+  ]

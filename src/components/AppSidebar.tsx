@@ -178,6 +178,29 @@ export function AppSidebar() {
           <SidebarGroupLabel>Support</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isActive("/account")}
+                  onClick={() => handleNavigation("/account")}
+                >
+                  <button className="w-full justify-start">
+                    <User className="w-4 h-4" />
+                    <span>My Account</span>
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  onClick={() => handleNavigation("#")} // Placeholder for settings navigation
+                >
+                  <button className="w-full justify-start">
+                    <Settings className="w-4 h-4" />
+                    <span>Settings</span>
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               {supportItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
@@ -218,12 +241,13 @@ export function AppSidebar() {
               <SidebarMenuButton 
                 asChild
                 size="sm"
-                onClick={() => navigate('/profile')}
+                onClick={() => navigate('/account')}
                 className="flex-1"
+                isActive={isActive('/account')}
               >
                 <button>
                   <User className="w-4 h-4" />
-                  Profile
+                  My Account
                 </button>
               </SidebarMenuButton>
               <SidebarMenuButton 

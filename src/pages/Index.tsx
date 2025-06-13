@@ -83,11 +83,7 @@ const Index = () => {
         break;
       case 'browse':
       case 'hymnal':
-        // For now, just show a toast since hymn browsing might need special handling
-        toast({
-          title: "Hymn Books",
-          description: "Hymn book browsing functionality coming soon!",
-        });
+        navigate('/hymnbook');
         break;
       case 'lyrics':
         // For now, just show a toast since lyrics viewing might need special handling

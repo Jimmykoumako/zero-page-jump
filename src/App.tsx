@@ -17,6 +17,10 @@ import AudioBrowser from "./pages/AudioBrowser";
 import ListeningHistory from "./pages/ListeningHistory";
 import TrackManagement from "./pages/TrackManagement";
 import SyncStudio from "./pages/SyncStudio";
+import AccountPage from "./pages/AccountPage"; // Added import for AccountPage
+import HymnbookBrowserPage from "./pages/HymnbookBrowserPage";
+import HymnListPage from "./pages/HymnListPage";
+import HymnDisplayPage from "./pages/HymnDisplayPage"; // Added import for HymnbookBrowserPage
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +28,8 @@ const queryClient = new QueryClient();
 const AppContent: React.FC = () => {
   const { user, isLoading } = useUser();
   const location = useLocation();
+  console.log('[App.tsx] AppContent - user from useUser():', user);
+  console.log('[App.tsx] AppContent - isLoading from useUser():', isLoading);
   
   // Don't show sidebar and FAB on landing page for non-signed-in users
   const isLandingPageForGuest = location.pathname === "/" && !user && !isLoading;
@@ -44,7 +50,11 @@ const AppContent: React.FC = () => {
               <Route path="/history" element={<ListeningHistory />} />
               <Route path="/track-management" element={<TrackManagement />} />
               <Route path="/sync-studio" element={<SyncStudio />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="/account" element={<AccountPage />} /> {/* Added AccountPage route */}
+              <Route path="/hymnbook" element={<HymnbookBrowserPage />} />
+              <Route path="/hymnbook/:hymnbookId" element={<HymnListPage />} />
+              <Route path="/hymnbook/:hymnbookId/hymn/:hymnIdentifier" element={<HymnDisplayPage />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}чного
               <Route path="*" element={<NotFound />} />
             </Routes>
             <FloatingActionButton />
@@ -66,7 +76,11 @@ const AppContent: React.FC = () => {
         <Route path="/history" element={<ListeningHistory />} />
         <Route path="/track-management" element={<TrackManagement />} />
         <Route path="/sync-studio" element={<SyncStudio />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="/account" element={<AccountPage />} /> {/* Added AccountPage route */}
+        <Route path="/hymnbook" element={<HymnbookBrowserPage />} />
+        <Route path="/hymnbook/:hymnbookId" element={<HymnListPage />} />
+        <Route path="/hymnbook/:hymnbookId/hymn/:hymnIdentifier" element={<HymnDisplayPage />} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}чного
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
