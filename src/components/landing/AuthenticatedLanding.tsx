@@ -8,7 +8,10 @@ import {
   Users, 
   Speaker, 
   Book,
-  Monitor
+  Monitor,
+  User as UserIcon,
+  History,
+  Shield
 } from "lucide-react";
 import { User } from "@/types/user";
 
@@ -30,42 +33,93 @@ const AuthenticatedLanding = ({ onModeSelect, user }: AuthenticatedLandingProps)
       description: "Explore the music library and discover new tracks",
       icon: Music,
       mode: 'music' as const,
-      color: "bg-green-500"
+      color: "bg-green-500",
+      route: "/music"
     },
     {
       title: "Manage Tracks", 
       description: "Upload and organize your music tracks",
       icon: FileText,
       mode: 'track-manager' as const,
-      color: "bg-blue-500"
+      color: "bg-blue-500",
+      route: "/track-management"
     },
     {
       title: "Sync Studio",
       description: "Create synchronized lyric-audio experiences",
       icon: LayoutDashboard,
       mode: 'sync' as const,
-      color: "bg-purple-500"
+      color: "bg-purple-500",
+      route: "/sync-studio"
     },
     {
       title: "Presentation Mode",
       description: "Display hymns beautifully for congregation viewing",
       icon: Monitor,
       mode: 'display' as const,
-      color: "bg-red-500"
+      color: "bg-red-500",
+      route: "/presentation"
     },
     {
       title: "Group Sessions",
       description: "Join or create collaborative worship sessions",
       icon: Users,
       mode: 'group' as const,
-      color: "bg-orange-500"
+      color: "bg-orange-500",
+      route: null // Not implemented, show toast
     },
     {
       title: "Browse Hymnals",
       description: "Explore digital hymn books and collections",
       icon: Book,
       mode: 'hymnal' as const,
-      color: "bg-teal-500"
+      color: "bg-teal-500",
+      route: "/hymnbook"
+    },
+    // NEW: Account/Profile
+    {
+      title: "My Account",
+      description: "View and edit your profile and account settings",
+      icon: UserIcon,
+      mode: null,
+      color: "bg-gray-700",
+      route: "/account"
+    },
+    // NEW: Listening History
+    {
+      title: "Listening History",
+      description: "See your worship and listening history",
+      icon: History,
+      mode: null,
+      color: "bg-yellow-600",
+      route: "/listening-history"
+    },
+    // NEW: Fullscreen Presentation
+    {
+      title: "Fullscreen Presentation",
+      description: "Present hymns in fullscreen mode for congregation display",
+      icon: Monitor,
+      mode: null,
+      color: "bg-indigo-700",
+      route: "/presentation"
+    },
+    // NEW: Hymn Viewer
+    {
+      title: "Hymn Viewer",
+      description: "View and browse individual hymns in detail",
+      icon: Book,
+      mode: null,
+      color: "bg-cyan-700",
+      route: "/hymn-viewer"
+    },
+    // NEW: Admin Dashboard (visible to all for now)
+    {
+      title: "Admin Dashboard",
+      description: "Manage hymnbooks, users, and more (admin only)",
+      icon: Shield,
+      mode: null,
+      color: "bg-red-700",
+      route: "/admin"
     }
   ];
 
@@ -88,7 +142,15 @@ const AuthenticatedLanding = ({ onModeSelect, user }: AuthenticatedLandingProps)
             <Card 
               key={index}
               className="group hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 border-2 hover:border-purple-200"
-              onClick={() => onModeSelect(card.mode)}
+              onClick={() => {
+                if (card.route) {
+                  window.location.href = card.route;
+                } else if (card.mode) {
+                  onModeSelect(card.mode);
+                } else {
+                  // fallback: do nothing
+                }
+              }}
             >
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
