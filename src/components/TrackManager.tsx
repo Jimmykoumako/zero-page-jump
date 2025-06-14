@@ -1,9 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Music, Search, Calendar, Hash } from 'lucide-react';
+import { Plus, Music, Search, Calendar, Hash, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import TrackForm from './TrackForm';
@@ -219,10 +220,16 @@ const TrackManager = () => {
                 <p className="text-muted-foreground">Manage your music library with Apple Music-style metadata</p>
               </div>
             </div>
-            <Button onClick={openCreateForm} className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Add Track
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={() => window.open('/audio-library', '_blank')}>
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Audio Library
+              </Button>
+              <Button onClick={openCreateForm} className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Add Track
+              </Button>
+            </div>
           </div>
 
           {/* Search */}

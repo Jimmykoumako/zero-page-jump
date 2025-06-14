@@ -1,298 +1,144 @@
 
 import { useState } from "react";
+import { Home, Music, Users, Settings, BookOpen, Play, Headphones, FileAudio, Mic, History, Radio } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  Book,
-  Home,
-  Music,
-  Settings,
-  User,
-  History,
-  LayoutDashboard,
-  Speaker,
-  Users,
-  FileText,
-  Heart,
-  HelpCircle,
-  LogOut,
-  Monitor
-} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
+  SidebarHeader,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useUser } from "@/hooks/useUser";
-import { useToast } from "@/hooks/use-toast";
 
-const navigationItems = [
-  {
-    title: "Home",
-    url: "/",
-    icon: Home,
-  },
-  {
-    title: "Hymnbooks",
-    url: "/hymnbook",
-    icon: Book,
-  },
-  {
-    title: "Music Library",
-    url: "/music",
-    icon: Music,
-  },
-  {
-    title: "Track Management",
-    url: "/track-management",
-    icon: FileText,
-  },
-  {
-    title: "Sync Studio",
-    url: "/sync-studio",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Presentation Mode",
-    url: "/presentation",
-    icon: Monitor,
-  },
-  {
-    title: "Listening History",
-    url: "/history",
-    icon: History,
-  },
-];
-
-const communityItems = [
-  {
-    title: "Group Sessions",
-    url: "#",
-    icon: Users,
-    badge: "Soon"
-  },
-  {
-    title: "Remote Control",
-    url: "#",
-    icon: Speaker,
-    badge: "Soon"
-  },
-];
-
-const supportItems = [
-  {
-    title: "Help Center",
-    url: "#",
-    icon: HelpCircle,
-  },
-  {
-    title: "Support Us",
-    url: "#",
-    icon: Heart,
-  },
-];
-
-export function AppSidebar() {
+const AppSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useUser();
-  const { toast } = useToast();
 
-  const handleNavigation = (url: string, title?: string) => {
-    if (url.startsWith('#')) {
-      // Handle placeholder links with toast notifications
-      toast({
-        title: title || "Coming Soon",
-        description: "This feature is currently under development and will be available soon!",
-      });
-      return;
+  const menuItems = [
+    {
+      title: "Dashboard",
+      url: "/",
+      icon: Home,
+      group: "main"
+    },
+    {
+      title: "Hymn Books",
+      url: "/hymnbooks",
+      icon: BookOpen,
+      group: "content"
+    },
+    {
+      title: "Hymn List",
+      url: "/hymns",
+      icon: Music,
+      group: "content"
+    },
+    {
+      title: "Audio Browser",
+      url: "/audio",
+      icon: Headphones,
+      group: "audio"
+    },
+    {
+      title: "Audio Library",
+      url: "/audio-library",
+      icon: FileAudio,
+      group: "audio"
+    },
+    {
+      title: "Track Manager",
+      url: "/tracks",
+      icon: Mic,
+      group: "audio"
+    },
+    {
+      title: "Sync Studio",
+      url: "/sync",
+      icon: Radio,
+      group: "audio"
+    },
+    {
+      title: "Listening History",
+      url: "/history",
+      icon: History,
+      group: "audio"
+    },
+    {
+      title: "Group Sessions",
+      url: "/session/join",
+      icon: Users,
+      group: "collaboration"
+    },
+    {
+      title: "Presentation",
+      url: "/presentation",
+      icon: Play,
+      group: "collaboration"
+    },
+    {
+      title: "Remote Control",
+      url: "/remote",
+      icon: Settings,
+      group: "collaboration"
+    },
+  ];
+
+  const groupedItems = menuItems.reduce((groups, item) => {
+    if (!groups[item.group]) {
+      groups[item.group] = [];
     }
-    navigate(url);
-  };
+    groups[item.group].push(item);
+    return groups;
+  }, {} as Record<string, typeof menuItems>);
 
-  const isActive = (url: string) => {
-    if (url === "/" && location.pathname === "/") return true;
-    if (url !== "/" && location.pathname.startsWith(url)) return true;
-    return false;
+  const groupLabels = {
+    main: "Dashboard",
+    content: "Content",
+    audio: "Audio",
+    collaboration: "Collaboration"
   };
 
   return (
-    <Sidebar className="border-r bg-card">
-      <SidebarHeader className="p-4">
+    <Sidebar>
+      <SidebarHeader className="border-b p-4">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-primary rounded-lg">
-            <Book className="w-6 h-6 text-primary-foreground" />
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <Music className="w-4 h-4 text-white" />
           </div>
-          <div>
-            <h2 className="text-lg font-semibold">HymnalApp</h2>
-            <p className="text-xs text-muted-foreground">Digital Worship</p>
-          </div>
+          <span className="font-semibold text-lg">Digital Hymnal</span>
         </div>
       </SidebarHeader>
-
+      
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild
-                    isActive={isActive(item.url)}
-                    onClick={() => handleNavigation(item.url)}
-                  >
-                    <button className="w-full justify-start">
+        {Object.entries(groupedItems).map(([groupKey, items]) => (
+          <SidebarGroup key={groupKey}>
+            <SidebarGroupLabel>{groupLabels[groupKey as keyof typeof groupLabels]}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      onClick={() => navigate(item.url)}
+                      isActive={location.pathname === item.url}
+                      className="w-full"
+                    >
                       <item.icon className="w-4 h-4" />
                       <span>{item.title}</span>
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator />
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Community</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {communityItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild
-                    onClick={() => handleNavigation(item.url, item.title)}
-                  >
-                    <button className="w-full justify-start">
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.title}</span>
-                      {item.badge && (
-                        <span className="ml-auto text-xs bg-muted px-2 py-1 rounded-full">
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator />
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Support</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive("/account")}
-                  onClick={() => handleNavigation("/account")}
-                >
-                  <button className="w-full justify-start">
-                    <User className="w-4 h-4" />
-                    <span>My Account</span>
-                  </button>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  onClick={() => handleNavigation("#", "Settings")}
-                >
-                  <button className="w-full justify-start">
-                    <Settings className="w-4 h-4" />
-                    <span>Settings</span>
-                  </button>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              {supportItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild
-                    onClick={() => handleNavigation(item.url, item.title)}
-                  >
-                    <button className="w-full justify-start">
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.title}</span>
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
-
-      <SidebarFooter className="p-4">
-        {user ? (
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-2 rounded-lg bg-accent/50">
-              <Avatar className="w-8 h-8">
-                <AvatarFallback>
-                  {(user.firstName?.[0] || user.name?.[0] || user.email[0]).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">
-                  {user.firstName || user.name || user.email}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {user.email}
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <SidebarMenuButton 
-                asChild
-                size="sm"
-                onClick={() => navigate('/account')}
-                className="flex-1"
-                isActive={isActive('/account')}
-              >
-                <button>
-                  <User className="w-4 h-4" />
-                  My Account
-                </button>
-              </SidebarMenuButton>
-              <SidebarMenuButton 
-                asChild
-                size="sm"
-                onClick={() => navigate('/auth')}
-                variant="outline"
-                className="flex-1"
-              >
-                <button>
-                  <LogOut className="w-4 h-4" />
-                  Sign Out
-                </button>
-              </SidebarMenuButton>
-            </div>
-          </div>
-        ) : (
-          <SidebarMenuButton 
-            asChild
-            onClick={() => navigate('/auth')}
-          >
-            <button className="w-full justify-center">
-              <User className="w-4 h-4" />
-              Sign In
-            </button>
-          </SidebarMenuButton>
-        )}
-      </SidebarFooter>
     </Sidebar>
   );
-}
+};
+
+export default AppSidebar;

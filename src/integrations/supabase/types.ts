@@ -576,6 +576,102 @@ export type Database = {
           },
         ]
       }
+      audio_playlists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      audio_tracks: {
+        Row: {
+          album_name: string | null
+          artist_name: string | null
+          audio_type: string | null
+          book_id: number | null
+          created_at: string
+          duration: number | null
+          file_path: string
+          file_size: number | null
+          hymn_number: string
+          hymn_title: string
+          id: string
+          is_public: boolean | null
+          key_signature: string | null
+          mime_type: string | null
+          tempo: number | null
+          title: string
+          updated_at: string
+          upload_status: string | null
+          user_id: string
+        }
+        Insert: {
+          album_name?: string | null
+          artist_name?: string | null
+          audio_type?: string | null
+          book_id?: number | null
+          created_at?: string
+          duration?: number | null
+          file_path: string
+          file_size?: number | null
+          hymn_number: string
+          hymn_title: string
+          id?: string
+          is_public?: boolean | null
+          key_signature?: string | null
+          mime_type?: string | null
+          tempo?: number | null
+          title: string
+          updated_at?: string
+          upload_status?: string | null
+          user_id: string
+        }
+        Update: {
+          album_name?: string | null
+          artist_name?: string | null
+          audio_type?: string | null
+          book_id?: number | null
+          created_at?: string
+          duration?: number | null
+          file_path?: string
+          file_size?: number | null
+          hymn_number?: string
+          hymn_title?: string
+          id?: string
+          is_public?: boolean | null
+          key_signature?: string | null
+          mime_type?: string | null
+          tempo?: number | null
+          title?: string
+          updated_at?: string
+          upload_status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       AudioFile: {
         Row: {
           audioTypeId: number
@@ -1147,6 +1243,45 @@ export type Database = {
             columns: ["userId"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playlist_tracks: {
+        Row: {
+          added_at: string
+          id: string
+          playlist_id: string
+          position: number
+          track_id: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          playlist_id: string
+          position: number
+          track_id: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          playlist_id?: string
+          position?: number
+          track_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_tracks_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "audio_playlists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playlist_tracks_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "audio_tracks"
             referencedColumns: ["id"]
           },
         ]
