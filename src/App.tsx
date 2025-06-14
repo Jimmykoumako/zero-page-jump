@@ -21,6 +21,8 @@ import UserProfile from "./pages/UserProfile";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import PresentationMode from "./pages/PresentationMode";
+import RemotePage from "./pages/RemotePage";
+import GroupSessionPage from "./pages/GroupSessionPage";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,8 @@ const App = () => (
                 <Route path="/track-management" element={<TrackManagement />} />
                 <Route path="/sync-studio" element={<SyncStudio />} />
                 <Route path="/presentation" element={<PresentationMode />} />
+                <Route path="/remote" element={<RemotePage />} />
+                <Route path="/group-session" element={<GroupSessionPage />} />
                 <Route path="/history" element={<ListeningHistory />} />
                 <Route path="/account" element={<AccountPage />} />
                 <Route path="/profile" element={<UserProfile />} />

@@ -1065,6 +1065,63 @@ export type Database = {
           },
         ]
       }
+      remote_commands: {
+        Row: {
+          command_data: Json | null
+          command_type: string
+          created_at: string
+          device_code: string
+          executed: boolean
+          id: string
+        }
+        Insert: {
+          command_data?: Json | null
+          command_type: string
+          created_at?: string
+          device_code: string
+          executed?: boolean
+          id?: string
+        }
+        Update: {
+          command_data?: Json | null
+          command_type?: string
+          created_at?: string
+          device_code?: string
+          executed?: boolean
+          id?: string
+        }
+        Relationships: []
+      }
+      remote_devices: {
+        Row: {
+          created_at: string
+          device_code: string
+          device_name: string
+          id: string
+          is_active: boolean
+          last_seen: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_code: string
+          device_name: string
+          id?: string
+          is_active?: boolean
+          last_seen?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_code?: string
+          device_name?: string
+          id?: string
+          is_active?: boolean
+          last_seen?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       session_activity_logs: {
         Row: {
           action_data: Json | null

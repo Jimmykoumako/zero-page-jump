@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +12,8 @@ import {
   Monitor,
   User as UserIcon,
   History,
-  Shield
+  Shield,
+  Smartphone
 } from "lucide-react";
 import { User } from "@/types/user";
 
@@ -61,12 +63,20 @@ const AuthenticatedLanding = ({ onModeSelect, user }: AuthenticatedLandingProps)
       route: "/presentation"
     },
     {
+      title: "Remote Control",
+      description: "Control presentations remotely from your device",
+      icon: Smartphone,
+      mode: 'remote' as const,
+      color: "bg-indigo-500",
+      route: "/remote"
+    },
+    {
       title: "Group Sessions",
       description: "Join or create collaborative worship sessions",
       icon: Users,
       mode: 'group' as const,
       color: "bg-orange-500",
-      route: null // Not implemented, show toast
+      route: "/group-session"
     },
     {
       title: "Browse Hymnals",
@@ -76,7 +86,6 @@ const AuthenticatedLanding = ({ onModeSelect, user }: AuthenticatedLandingProps)
       color: "bg-teal-500",
       route: "/hymnbook"
     },
-    // NEW: Account/Profile
     {
       title: "My Account",
       description: "View and edit your profile and account settings",
@@ -85,7 +94,6 @@ const AuthenticatedLanding = ({ onModeSelect, user }: AuthenticatedLandingProps)
       color: "bg-gray-700",
       route: "/account"
     },
-    // NEW: Listening History
     {
       title: "Listening History",
       description: "See your worship and listening history",
@@ -94,25 +102,6 @@ const AuthenticatedLanding = ({ onModeSelect, user }: AuthenticatedLandingProps)
       color: "bg-yellow-600",
       route: "/listening-history"
     },
-    // NEW: Fullscreen Presentation
-    {
-      title: "Fullscreen Presentation",
-      description: "Present hymns in fullscreen mode for congregation display",
-      icon: Monitor,
-      mode: null,
-      color: "bg-indigo-700",
-      route: "/presentation"
-    },
-    // NEW: Hymn Viewer
-    {
-      title: "Hymn Viewer",
-      description: "View and browse individual hymns in detail",
-      icon: Book,
-      mode: null,
-      color: "bg-cyan-700",
-      route: "/hymn-viewer"
-    },
-    // NEW: Admin Dashboard (visible to all for now)
     {
       title: "Admin Dashboard",
       description: "Manage hymnbooks, users, and more (admin only)",
@@ -147,8 +136,6 @@ const AuthenticatedLanding = ({ onModeSelect, user }: AuthenticatedLandingProps)
                   window.location.href = card.route;
                 } else if (card.mode) {
                   onModeSelect(card.mode);
-                } else {
-                  // fallback: do nothing
                 }
               }}
             >
