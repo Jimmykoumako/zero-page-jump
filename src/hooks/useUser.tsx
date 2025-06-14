@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/types/user';
@@ -43,8 +44,9 @@ export const useUser = (): UseUserReturn => {
           firstName: userData?.firstName || authUser.user_metadata?.firstName || '',
           lastName: userData?.lastName || authUser.user_metadata?.lastName || '',
           name: userData?.name || authUser.user_metadata?.name || '',
-          role: userData?.role || 'user',
-          avatar: userData?.avatar || authUser.user_metadata?.avatar || '',
+          role: userData?.role || 'VIEWER',
+          avatar: userData?.image || userData?.profilePicture || authUser.user_metadata?.avatar || '',
+          profilePicture: userData?.profilePicture || userData?.image || authUser.user_metadata?.avatar || '',
           createdAt: userData?.createdAt || authUser.created_at || '',
           updatedAt: userData?.updatedAt || '',
           preferences: userData?.preferences || {},

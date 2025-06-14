@@ -32,7 +32,7 @@ const SyncEditor = ({ project, onBack }: SyncEditorProps) => {
         .from('sync_projects')
         .update({
           title,
-          sync_data: syncData,
+          sync_data: syncData as any,
           updated_at: new Date().toISOString()
         })
         .eq('id', project.id);
@@ -145,7 +145,7 @@ const SyncEditor = ({ project, onBack }: SyncEditorProps) => {
               <h3 className="text-lg font-semibold mb-4">Sync Points</h3>
               <SyncDataList
                 syncData={syncData}
-                selectedIndex={selectedSyncIndex}
+                selectedSyncIndex={selectedSyncIndex}
                 onSelect={setSelectedSyncIndex}
                 onUpdate={updateSyncPoint}
                 onDelete={deleteSyncPoint}

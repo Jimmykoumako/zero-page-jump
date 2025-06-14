@@ -38,7 +38,7 @@ const SyncStudio = () => {
         .from('sync_projects')
         .select(`
           *,
-          track:Track(title, artist_name, url)
+          track:Track(id, title, artist_name, url, duration)
         `)
         .order('updated_at', { ascending: false });
 
@@ -63,7 +63,13 @@ const SyncStudio = () => {
         created_at: project.created_at,
         updated_at: project.updated_at,
         lastModified: project.updated_at,
-        track: project.track
+        track: project.track ? {
+          id: project.track.id,
+          title: project.track.title,
+          artist_name: project.track.artist_name,
+          url: project.track.url,
+          duration: project.track.duration
+        } : undefined
       }));
 
       setProjects(formattedProjects);

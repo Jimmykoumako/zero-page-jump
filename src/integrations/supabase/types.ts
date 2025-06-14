@@ -787,6 +787,44 @@ export type Database = {
         }
         Relationships: []
       }
+      hymn_queue: {
+        Row: {
+          added_by: string | null
+          created_at: string | null
+          hymn_id: string
+          id: string
+          notes: string | null
+          position: number
+          session_id: string
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string | null
+          hymn_id: string
+          id?: string
+          notes?: string | null
+          position: number
+          session_id: string
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string | null
+          hymn_id?: string
+          id?: string
+          notes?: string | null
+          position?: number
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hymn_queue_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "projection_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       HymnBook: {
         Row: {
           access_level: Database["public"]["Enums"]["AccessLevel"]
@@ -989,6 +1027,47 @@ export type Database = {
           },
         ]
       }
+      lyric_sync_projects: {
+        Row: {
+          created_at: string | null
+          hymn_id: string | null
+          id: string
+          sync_data: Json | null
+          title: string
+          track_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          hymn_id?: string | null
+          id?: string
+          sync_data?: Json | null
+          title: string
+          track_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          hymn_id?: string | null
+          id?: string
+          sync_data?: Json | null
+          title?: string
+          track_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyric_sync_projects_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "Track"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Metric: {
         Row: {
           id: number
@@ -1064,6 +1143,172 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      projection_activity_logs: {
+        Row: {
+          action_data: Json | null
+          action_type: string
+          id: string
+          session_id: string
+          timestamp: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_data?: Json | null
+          action_type: string
+          id?: string
+          session_id: string
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_data?: Json | null
+          action_type?: string
+          id?: string
+          session_id?: string
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projection_activity_logs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "projection_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projection_participants: {
+        Row: {
+          connection_status: string | null
+          device_name: string | null
+          device_type: string | null
+          id: string
+          is_co_presenter: boolean | null
+          joined_at: string | null
+          last_seen: string | null
+          permissions: Json | null
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          connection_status?: string | null
+          device_name?: string | null
+          device_type?: string | null
+          id?: string
+          is_co_presenter?: boolean | null
+          joined_at?: string | null
+          last_seen?: string | null
+          permissions?: Json | null
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          connection_status?: string | null
+          device_name?: string | null
+          device_type?: string | null
+          id?: string
+          is_co_presenter?: boolean | null
+          joined_at?: string | null
+          last_seen?: string | null
+          permissions?: Json | null
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projection_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "projection_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projection_sessions: {
+        Row: {
+          background_color: string | null
+          created_at: string | null
+          current_hymn_id: string | null
+          current_verse: number | null
+          description: string | null
+          font_size: number | null
+          id: string
+          is_active: boolean | null
+          is_live: boolean | null
+          leader_id: string
+          password_hash: string | null
+          session_code: string
+          text_color: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          background_color?: string | null
+          created_at?: string | null
+          current_hymn_id?: string | null
+          current_verse?: number | null
+          description?: string | null
+          font_size?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_live?: boolean | null
+          leader_id: string
+          password_hash?: string | null
+          session_code: string
+          text_color?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          background_color?: string | null
+          created_at?: string | null
+          current_hymn_id?: string | null
+          current_verse?: number | null
+          description?: string | null
+          font_size?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_live?: boolean | null
+          leader_id?: string
+          password_hash?: string | null
+          session_code?: string
+          text_color?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      projection_templates: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          template_data: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          template_data: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          template_data?: Json
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       remote_commands: {
         Row: {
@@ -1288,6 +1533,53 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      sync_points: {
+        Row: {
+          created_at: string | null
+          id: string
+          line_index: number | null
+          project_id: string
+          syllable_index: number | null
+          sync_type: string | null
+          text: string
+          timestamp: number
+          verse_index: number | null
+          word_index: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          line_index?: number | null
+          project_id: string
+          syllable_index?: number | null
+          sync_type?: string | null
+          text: string
+          timestamp: number
+          verse_index?: number | null
+          word_index?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          line_index?: number | null
+          project_id?: string
+          syllable_index?: number | null
+          sync_type?: string | null
+          text?: string
+          timestamp?: number
+          verse_index?: number | null
+          word_index?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sync_points_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "lyric_sync_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sync_projects: {
         Row: {

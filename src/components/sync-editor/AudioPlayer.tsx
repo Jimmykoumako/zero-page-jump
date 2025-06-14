@@ -4,39 +4,52 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, Clock } from 'lucide-react';
-import { formatTime } from '@/utils/mockAudio';
-import type { LyricSyncData } from '@/types/syncEditor';
+import { Play, Pause } from 'lucide-react';
 
 interface AudioPlayerProps {
+  audioUrl?: string;
   audioRef: RefObject<HTMLAudioElement>;
   isPlaying: boolean;
   currentTime: number;
   duration: number;
-  volume: number;
-  playbackRate: number;
-  onPlay: () => void;
-  onStop: () => void;
-  onSeek: (value: number[]) => void;
-  onVolumeChange: (volume: number) => void;
-  onPlaybackRateChange: (rate: number) => void;
+  onTimeUpdate: (time: number) => void;
+  onDurationChange: (duration: number) => void;
+  onPlayPause: (playing: boolean) => void;
 }
 
 const AudioPlayer = ({
+  audioUrl,
   audioRef,
   isPlaying,
   currentTime,
   duration,
-  volume,
-  playbackRate,
-  onPlay,
-  onStop,
-  onSeek,
-  onVolumeChange,
-  onPlaybackRateChange
+  onTimeUpdate,
+  onDurationChange,
+  onPlayPause
 }: AudioPlayerProps) => {
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const handleSeek = (value: number[]) => {
-    onSeek(value);
+    if (audioRef.current && duration > 0) {
+      const newTime = (value[0] / 100) * duration;
+      audioRef.current.currentTime = newTime;
+      onTimeUpdate(newTime);
+    }
+  };
+
+  const handlePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      onPlayPause(!isPlaying);
+    }
   };
 
   return (
@@ -52,14 +65,18 @@ const AudioPlayer = ({
       <CardContent className="space-y-4">
         <audio
           ref={audioRef}
+          src={audioUrl}
           preload="metadata"
+          onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
+          onDurationChange={(e) => onDurationChange(e.currentTarget.duration)}
         />
         
         <div className="flex items-center gap-4">
           <Button
-            onClick={onPlay}
+            onClick={handlePlayPause}
             variant="outline"
             size="sm"
+            disabled={!audioUrl}
           >
             {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           </Button>
@@ -71,6 +88,7 @@ const AudioPlayer = ({
               max={100}
               step={0.1}
               className="w-full"
+              disabled={!audioUrl || duration === 0}
             />
           </div>
           
