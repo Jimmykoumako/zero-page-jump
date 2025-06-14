@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,11 +48,11 @@ const AudioLibrary = () => {
 
       if (error) throw error;
       
-      // Type assertion to ensure audio_type matches our union type
+      // Fix the type issue by properly typing the audio_type field
       const typedTracks = (data || []).map(track => ({
         ...track,
         audio_type: track.audio_type as 'instrumental' | 'vocal' | 'accompaniment' | 'full'
-      })) as AudioTrack[];
+      }));
       
       setTracks(typedTracks);
     } catch (error) {
