@@ -116,7 +116,7 @@ const Index = () => {
 
       {user ? (
         <div>
-          <AuthenticatedLanding onModeSelect={handleModeSelect} />
+          <AuthenticatedLanding onModeSelect={handleModeSelect} user={user} />
           {/* Show the admin utility for logged-in users */}
           <TestAdminUtils />
         </div>
