@@ -133,7 +133,7 @@ const SyncStudio = () => {
 
   const handleBackToList = () => {
     setSelectedProject(null);
-    fetchProjects(); // Refresh the list
+    fetchProjects();
   };
 
   if (selectedProject) {
@@ -175,7 +175,7 @@ const SyncStudio = () => {
 
         <SyncProjectList
           projects={filteredProjects}
-          onProjectSelect={handleProjectSelect}
+          onSelect={handleProjectSelect}
           isLoading={isLoading}
         />
       </div>

@@ -45,6 +45,7 @@ export const useUser = (): UseUserReturn => {
           lastName: userData?.lastName || authUser.user_metadata?.lastName || '',
           name: userData?.name || authUser.user_metadata?.name || '',
           role: userData?.role || 'VIEWER',
+          status: userData?.status || 'ACTIVE',
           avatar: userData?.image || userData?.profilePicture || authUser.user_metadata?.avatar || '',
           profilePicture: userData?.profilePicture || userData?.image || authUser.user_metadata?.avatar || '',
           createdAt: userData?.createdAt || authUser.created_at || '',
