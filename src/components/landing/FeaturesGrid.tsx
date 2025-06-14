@@ -92,6 +92,13 @@ const FeaturesGrid = ({ onModeSelect }: FeaturesGridProps) => {
     }
   ];
 
+  const handleKeyPress = (event: React.KeyboardEvent, featureId: string) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onModeSelect(featureId as any);
+    }
+  };
+
   return (
     <section className="py-16 px-4">
       <div className="container mx-auto">
@@ -118,24 +125,31 @@ const FeaturesGrid = ({ onModeSelect }: FeaturesGridProps) => {
             return (
               <Card 
                 key={feature.id}
+                role="button"
+                tabIndex={0}
+                aria-label={`${feature.title}: ${feature.description}`}
                 onClick={() => onModeSelect(feature.id as any)}
-                className="relative overflow-hidden cursor-pointer border-2 border-transparent hover:border-primary/20 transition-all duration-300 group hover:shadow-xl hover:-translate-y-1"
+                onKeyDown={(e) => handleKeyPress(e, feature.id)}
+                className="relative overflow-hidden cursor-pointer border-2 border-transparent hover:border-primary/20 focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-300 group hover:shadow-xl hover:-translate-y-1"
               >
                 <CardContent className="p-6 text-center">
                   {feature.badge && (
                     <div className="absolute top-3 right-3">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        feature.badge === 'New' ? 'bg-green-100 text-green-700' :
-                        feature.badge === 'Pro' ? 'bg-purple-100 text-purple-700' :
-                        'bg-blue-100 text-blue-700'
-                      }`}>
+                      <span 
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          feature.badge === 'New' ? 'bg-green-100 text-green-700' :
+                          feature.badge === 'Pro' ? 'bg-purple-100 text-purple-700' :
+                          'bg-blue-100 text-blue-700'
+                        }`}
+                        aria-label={`${feature.badge} feature`}
+                      >
                         {feature.badge}
                       </span>
                     </div>
                   )}
                   
                   <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
-                    <IconComponent className="w-8 h-8 text-white" />
+                    <IconComponent className="w-8 h-8 text-white" aria-hidden="true" />
                   </div>
                   
                   <h3 className="text-xl font-semibold text-foreground mb-3">{feature.title}</h3>
@@ -159,7 +173,7 @@ const FeaturesGrid = ({ onModeSelect }: FeaturesGridProps) => {
               return (
                 <div key={index} className="text-center">
                   <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md">
-                    <IconComponent className="w-6 h-6 text-primary" />
+                    <IconComponent className="w-6 h-6 text-primary" aria-hidden="true" />
                   </div>
                   <h4 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h4>
                   <p className="text-muted-foreground text-sm">{feature.description}</p>

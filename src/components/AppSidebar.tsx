@@ -31,12 +31,18 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useUser } from "@/hooks/useUser";
+import { useToast } from "@/hooks/use-toast";
 
 const navigationItems = [
   {
     title: "Home",
     url: "/",
     icon: Home,
+  },
+  {
+    title: "Hymnbooks",
+    url: "/hymnbook",
+    icon: Book,
   },
   {
     title: "Music Library",
@@ -92,10 +98,15 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useUser();
+  const { toast } = useToast();
 
-  const handleNavigation = (url: string) => {
+  const handleNavigation = (url: string, title?: string) => {
     if (url.startsWith('#')) {
-      // Handle placeholder links
+      // Handle placeholder links with toast notifications
+      toast({
+        title: title || "Coming Soon",
+        description: "This feature is currently under development and will be available soon!",
+      });
       return;
     }
     navigate(url);
@@ -154,7 +165,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild
-                    onClick={() => handleNavigation(item.url)}
+                    onClick={() => handleNavigation(item.url, item.title)}
                   >
                     <button className="w-full justify-start">
                       <item.icon className="w-4 h-4" />
@@ -193,7 +204,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  onClick={() => handleNavigation("#")} // Placeholder for settings navigation
+                  onClick={() => handleNavigation("#", "Settings")}
                 >
                   <button className="w-full justify-start">
                     <Settings className="w-4 h-4" />
@@ -205,7 +216,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild
-                    onClick={() => handleNavigation(item.url)}
+                    onClick={() => handleNavigation(item.url, item.title)}
                   >
                     <button className="w-full justify-start">
                       <item.icon className="w-4 h-4" />

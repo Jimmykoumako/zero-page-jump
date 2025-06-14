@@ -791,9 +791,11 @@ export type Database = {
         Row: {
           access_level: Database["public"]["Enums"]["AccessLevel"]
           added_hymns: number
+          card_color: string | null
           category: string | null
           created_at: string
           description: string
+          icon_name: string | null
           id: number
           is_active: boolean
           name: string
@@ -803,9 +805,11 @@ export type Database = {
         Insert: {
           access_level?: Database["public"]["Enums"]["AccessLevel"]
           added_hymns?: number
+          card_color?: string | null
           category?: string | null
           created_at?: string
           description?: string
+          icon_name?: string | null
           id?: number
           is_active?: boolean
           name: string
@@ -815,9 +819,11 @@ export type Database = {
         Update: {
           access_level?: Database["public"]["Enums"]["AccessLevel"]
           added_hymns?: number
+          card_color?: string | null
           category?: string | null
           created_at?: string
           description?: string
+          icon_name?: string | null
           id?: number
           is_active?: boolean
           name?: string
@@ -1511,12 +1517,12 @@ export type Database = {
           lastLogin: string | null
           lastName: string | null
           name: string | null
-          password: string
+          password: string | null
           profilePicture: string | null
           pseudoName: string | null
           role: Database["public"]["Enums"]["UserRole"]
           status: Database["public"]["Enums"]["UserStatus"]
-          updatedAt: string
+          updatedAt: string | null
         }
         Insert: {
           bio?: string | null
@@ -1529,12 +1535,12 @@ export type Database = {
           lastLogin?: string | null
           lastName?: string | null
           name?: string | null
-          password: string
+          password?: string | null
           profilePicture?: string | null
           pseudoName?: string | null
           role?: Database["public"]["Enums"]["UserRole"]
           status?: Database["public"]["Enums"]["UserStatus"]
-          updatedAt: string
+          updatedAt?: string | null
         }
         Update: {
           bio?: string | null
@@ -1547,12 +1553,12 @@ export type Database = {
           lastLogin?: string | null
           lastName?: string | null
           name?: string | null
-          password?: string
+          password?: string | null
           profilePicture?: string | null
           pseudoName?: string | null
           role?: Database["public"]["Enums"]["UserRole"]
           status?: Database["public"]["Enums"]["UserStatus"]
-          updatedAt?: string
+          updatedAt?: string | null
         }
         Relationships: []
       }
