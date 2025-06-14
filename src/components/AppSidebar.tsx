@@ -14,7 +14,8 @@ import {
   FileText,
   Heart,
   HelpCircle,
-  LogOut
+  LogOut,
+  Monitor
 } from "lucide-react";
 import {
   Sidebar,
@@ -60,6 +61,11 @@ const navigationItems = [
     icon: LayoutDashboard,
   },
   {
+    title: "Presentation Mode",
+    url: "/presentation",
+    icon: Monitor,
+  },
+  {
     title: "Listening History",
     url: "/history",
     icon: History,
@@ -74,7 +80,7 @@ const communityItems = [
     badge: "Soon"
   },
   {
-    title: "Presentations",
+    title: "Remote Control",
     url: "#",
     icon: Speaker,
     badge: "Soon"

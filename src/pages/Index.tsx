@@ -60,18 +60,14 @@ const Index = () => {
       case 'sync':
         navigate('/sync-studio');
         break;
+      case 'display':
+        navigate('/presentation');
+        break;
       case 'group':
         // For now, just show a toast since group sessions might need special handling
         toast({
           title: "Group Sessions",
           description: "Group session functionality coming soon!",
-        });
-        break;
-      case 'display':
-        // For now, just show a toast since fullscreen display might need special handling
-        toast({
-          title: "Presentation Mode",
-          description: "Presentation mode functionality coming soon!",
         });
         break;
       case 'remote':
@@ -120,7 +116,7 @@ const Index = () => {
 
       {user ? (
         <div>
-          <AuthenticatedLanding user={user} onModeSelect={handleModeSelect} />
+          <AuthenticatedLanding onModeSelect={handleModeSelect} />
           {/* Show the admin utility for logged-in users */}
           <TestAdminUtils />
         </div>

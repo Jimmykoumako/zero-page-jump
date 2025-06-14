@@ -23,7 +23,8 @@ import {
   LayoutDashboard,
   Book,
   Heart,
-  MessageCircle
+  MessageCircle,
+  Monitor
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -51,6 +52,13 @@ const quickActions = [
     color: "text-purple-600"
   },
   {
+    title: "Present Hymns",
+    description: "Display hymns for congregation",
+    icon: Monitor,
+    action: "/presentation",
+    color: "text-red-600"
+  },
+  {
     title: "Join Session",
     description: "Join a group worship session",
     icon: Users,
@@ -58,18 +66,18 @@ const quickActions = [
     color: "text-orange-600"
   },
   {
-    title: "Present Hymns",
-    description: "Display hymns for congregation",
+    title: "Remote Control",
+    description: "Control presentations remotely",
     icon: Speaker,
-    action: "display",
-    color: "text-red-600"
+    action: "remote",
+    color: "text-indigo-600"
   },
   {
     title: "Browse Hymnals",
     description: "Explore digital hymn books",
     icon: Book,
-    action: "hymnal",
-    color: "text-indigo-600"
+    action: "/hymnbook",
+    color: "text-teal-600"
   }
 ];
 
