@@ -1,312 +1,158 @@
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Save, 
-  Download,
-  Edit3,
-  Eye,
-  EyeOff
-} from 'lucide-react';
-import { SyncProject, SyncPoint, SyncData } from '@/types/syncEditor';
-import AudioPlayer from './sync-editor/AudioPlayer';
-import SyncControls from './sync-editor/SyncControls';
-import SyncDataList from './sync-editor/SyncDataList';
-import SyncEditForm from './sync-editor/SyncEditForm';
-import MockAudioSelector from './sync-editor/MockAudioSelector';
+import { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Play, Pause, Save, Plus } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { SyncProject, SyncData } from "@/types/syncEditor";
+import SyncDataList from "@/components/sync-editor/SyncDataList";
+import SyncControls from "@/components/sync-editor/SyncControls";
+import AudioPlayer from "@/components/sync-editor/AudioPlayer";
 
 interface SyncEditorProps {
   project: SyncProject;
-  onProjectUpdate: (updatedProject: SyncProject) => void;
+  onBack: () => void;
 }
 
-const SyncEditor: React.FC<SyncEditorProps> = ({ project, onProjectUpdate }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(1);
-  const [playbackRate, setPlaybackRate] = useState(1);
-  const [selectedSyncPoint, setSelectedSyncPoint] = useState<SyncPoint | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const [syncData, setSyncData] = useState<SyncData[]>(project.sync_data || []);
-  
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+const SyncEditor = ({ project, onBack }: SyncEditorProps) => {
   const { toast } = useToast();
+  const [title, setTitle] = useState(project.title);
+  const [syncData, setSyncData] = useState<SyncData[]>(project.syncData || []);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [selectedSyncIndex, setSelectedSyncIndex] = useState<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Audio control functions
-  const handlePlay = useCallback(() => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+  const saveProject = async () => {
+    try {
+      const { error } = await supabase
+        .from('sync_projects')
+        .update({
+          title,
+          sync_data: syncData,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', project.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Project saved successfully",
+      });
+    } catch (error) {
+      console.error('Error saving project:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save project",
+        variant: "destructive",
+      });
     }
-  }, [isPlaying]);
+  };
 
-  const handleStop = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsPlaying(false);
-      setCurrentTime(0);
-    }
-  }, []);
-
-  const handleSeek = useCallback((value: number[]) => {
-    if (audioRef.current && duration > 0) {
-      const time = (value[0] / 100) * duration;
-      audioRef.current.currentTime = time;
-      setCurrentTime(time);
-    }
-  }, [duration]);
-
-  const handleVolumeChange = useCallback((newVolume: number) => {
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume;
-      setVolume(newVolume);
-    }
-  }, []);
-
-  const handlePlaybackRateChange = useCallback((rate: number) => {
-    if (audioRef.current) {
-      audioRef.current.playbackRate = rate;
-      setPlaybackRate(rate);
-    }
-  }, []);
-
-  // Sync point management
-  const handleAddSyncPoint = useCallback(() => {
-    const newSyncPoint: SyncPoint = {
-      id: `sync_${Date.now()}`,
-      timestamp: currentTime,
-      text: '',
-      type: 'line' as const,
-      metadata: {}
+  const addSyncPoint = () => {
+    const newSyncPoint: SyncData = {
+      id: Math.random().toString(),
+      startTime: currentTime,
+      endTime: currentTime + 5,
+      text: "New sync point",
+      verseIndex: 0,
+      lineIndex: syncData.length
     };
-    
-    const newSyncData: SyncData = {
-      id: `data_${Date.now()}`,
-      syncPoints: [newSyncPoint],
-      metadata: {
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-    };
-    
-    const updatedSyncData = [...syncData, newSyncData];
-    setSyncData(updatedSyncData);
-    
-    const updatedProject = {
-      ...project,
-      sync_data: updatedSyncData,
-      lastModified: new Date().toISOString()
-    };
-    
-    onProjectUpdate(updatedProject);
-    setSelectedSyncPoint(newSyncPoint);
-    setIsEditing(true);
-    
-    toast({
-      title: "Sync Point Added",
-      description: `Added sync point at ${currentTime.toFixed(2)}s`
-    });
-  }, [currentTime, project, syncData, onProjectUpdate, toast]);
 
-  const handleEditSyncPoint = useCallback((syncPoint: SyncPoint) => {
-    setSelectedSyncPoint(syncPoint);
-    setIsEditing(true);
-  }, []);
+    setSyncData([...syncData, newSyncPoint].sort((a, b) => a.startTime - b.startTime));
+  };
 
-  const handleUpdateSyncPoint = useCallback((updatedSyncPoint: SyncPoint) => {
-    const updatedSyncData = syncData.map(data => ({
-      ...data,
-      syncPoints: data.syncPoints.map(point => 
-        point.id === updatedSyncPoint.id ? updatedSyncPoint : point
-      )
-    }));
-    
-    setSyncData(updatedSyncData);
-    
-    const updatedProject = {
-      ...project,
-      sync_data: updatedSyncData,
-      lastModified: new Date().toISOString()
-    };
-    
-    onProjectUpdate(updatedProject);
-    setIsEditing(false);
-    setSelectedSyncPoint(null);
-    
-    toast({
-      title: "Sync Point Updated",
-      description: "Sync point has been updated successfully"
-    });
-  }, [syncData, project, onProjectUpdate, toast]);
+  const updateSyncPoint = (index: number, updates: Partial<SyncData>) => {
+    const updated = [...syncData];
+    updated[index] = { ...updated[index], ...updates };
+    setSyncData(updated);
+  };
 
-  const handleDeleteSyncPoint = useCallback((syncPointId: string) => {
-    const updatedSyncData = syncData.map(data => ({
-      ...data,
-      syncPoints: data.syncPoints.filter(point => point.id !== syncPointId)
-    })).filter(data => data.syncPoints.length > 0);
-    
-    setSyncData(updatedSyncData);
-    
-    const updatedProject = {
-      ...project,
-      sync_data: updatedSyncData,
-      lastModified: new Date().toISOString()
-    };
-    
-    onProjectUpdate(updatedProject);
-    
-    if (selectedSyncPoint?.id === syncPointId) {
-      setSelectedSyncPoint(null);
-      setIsEditing(false);
-    }
-    
-    toast({
-      title: "Sync Point Deleted",
-      description: "Sync point has been removed"
-    });
-  }, [syncData, project, onProjectUpdate, selectedSyncPoint, toast]);
+  const deleteSyncPoint = (index: number) => {
+    setSyncData(syncData.filter((_, i) => i !== index));
+  };
 
-  const handleJumpToSyncPoint = useCallback((timestamp: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = timestamp;
-      setCurrentTime(timestamp);
-    }
-  }, []);
-
-  // Audio event handlers
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const handleLoadedMetadata = () => setDuration(audio.duration);
-    const handleEnded = () => setIsPlaying(false);
-
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('ended', handleEnded);
-
-    return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('ended', handleEnded);
-    };
-  }, []);
-
-  const formatTime = (time: number): string => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div className="flex flex-col h-full space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">{project.title}</h2>
-          <p className="text-muted-foreground">
-            Last modified: {new Date(project.updated_at).toLocaleDateString()}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowPreview(!showPreview)}
-          >
-            {showPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {showPreview ? 'Hide Preview' : 'Show Preview'}
-          </Button>
-          <Button variant="outline" size="sm">
-            <Save className="w-4 h-4 mr-2" />
-            Save
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-        {/* Left Column - Audio Player & Controls */}
-        <div className="space-y-6">
-          <MockAudioSelector />
-          
-          <AudioPlayer
-            audioRef={audioRef}
-            isPlaying={isPlaying}
-            currentTime={currentTime}
-            duration={duration}
-            volume={volume}
-            playbackRate={playbackRate}
-            onPlay={handlePlay}
-            onStop={handleStop}
-            onSeek={handleSeek}
-            onVolumeChange={handleVolumeChange}
-            onPlaybackRateChange={handlePlaybackRateChange}
-          />
-
-          <SyncControls
-            currentTime={currentTime}
-            formatTime={formatTime}
-            onAddSyncPoint={handleAddSyncPoint}
-          />
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Button onClick={onBack} variant="outline" className="flex items-center gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Projects
+            </Button>
+            <div>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="text-2xl font-bold bg-transparent border-none p-0 h-auto"
+              />
+              <p className="text-slate-600 text-sm mt-1">
+                Track: {project.track?.title || 'No track selected'}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={addSyncPoint} variant="outline" className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Add Sync Point
+            </Button>
+            <Button onClick={saveProject} className="flex items-center gap-2">
+              <Save className="w-4 h-4" />
+              Save Project
+            </Button>
+          </div>
         </div>
 
-        {/* Middle Column - Sync Data List */}
-        <div>
-          <SyncDataList
-            syncData={syncData}
-            selectedSyncPoint={selectedSyncPoint}
-            onEditSyncPoint={handleEditSyncPoint}
-            onDeleteSyncPoint={handleDeleteSyncPoint}
-            onJumpToSyncPoint={handleJumpToSyncPoint}
-            formatTime={formatTime}
-          />
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Audio Player</h3>
+              <AudioPlayer
+                audioUrl={project.track?.url}
+                currentTime={currentTime}
+                duration={duration}
+                isPlaying={isPlaying}
+                onTimeUpdate={setCurrentTime}
+                onDurationChange={setDuration}
+                onPlayPause={setIsPlaying}
+                audioRef={audioRef}
+              />
+            </Card>
 
-        {/* Right Column - Edit Form */}
-        <div>
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Edit3 className="w-5 h-5" />
-                {isEditing ? 'Edit Sync Point' : 'Sync Point Details'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {selectedSyncPoint && isEditing ? (
-                <SyncEditForm
-                  syncPoint={selectedSyncPoint}
-                  onUpdate={handleUpdateSyncPoint}
-                  onCancel={() => {
-                    setIsEditing(false);
-                    setSelectedSyncPoint(null);
-                  }}
-                />
-              ) : (
-                <div className="text-center text-muted-foreground py-8">
-                  <Edit3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Select a sync point to edit its properties</p>
-                  <p className="text-sm mt-2">
-                    Use the controls on the left to add new sync points while playing audio
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Sync Controls</h3>
+              <SyncControls
+                currentTime={currentTime}
+                formatTime={formatTime}
+                onAddSyncPoint={addSyncPoint}
+              />
+            </Card>
+          </div>
+
+          <div>
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Sync Points</h3>
+              <SyncDataList
+                syncData={syncData}
+                selectedIndex={selectedSyncIndex}
+                onSelect={setSelectedSyncIndex}
+                onUpdate={updateSyncPoint}
+                onDelete={deleteSyncPoint}
+                formatTime={formatTime}
+              />
+            </Card>
+          </div>
         </div>
       </div>
     </div>

@@ -1,176 +1,153 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { ArrowLeft, Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, ArrowLeft, LayoutDashboard, Edit, Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useUser } from "@/hooks/useUser";
+import { useToast } from "@/hooks/use-toast";
+import SyncProjectList from "@/components/SyncProjectList";
+import SyncEditor from "@/components/SyncEditor";
 import { SyncProject } from "@/types/syncEditor";
 
 const SyncStudio = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useUser();
-  const [searchTerm, setSearchTerm] = useState("");
   const [projects, setProjects] = useState<SyncProject[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [filteredProjects, setFilteredProjects] = useState<SyncProject[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProject, setSelectedProject] = useState<SyncProject | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      fetchProjects();
-    }
-  }, [user]);
+    fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    const filtered = projects.filter(project =>
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.track?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.track?.artist_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredProjects(filtered);
+  }, [projects, searchTerm]);
 
   const fetchProjects = async () => {
-    if (!user) return;
-    
     try {
-      setLoading(true);
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('sync_projects')
         .select(`
           *,
-          track:Track(*)
+          track:Track(title, artist_name, url)
         `)
-        .eq('user_id', user.id)
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
 
-      // Transform the data to match the expected SyncProject interface
-      const transformedProjects: SyncProject[] = (data || []).map(project => ({
+      const formattedProjects: SyncProject[] = (data || []).map(project => ({
         id: project.id,
         title: project.title,
-        name: project.title, // Use title as name for compatibility
-        hymn_id: project.hymn_id,
-        track_id: project.track_id,
+        name: project.title,
+        hymn_id: project.hymn_id || '',
+        track_id: project.track_id || '',
         sync_data: project.sync_data,
-        syncData: project.sync_data ? [project.sync_data] : [], // Wrap in array for compatibility
+        syncData: Array.isArray(project.sync_data) ? 
+          project.sync_data.map((item: any) => ({
+            id: item.id || Math.random().toString(),
+            startTime: item.startTime || 0,
+            endTime: item.endTime || 0,
+            text: item.text || '',
+            verseIndex: item.verseIndex,
+            lineIndex: item.lineIndex
+          })) : [],
         created_at: project.created_at,
         updated_at: project.updated_at,
-        lastModified: project.updated_at, // Use updated_at as lastModified
+        lastModified: project.updated_at,
         track: project.track
       }));
 
-      setProjects(transformedProjects);
+      setProjects(formattedProjects);
     } catch (error) {
-      console.error('Error fetching sync projects:', error);
+      console.error('Error fetching projects:', error);
       toast({
         title: "Error",
-        description: "Failed to load sync projects.",
+        description: "Failed to fetch sync projects",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const createNewProject = async () => {
-    if (!user) {
-      toast({
-        title: "Sign In Required",
-        description: "Please sign in to create sync projects.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to create projects",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const newProject = {
+        title: `New Project ${new Date().toLocaleString()}`,
+        user_id: user.id,
+        sync_data: []
+      };
+
       const { data, error } = await supabase
         .from('sync_projects')
-        .insert({
-          title: `New Sync Project ${new Date().toLocaleDateString()}`,
-          user_id: user.id,
-          sync_data: {}
-        })
+        .insert(newProject)
         .select()
         .single();
 
       if (error) throw error;
 
       toast({
-        title: "Project Created",
-        description: "New sync project created successfully.",
+        title: "Success",
+        description: "New sync project created",
       });
 
-      // Navigate to the sync editor with the new project
-      navigate(`/sync-editor/${data.id}`);
+      fetchProjects();
     } catch (error) {
-      console.error('Error creating sync project:', error);
+      console.error('Error creating project:', error);
       toast({
         title: "Error",
-        description: "Failed to create sync project.",
+        description: "Failed to create sync project",
         variant: "destructive",
       });
     }
   };
 
-  const deleteProject = async (projectId: string) => {
-    try {
-      const { error } = await supabase
-        .from('sync_projects')
-        .delete()
-        .eq('id', projectId);
-
-      if (error) throw error;
-
-      setProjects(prev => prev.filter(p => p.id !== projectId));
-      toast({
-        title: "Project Deleted",
-        description: "Sync project deleted successfully.",
-      });
-    } catch (error) {
-      console.error('Error deleting sync project:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete sync project.",
-        variant: "destructive",
-      });
-    }
+  const handleProjectSelect = (project: SyncProject) => {
+    setSelectedProject(project);
   };
 
-  const filteredProjects = projects.filter(project =>
-    project.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleBackToList = () => {
+    setSelectedProject(null);
+    fetchProjects(); // Refresh the list
+  };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-4">Please sign in to access Sync Studio</h2>
-          <Button onClick={() => navigate('/auth')}>Sign In</Button>
-        </div>
-      </div>
-    );
+  if (selectedProject) {
+    return <SyncEditor project={selectedProject} onBack={handleBackToList} />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
-      <div className="container mx-auto max-w-6xl">
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+      <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Button
-              onClick={() => navigate(-1)}
-              variant="outline"
-              size="sm"
+            <Button 
+              onClick={() => window.history.back()} 
+              variant="outline" 
               className="flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back
+              Back to Home
             </Button>
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-600 rounded-lg">
-                <LayoutDashboard className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Sync Studio</h1>
-                <p className="text-gray-600">Create synchronized lyric-audio experiences</p>
-              </div>
-            </div>
+            <h1 className="text-3xl font-bold text-slate-800">Sync Studio</h1>
           </div>
           <Button onClick={createNewProject} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
@@ -178,122 +155,23 @@ const SyncStudio = () => {
           </Button>
         </div>
 
-        {/* Search */}
-        <div className="mb-8">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+        <Card className="p-6 mb-6">
+          <div className="flex items-center gap-4 mb-4">
+            <Search className="w-5 h-5 text-slate-500" />
             <Input
-              type="text"
-              placeholder="Search sync projects..."
+              placeholder="Search projects by title, track, or artist..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="flex-1"
             />
           </div>
-        </div>
+        </Card>
 
-        {/* Projects Grid */}
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
-          </div>
-        ) : filteredProjects.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProjects.map((project) => (
-              <Card 
-                key={project.id} 
-                className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-purple-200"
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg line-clamp-2">{project.title}</CardTitle>
-                    <div className="flex gap-1">
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => navigate(`/sync-editor/${project.id}`)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteProject(project.id);
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <div>Created: {new Date(project.created_at).toLocaleDateString()}</div>
-                    <div>Modified: {new Date(project.updated_at).toLocaleDateString()}</div>
-                    {project.track && (
-                      <div>Track: {project.track.title}</div>
-                    )}
-                    {project.hymn_id && (
-                      <div>Hymn: #{project.hymn_id}</div>
-                    )}
-                  </div>
-                  <Button 
-                    className="w-full mt-4"
-                    onClick={() => navigate(`/sync-editor/${project.id}`)}
-                  >
-                    Open Project
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <LayoutDashboard className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {searchTerm ? "No projects found" : "No sync projects yet"}
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {searchTerm 
-                ? "Try adjusting your search terms" 
-                : "Create your first sync project to get started"
-              }
-            </p>
-            {!searchTerm && (
-              <Button onClick={createNewProject} className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Create Your First Project
-              </Button>
-            )}
-          </div>
-        )}
-
-        {/* Instructions */}
-        <div className="mt-12 bg-white rounded-lg p-6 border">
-          <h3 className="text-lg font-semibold mb-4">How Sync Studio Works</h3>
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
-            <div>
-              <h4 className="font-medium text-gray-900 mb-2">Getting Started</h4>
-              <ul className="space-y-1">
-                <li>• Create a new sync project</li>
-                <li>• Upload or select an audio track</li>
-                <li>• Choose hymn lyrics to sync</li>
-                <li>• Set timing markers for each line</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-900 mb-2">Features</h4>
-              <ul className="space-y-1">
-                <li>• Precise timing controls</li>
-                <li>• Real-time preview</li>
-                <li>• Export synchronized data</li>
-                <li>• Collaborate with others</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+        <SyncProjectList
+          projects={filteredProjects}
+          onProjectSelect={handleProjectSelect}
+          isLoading={isLoading}
+        />
       </div>
     </div>
   );

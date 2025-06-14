@@ -11,9 +11,20 @@ interface FullscreenPresentationProps {
   currentVerse: number;
   onVerseChange: (verse: number) => void;
   onExit: () => void;
+  deviceId?: string;
+  groupSession?: any;
+  onHymnSelect?: (hymn: any) => void;
 }
 
-const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: FullscreenPresentationProps) => {
+const FullscreenPresentation = ({ 
+  hymn, 
+  currentVerse, 
+  onVerseChange, 
+  onExit,
+  deviceId,
+  groupSession,
+  onHymnSelect
+}: FullscreenPresentationProps) => {
   const [fontSize, setFontSize] = useState(6);
   const [currentHymn, setCurrentHymn] = useState<Hymn>(hymn);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -28,6 +39,9 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
   const handleSelectHymnFromBuffer = (selectedHymn: Hymn) => {
     setCurrentHymn(selectedHymn);
     onVerseChange(0); // Reset to first verse
+    if (onHymnSelect) {
+      onHymnSelect(selectedHymn);
+    }
   };
 
   // Create mock selected hymnbook structure
@@ -51,7 +65,7 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
     volume: 1,
     isAutoScrollEnabled: false,
     autoScrollSpeed: 50,
-    groupSession: null,
+    groupSession,
   };
 
   return (
@@ -75,6 +89,7 @@ const FullscreenPresentation = ({ hymn, currentVerse, onVerseChange, onExit }: F
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 text-slate-400 text-sm text-center z-50">
           <div>Arrow keys or spacebar to navigate • Up/Down arrows for font size • P to play/pause • S to stop • Home/End for first/last • Esc to exit</div>
           <div className="text-xs mt-1">Search button (bottom right) • Buffer (top right) for hymn queue</div>
+          {deviceId && <div className="text-xs mt-1">Device ID: {deviceId}</div>}
         </div>
       )}
     </div>
