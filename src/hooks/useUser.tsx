@@ -50,8 +50,8 @@ export const useUser = (): UseUserReturn => {
           profilePicture: userData?.profilePicture || userData?.image || authUser.user_metadata?.avatar || '',
           createdAt: userData?.createdAt || authUser.created_at || '',
           updatedAt: userData?.updatedAt || '',
-          preferences: userData?.preferences || {},
-          subscription: userData?.subscription || null,
+          preferences: {},
+          subscription: null,
           isVerified: authUser.email_confirmed_at ? true : false,
           lastLogin: authUser.last_sign_in_at || '',
         };

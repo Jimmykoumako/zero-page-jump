@@ -1025,6 +1025,13 @@ export type Database = {
             referencedRelation: "sync_projects"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "lyric_sync_data_sync_project_id_fkey"
+            columns: ["sync_project_id"]
+            isOneToOne: false
+            referencedRelation: "test_sync_projects_access"
+            referencedColumns: ["id"]
+          },
         ]
       }
       lyric_sync_projects: {
@@ -1653,6 +1660,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "TimestampAudioFile_hymnLyricId_fkey"
+            columns: ["hymnLyricId"]
+            isOneToOne: false
+            referencedRelation: "test_hymn_lyric_access"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "TimestampAudioFile_userId_fkey"
             columns: ["userId"]
             isOneToOne: false
@@ -1931,7 +1945,83 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      debug_permissions: {
+        Row: {
+          description: string | null
+          record_count: number | null
+          role: string | null
+          table_name: string | null
+          test_category: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      test_auth_state: {
+        Row: {
+          check_time: string | null
+          current_role: string | null
+          current_user_id: string | null
+        }
+        Relationships: []
+      }
+      test_hymn_lyric_access: {
+        Row: {
+          bookId: number | null
+          current_user_id: string | null
+          hymnTitleNumber: string | null
+          id: number | null
+          ownership_status: string | null
+          table_name: string | null
+          userId: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "HymnLyric_hymnTitleNumber_bookId_fkey"
+            columns: ["hymnTitleNumber", "bookId"]
+            isOneToOne: false
+            referencedRelation: "HymnTitle"
+            referencedColumns: ["number", "bookId"]
+          },
+          {
+            foreignKeyName: "HymnLyric_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_sync_projects_access: {
+        Row: {
+          current_user_id: string | null
+          id: string | null
+          ownership_status: string | null
+          table_name: string | null
+          title: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      test_table_permissions: {
+        Row: {
+          rls_enabled: boolean | null
+          schemaname: unknown | null
+          security_status: string | null
+          tablename: unknown | null
+        }
+        Relationships: []
+      }
+      test_user_roles_access: {
+        Row: {
+          current_auth_uid: string | null
+          id: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          table_name: string | null
+          user_id: string | null
+          user_relation: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_hymnbook_stats: {
