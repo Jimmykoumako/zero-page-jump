@@ -48,7 +48,14 @@ const AudioLibrary = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTracks(data || []);
+      
+      // Type assertion to ensure audio_type matches our union type
+      const typedTracks = (data || []).map(track => ({
+        ...track,
+        audio_type: track.audio_type as 'instrumental' | 'vocal' | 'accompaniment' | 'full'
+      })) as AudioTrack[];
+      
+      setTracks(typedTracks);
     } catch (error) {
       console.error('Error fetching tracks:', error);
       toast({
