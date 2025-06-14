@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -29,9 +28,11 @@ const AudioLibrary = () => {
       if (error) throw error;
       
       // Transform the data to match AudioTrack interface and ensure upload_status is properly typed
-      const transformedTracks = (data || []).map(track => ({
+      const transformedTracks: AudioTrack[] = (data || []).map(track => ({
         ...track,
-        upload_status: (track.upload_status as 'processing' | 'ready' | 'error') || 'ready'
+        upload_status: (track.upload_status === 'processing' || track.upload_status === 'ready' || track.upload_status === 'error') 
+          ? track.upload_status as 'processing' | 'ready' | 'error'
+          : 'ready'
       }));
       
       setTracks(transformedTracks);
