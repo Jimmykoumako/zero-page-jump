@@ -27,12 +27,15 @@ const AudioLibrary = () => {
 
       if (error) throw error;
       
-      // Transform the data to match AudioTrack interface and ensure upload_status is properly typed
+      // Transform the data to match AudioTrack interface and ensure types are properly typed
       const transformedTracks: AudioTrack[] = (data || []).map(track => ({
         ...track,
         upload_status: (track.upload_status === 'processing' || track.upload_status === 'ready' || track.upload_status === 'error') 
           ? track.upload_status as 'processing' | 'ready' | 'error'
-          : 'ready'
+          : 'ready',
+        audio_type: (track.audio_type === 'instrumental' || track.audio_type === 'vocal' || track.audio_type === 'accompaniment' || track.audio_type === 'full')
+          ? track.audio_type as 'instrumental' | 'vocal' | 'accompaniment' | 'full'
+          : 'full'
       }));
       
       setTracks(transformedTracks);
