@@ -1,15 +1,12 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { BarChart3, Music, Volume2, Users, BookOpen, TrendingUp } from "lucide-react";
+import { BarChart3, Music, Volume2, Users, BookOpen } from "lucide-react";
 
 interface DashboardStats {
   totalHymnbooks: number;
-  activeHymnbooks: number;
   totalHymns: number;
-  totalLyrics: number;
   totalAudioFiles: number;
   totalUserRoles: number;
 }
@@ -17,9 +14,7 @@ interface DashboardStats {
 const StatsDashboard = () => {
   const [stats, setStats] = useState<DashboardStats>({
     totalHymnbooks: 0,
-    activeHymnbooks: 0,
     totalHymns: 0,
-    totalLyrics: 0,
     totalAudioFiles: 0,
     totalUserRoles: 0
   });
@@ -34,38 +29,24 @@ const StatsDashboard = () => {
     try {
       setLoading(true);
 
-      // Fetch hymnbook stats
-      const { data: hymnbookData, error: hymnbookError } = await supabase
-        .from('HymnBook')
-        .select('is_active');
-
-      if (hymnbookError) throw hymnbookError;
-
-      const totalHymnbooks = hymnbookData?.length || 0;
-      const activeHymnbooks = hymnbookData?.filter(book => book.is_active).length || 0;
-
-      // Fetch hymn titles count
-      const { count: hymnTitlesCount, error: titlesError } = await supabase
-        .from('HymnTitle')
+      const { count: hymnbooksCount, error: hymnbooksError } = await supabase
+        .from('hymnbooks')
         .select('*', { count: 'exact', head: true });
 
-      if (titlesError) throw titlesError;
+      if (hymnbooksError) throw hymnbooksError;
 
-      // Fetch lyrics count
-      const { count: lyricsCount, error: lyricsError } = await supabase
-        .from('HymnLyric')
+      const { count: hymnsCount, error: hymnsError } = await supabase
+        .from('hymns')
         .select('*', { count: 'exact', head: true });
 
-      if (lyricsError) throw lyricsError;
+      if (hymnsError) throw hymnsError;
 
-      // Fetch audio files count
       const { count: audioCount, error: audioError } = await supabase
-        .from('AudioFile')
+        .from('audio_tracks')
         .select('*', { count: 'exact', head: true });
 
       if (audioError) throw audioError;
 
-      // Fetch user roles count instead of users count
       const { count: userRolesCount, error: userRolesError } = await supabase
         .from('user_roles')
         .select('*', { count: 'exact', head: true });
@@ -73,10 +54,8 @@ const StatsDashboard = () => {
       if (userRolesError) throw userRolesError;
 
       setStats({
-        totalHymnbooks,
-        activeHymnbooks,
-        totalHymns: hymnTitlesCount || 0,
-        totalLyrics: lyricsCount || 0,
+        totalHymnbooks: hymnbooksCount || 0,
+        totalHymns: hymnsCount || 0,
         totalAudioFiles: audioCount || 0,
         totalUserRoles: userRolesCount || 0
       });
@@ -110,25 +89,11 @@ const StatsDashboard = () => {
       bgColor: "bg-blue-50"
     },
     {
-      title: "Active Hymnbooks",
-      value: stats.activeHymnbooks,
-      icon: TrendingUp,
-      color: "text-green-600",
-      bgColor: "bg-green-50"
-    },
-    {
       title: "Total Hymns",
       value: stats.totalHymns,
       icon: Music,
       color: "text-purple-600",
       bgColor: "bg-purple-50"
-    },
-    {
-      title: "Hymns with Lyrics",
-      value: stats.totalLyrics,
-      icon: BarChart3,
-      color: "text-indigo-600",
-      bgColor: "bg-indigo-50"
     },
     {
       title: "Audio Files",
@@ -149,9 +114,9 @@ const StatsDashboard = () => {
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h2 className="text-2xl font-bold text-slate-800 mb-6">System Overview</h2>
+        <h2 className="text-2xl font-bold mb-6">System Overview</h2>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -160,26 +125,12 @@ const StatsDashboard = () => {
                   <Icon className={`w-6 h-6 ${stat.color}`} />
                 </div>
                 <div className="space-y-1">
-                  <p className="text-2xl font-bold text-slate-800">{stat.value}</p>
-                  <p className="text-sm text-slate-600">{stat.title}</p>
+                  <p className="text-2xl font-bold">{stat.value}</p>
+                  <p className="text-sm">{stat.title}</p>
                 </div>
               </Card>
             );
           })}
-        </div>
-
-        <div className="mt-6 p-4 bg-slate-50 rounded-lg">
-          <h3 className="text-lg font-semibold text-slate-800 mb-2">Quick Insights</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-600">
-            <div>
-              <p>• {((stats.activeHymnbooks / Math.max(stats.totalHymnbooks, 1)) * 100).toFixed(1)}% of hymnbooks are active</p>
-              <p>• {((stats.totalLyrics / Math.max(stats.totalHymns, 1)) * 100).toFixed(1)}% of hymns have lyrics</p>
-            </div>
-            <div>
-              <p>• {((stats.totalAudioFiles / Math.max(stats.totalHymns, 1)) * 100).toFixed(1)}% coverage with audio files</p>
-              <p>• {stats.totalUserRoles} user roles configured in the system</p>
-            </div>
-          </div>
         </div>
       </Card>
     </div>

@@ -35,8 +35,8 @@ const UserProfileForm = ({ user, onClose }: UserProfileFormProps) => {
     setLoading(true);
     try {
       const { data: profile, error } = await supabase
-        .from('users')
-        .select('firstName, lastName, pseudoName, bio, profilePicture')
+        .from('profiles')
+        .select('display_name, avatar_url, email')
         .eq('id', user.id)
         .single();
 
@@ -45,11 +45,12 @@ const UserProfileForm = ({ user, onClose }: UserProfileFormProps) => {
       }
 
       if (profile) {
-        setFirstName(profile.firstName || '');
-        setLastName(profile.lastName || '');
-        setPseudoName(profile.pseudoName || '');
-        setBio(profile.bio || '');
-        setProfilePicture(profile.profilePicture || '');
+        const nameParts = profile.display_name?.split(' ') || ['', ''];
+        setFirstName(nameParts[0] || '');
+        setLastName(nameParts.slice(1).join(' ') || '');
+        setPseudoName(profile.display_name || '');
+        setBio('');
+        setProfilePicture(profile.avatar_url || '');
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -67,15 +68,10 @@ const UserProfileForm = ({ user, onClose }: UserProfileFormProps) => {
     setSaving(true);
     try {
       const { error } = await supabase
-        .from('users')
+        .from('profiles')
         .update({
-          firstName,
-          lastName,
-          pseudoName: pseudoName || null,
-          bio: bio || null,
-          profilePicture: profilePicture || null,
-          name: `${firstName} ${lastName}`.trim(),
-          updatedAt: new Date().toISOString()
+          display_name: pseudoName || `${firstName} ${lastName}`.trim(),
+          avatar_url: profilePicture || null
         })
         .eq('id', user.id);
 

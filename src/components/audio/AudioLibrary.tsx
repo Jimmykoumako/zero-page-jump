@@ -27,18 +27,10 @@ const AudioLibrary = () => {
 
       if (error) throw error;
       
-      // Transform the data to match AudioTrack interface and ensure types are properly typed
-      const transformedTracks: AudioTrack[] = (data || []).map(track => ({
-        ...track,
-        upload_status: (track.upload_status === 'processing' || track.upload_status === 'ready' || track.upload_status === 'error') 
-          ? track.upload_status as 'processing' | 'ready' | 'error'
-          : 'ready',
-        audio_type: (track.audio_type === 'instrumental' || track.audio_type === 'vocal' || track.audio_type === 'accompaniment' || track.audio_type === 'full')
-          ? track.audio_type as 'instrumental' | 'vocal' | 'accompaniment' | 'full'
-          : 'full'
-      }));
+      // Use data as is from audio_tracks table
+      setTracks(data || []);
       
-      setTracks(transformedTracks);
+      
     } catch (error) {
       console.error('Error fetching tracks:', error);
       toast({
@@ -62,25 +54,6 @@ const AudioLibrary = () => {
     if (!bytes) return 'Unknown';
     const mb = bytes / (1024 * 1024);
     return `${mb.toFixed(1)} MB`;
-  };
-
-  const getAudioTypeColor = (type: string) => {
-    switch (type) {
-      case 'instrumental': return 'bg-blue-100 text-blue-800';
-      case 'vocal': return 'bg-green-100 text-green-800';
-      case 'accompaniment': return 'bg-purple-100 text-purple-800';
-      case 'full': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'ready': return 'bg-green-100 text-green-800';
-      case 'processing': return 'bg-yellow-100 text-yellow-800';
-      case 'error': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
   };
 
   if (loading) {
@@ -136,23 +109,8 @@ const AudioLibrary = () => {
               <div className="flex items-center gap-3">
                 <Upload className="w-8 h-8 text-green-500" />
                 <div>
-                  <p className="text-2xl font-bold">
-                    {tracks.filter(t => t.upload_status === 'ready').length}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Ready</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Play className="w-8 h-8 text-purple-500" />
-                <div>
-                  <p className="text-2xl font-bold">
-                    {new Set(tracks.map(t => t.hymn_number)).size}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Hymns</p>
+                  <p className="text-2xl font-bold">{tracks.length}</p>
+                  <p className="text-sm text-muted-foreground">Files</p>
                 </div>
               </div>
             </CardContent>
@@ -163,7 +121,7 @@ const AudioLibrary = () => {
                 <Download className="w-8 h-8 text-red-500" />
                 <div>
                   <p className="text-2xl font-bold">
-                    {Math.floor(tracks.reduce((sum, track) => sum + (track.duration || 0), 0) / 60)}
+                    {Math.floor(tracks.reduce((sum, track) => sum + (track.duration_seconds || 0), 0) / 60)}
                   </p>
                   <p className="text-sm text-muted-foreground">Total Minutes</p>
                 </div>
@@ -187,37 +145,22 @@ const AudioLibrary = () => {
                         {/* Header */}
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold truncate" title={track.title}>
-                              {track.title}
+                            <h3 className="font-semibold truncate">
+                              Audio Track #{track.id.slice(0, 8)}
                             </h3>
-                            <p className="text-sm text-muted-foreground truncate" title={track.hymn_title}>
-                              Hymn: {track.hymn_title} #{track.hymn_number}
+                            <p className="text-sm text-muted-foreground truncate">
+                              Hymn ID: {track.hymn_id || 'N/A'}
                             </p>
                           </div>
-                          <Badge className={getStatusColor(track.upload_status)}>
-                            {track.upload_status}
+                          <Badge>
+                            {track.track_type}
                           </Badge>
                         </div>
 
-                        {/* Artist and Album */}
-                        {track.artist_name && (
-                          <p className="text-sm text-muted-foreground truncate">
-                            Artist: {track.artist_name}
-                          </p>
-                        )}
-                        {track.album_name && (
-                          <p className="text-sm text-muted-foreground truncate">
-                            Album: {track.album_name}
-                          </p>
-                        )}
-
-                        {/* Audio Type and Duration */}
+                        {/* Duration and Size */}
                         <div className="flex items-center gap-2 text-xs">
-                          <Badge className={getAudioTypeColor(track.audio_type)}>
-                            {track.audio_type}
-                          </Badge>
                           <span className="text-muted-foreground">
-                            {formatDuration(track.duration)}
+                            {formatDuration(track.duration_seconds)}
                           </span>
                           {track.file_size && (
                             <span className="text-muted-foreground">
