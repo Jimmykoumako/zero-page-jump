@@ -47,46 +47,33 @@ const AudioManager = () => {
 
   const fetchData = async () => {
     try {
-      const [audioResult, uploadsResult, typesResult, hymnsResult] = await Promise.all([
-        supabase.from('AudioFile').select('*').order('createdAt', { ascending: false }),
-        supabase.from('uploads').select('*').order('createdAt', { ascending: false }),
-        supabase.from('AudioType').select('*'),
-        supabase.from('HymnTitle').select('number, titles')
+      const [audioResult, hymnsResult] = await Promise.all([
+        supabase.from('audio_tracks').select('*').order('created_at', { ascending: false }),
+        supabase.from('hymns').select('id, number, title')
       ]);
 
       if (audioResult.error) throw audioResult.error;
-      if (uploadsResult.error) throw uploadsResult.error;
-      if (typesResult.error) throw typesResult.error;
       if (hymnsResult.error) throw hymnsResult.error;
 
-      // Combine both data sources
-      const audioFileRecords: AudioFileData[] = (audioResult.data || []).map(file => ({
-        id: file.id,
-        hymnTitleNumber: file.hymnTitleNumber,
-        url: file.url,
-        audioTypeId: file.audioTypeId,
-        userId: file.userId,
-        createdAt: file.createdAt,
-        bookId: file.bookId,
-        source: 'AudioFile' as const
+      // Map audio_tracks to AudioFileData
+      const audioFileRecords: AudioFileData[] = (audioResult.data || []).map(track => ({
+        id: track.id,
+        hymnTitleNumber: '', // Will be populated from hymn data
+        url: track.file_path,
+        audioTypeId: 1,
+        userId: '',
+        createdAt: track.created_at,
+        bookId: 0,
+        source: 'AudioFile' as const,
+        description: track.track_type
       }));
 
-      const uploadRecords: AudioFileData[] = (uploadsResult.data || []).map(upload => ({
-        id: upload.id,
-        hymnTitle: upload.hymnTitle,
-        url: upload.url,
-        audioTypeId: upload.audioTypeId,
-        userId: upload.userId,
-        createdAt: upload.createdAt,
-        description: upload.description,
-        status: upload.status,
-        bookId: upload.bookId,
-        source: 'uploads' as const
-      }));
-
-      const combinedFiles = [...audioFileRecords, ...uploadRecords];
-      setAudioFiles(combinedFiles);
-      setAudioTypes(typesResult.data || []);
+      setAudioFiles(audioFileRecords);
+      setAudioTypes([
+        { id: 1, type: 'Instrumental', description: 'Instrumental version' },
+        { id: 2, type: 'Vocal', description: 'Vocal version' },
+        { id: 3, type: 'Full', description: 'Full version' }
+      ]);
       setHymns(hymnsResult.data || []);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -140,18 +127,21 @@ const AudioManager = () => {
         .from('audio-files')
         .getPublicUrl(filePath);
 
-      // Save audio file record
+      // Save audio track record
       const audioFileId = crypto.randomUUID();
       const currentUser = await supabase.auth.getUser();
       
+      // Find hymn by number
+      const hymn = hymns.find(h => h.number?.toString() === uploadForm.hymnTitleNumber);
+      
       const { error: insertError } = await supabase
-        .from('AudioFile')
+        .from('audio_tracks')
         .insert({
           id: audioFileId,
-          url: publicUrl,
-          hymnTitleNumber: uploadForm.hymnTitleNumber,
-          audioTypeId: uploadForm.audioTypeId,
-          userId: currentUser.data.user.id
+          file_path: filePath,
+          hymn_id: hymn?.id || null,
+          track_type: 'instrumental',
+          duration_seconds: 0
         });
 
       if (insertError) throw insertError;
@@ -194,10 +184,9 @@ const AudioManager = () => {
         }
       }
 
-      // Delete from appropriate database table
-      const tableName = audioFile.source === 'AudioFile' ? 'AudioFile' : 'uploads';
+      // Delete from audio_tracks table
       const { error: dbError } = await supabase
-        .from(tableName)
+        .from('audio_tracks')
         .delete()
         .eq('id', audioFile.id);
 
@@ -274,8 +263,8 @@ const AudioManager = () => {
                 >
                   <option value="">Select hymn</option>
                   {hymns.map((hymn) => (
-                    <option key={hymn.number} value={hymn.number}>
-                      #{hymn.number} - {hymn.titles?.[0]}
+                    <option key={hymn.id} value={hymn.number}>
+                      #{hymn.number} - {hymn.title}
                     </option>
                   ))}
                 </select>

@@ -57,14 +57,27 @@ const HymnbookBrowser = ({ onSelectHymnbook, selectedHymnbook, onBack }: Hymnboo
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('HymnBook')
-        .select('id, name, description, category, is_active, access_level, added_hymns, card_color, icon_name')
+        .from('hymnbooks')
+        .select('*')
         .order('name');
 
       if (error) throw error;
 
-      setHymnbooks(data || []);
-      setFilteredHymnbooks(data || []);
+      // Map the database schema to our interface
+      const mappedData: Hymnbook[] = (data || []).map(book => ({
+        id: parseInt(book.id) || 0,
+        name: book.name || '',
+        description: book.description || '',
+        category: 'General',
+        is_active: true,
+        access_level: 'public',
+        added_hymns: 0,
+        card_color: null,
+        icon_name: null
+      }));
+
+      setHymnbooks(mappedData);
+      setFilteredHymnbooks(mappedData);
     } catch (error) {
       console.error('Error fetching hymnbooks:', error);
       toast({

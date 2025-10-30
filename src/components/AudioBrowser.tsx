@@ -53,14 +53,14 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
 
   const fetchData = async () => {
     try {
-      // Fetch audio files and lyrics in parallel
-      const [audioResult, lyricsResult] = await Promise.all([
+      // Fetch audio files and hymns in parallel
+      const [audioResult, hymnsResult] = await Promise.all([
         supabase
-          .from('AudioFile')
-          .select('*, url_with_bucket:get_storage_url(bucket_name, url)')
-          .order('createdAt', { ascending: false }),
+          .from('audio_tracks')
+          .select('*')
+          .order('created_at', { ascending: false }),
         supabase
-          .from('HymnLyric')
+          .from('hymns')
           .select('*')
       ]);
 
@@ -74,46 +74,62 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
         return;
       }
 
-      if (lyricsResult.error) {
-        console.error('Error fetching lyrics:', lyricsResult.error);
+      if (hymnsResult.error) {
+        console.error('Error fetching hymns:', hymnsResult.error);
       }
 
-      // Transform AudioFile records to include bucket URLs
-      const transformedAudioFiles = (audioResult.data || []).map(file => ({
-        ...file,
-        url: file.url_with_bucket || file.url
+      const audioTracks = audioResult.data || [];
+      const hymnsData = hymnsResult.data || [];
+
+      // Store the fetched data in component state (mapped to original interfaces)
+      const mappedAudioFiles: AudioFile[] = audioTracks.map(track => ({
+        id: track.id,
+        url: track.file_path,
+        hymnTitleNumber: '', // Will be populated from hymn data
+        userId: '',
+        audioTypeId: 0,
+        createdAt: track.created_at,
+        bookId: 0
       }));
 
-      setAudioFiles(transformedAudioFiles);
-      setHymnLyrics(lyricsResult.data || []);
+      const mappedHymnLyrics: HymnLyric[] = hymnsData.map(hymn => ({
+        id: hymn.number || 0,
+        hymnTitleNumber: hymn.number?.toString() || '',
+        lyrics: { plain: hymn.lyrics_plain, lrc: hymn.lyrics_lrc },
+        bookId: 0,
+        userId: ''
+      }));
+
+      setAudioFiles(mappedAudioFiles);
+      setHymnLyrics(mappedHymnLyrics);
       
-      // Transform AudioFile to Track format with hymn titles and lyrics
-      const transformedTracks: Track[] = transformedAudioFiles.map(file => {
-        // Find matching hymn from the hymns data
-        const hymnData = hymns.find(h => h.number.toString() === file.hymnTitleNumber);
+      // Transform audio tracks to Track format with hymn data
+      const transformedTracks: Track[] = audioTracks.map(track => {
+        // Find matching hymn from database
+        const hymnData = hymnsData.find(h => h.id === track.hymn_id);
         
-        // Find matching lyrics
-        const lyricsData = (lyricsResult.data || []).find(
-          lyric => lyric.hymnTitleNumber === file.hymnTitleNumber && lyric.bookId === file.bookId
-        );
+        // Get storage URL for the audio file
+        const { data: urlData } = supabase.storage
+          .from('audio_files')
+          .getPublicUrl(track.file_path);
 
         return {
-          id: file.id,
-          title: hymnData?.title || `Hymn #${file.hymnTitleNumber}`,
-          url: file.url, // Now using the transformed URL with bucket
-          duration: 225, // Default duration in seconds (number for Track type)
-          artist_name: hymnData?.author || 'HBC Hymns',
-          album_name: `Book ${file.bookId}`,
-          hymnTitleNumber: file.hymnTitleNumber,
-          bookId: file.bookId,
+          id: track.id,
+          title: hymnData?.title || 'Unknown Hymn',
+          url: urlData?.publicUrl || track.file_path,
+          duration: track.duration_seconds || 0,
+          artist_name: hymnData?.author || 'Unknown Artist',
+          album_name: hymnData?.composer || 'Hymnal',
+          hymnTitleNumber: hymnData?.number?.toString() || '',
+          bookId: 0,
           disc_number: 1,
           explicit: false,
           cover_image_url: null,
           release_date: null,
-          track_number: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          bucket_name: file.bucket_name || 'audio_files'
+          track_number: hymnData?.number || null,
+          created_at: track.created_at,
+          updated_at: track.created_at,
+          bucket_name: 'audio_files'
         };
       });
       
@@ -169,28 +185,17 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
 
   const handleShowLyrics = (track: Track) => {
     const lyricsData = hymnLyrics.find(
-      lyric => lyric.hymnTitleNumber === track.hymnTitleNumber && lyric.bookId === track.bookId
+      lyric => lyric.hymnTitleNumber === track.hymnTitleNumber
     );
     
     if (lyricsData && onShowLyrics) {
       onShowLyrics(track.hymnTitleNumber || '', lyricsData.lyrics);
     } else {
-      // Fallback to hymns data if no custom lyrics
-      const hymnData = hymns.find(h => h.number.toString() === track.hymnTitleNumber);
-      if (hymnData && onShowLyrics) {
-        // Convert hymn data to lyrics format
-        const lyricsDataFallback = {
-          verses: hymnData.verses,
-          chorus: hymnData.chorus
-        };
-        onShowLyrics(track.hymnTitleNumber || '', lyricsDataFallback);
-      } else {
-        toast({
-          title: "No Lyrics Available",
-          description: "Lyrics are not available for this hymn.",
-          variant: "default"
-        });
-      }
+      toast({
+        title: "No Lyrics Available",
+        description: "Lyrics are not available for this hymn.",
+        variant: "default"
+      });
     }
   };
 
@@ -228,7 +233,7 @@ const AudioBrowser = ({ onShowLyrics }: AudioBrowserProps) => {
   );
   const tracksWithLyrics = tracks.filter(track => {
     return hymnLyrics.some(lyric => 
-      lyric.hymnTitleNumber === track.hymnTitleNumber && lyric.bookId === track.bookId
+      lyric.hymnTitleNumber === track.hymnTitleNumber
     );
   });
 

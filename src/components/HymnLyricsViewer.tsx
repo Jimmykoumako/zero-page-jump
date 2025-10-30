@@ -46,20 +46,32 @@ const HymnLyricsViewer = ({ onBack, selectedHymnbook }: HymnLyricsViewerProps) =
   const fetchHymnLyrics = async () => {
     try {
       setLoading(true);
-      const bookId = selectedHymnbook?.id || 1;
+      const hymnbookId = selectedHymnbook?.id;
 
-      const { data, error } = await supabase
-        .from('HymnLyric')
+      const query = supabase
+        .from('hymns')
         .select('*')
-        .eq('bookId', bookId)
-        .order('hymnTitleNumber');
+        .order('number');
+
+      if (hymnbookId) {
+        query.eq('hymnbook_id', hymnbookId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
-      // Cast the Json type to LyricsData for each hymn with proper type checking
+      // Map hymns to the HymnLyric interface
       const typedHymns: HymnLyric[] = (data || []).map(hymn => ({
-        ...hymn,
-        lyrics: hymn.lyrics as unknown as LyricsData
+        id: hymn.number || 0,
+        hymnTitleNumber: hymn.number?.toString() || '',
+        lyrics: {
+          order: [],
+          verses: [],
+          choruses: []
+        } as LyricsData,
+        userId: '',
+        bookId: 0
       }));
 
       setHymns(typedHymns);
